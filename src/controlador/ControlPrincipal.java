@@ -1,0 +1,811 @@
+package controlador;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import main.PDFHelper;
+import modelo.Administrado;
+import modelo.Competicion;
+import modelo.Compuesta;
+import modelo.Equipo;
+import modelo.Prueba;
+import modelo.dao.AdministradoJpa;
+import modelo.dao.CompeticionJpa;
+import modelo.dao.CompuestaJpa;
+import modelo.dao.PruebaJpa;
+import modelo.Grupo;
+import modelo.Inscripcion;
+import modelo.Miembro;
+import modelo.Participa;
+import modelo.Persona;
+import modelo.Registro;
+import modelo.dao.EquipoJpa;
+import modelo.dao.GrupoJpa;
+import modelo.dao.InscripcionJpa;
+import modelo.dao.MiembroJpa;
+import modelo.dao.ParticipaJpa;
+import modelo.dao.ParticipanteJpa;
+import modelo.dao.PersonaJpa;
+import modelo.dao.RegistroJpa;
+import modelo.dao.exceptions.IllegalOrphanException;
+import modelo.dao.exceptions.NonexistentEntityException;
+import vista.DialogoCrearCompeticion;
+import vista.EquiposTab;
+import vista.GruposTab;
+import vista.PanelPrincipal;
+import vista.ParticipantesTab;
+import vista.RegistrosTab;
+import vista.VistaPrincipal;
+
+/**
+ *
+ * @author JuanM
+ */
+public class ControlPrincipal implements ActionListener {
+
+    private PanelPrincipal vista;
+
+    private Competicion seleccionada;
+
+    // Vistas de las pestañas
+    private ParticipantesTab participantesTabPanel;
+    private GruposTab gruposTabPanel;
+    private EquiposTab equiposTabPanel;
+    private RegistrosTab registrosTabPanel;
+
+    // Controladores de las pestañas
+    private ControlGrupos controlGrupos;
+    private ControlParticipantes controlParticipantes;
+    private ControlEquipos controlEquipos;
+    private ControlRegistros controlRegistros;
+    private final ControlPruebas controlPruebas;
+
+    public ControlPrincipal(PanelPrincipal vista) {
+        this.vista = vista;
+        controlPruebas = new ControlPruebas(vista.getGeneralTabPanel());
+        vista.getGeneralTabPanel().controlador(controlPruebas);
+        seleccionada = null;
+    }
+
+    // GETTERS AND SETTERS
+    public GruposTab getGruposTabPanel() {
+        return gruposTabPanel;
+    }
+
+    public ParticipantesTab getParticipantesTabPanel() {
+        return participantesTabPanel;
+    }
+
+    public EquiposTab getEquiposTabPanel() {
+        return equiposTabPanel;
+    }
+
+    public RegistrosTab getRegistrosTabPanel() {
+        return registrosTabPanel;
+    }
+
+    public void setParticipantesTabPanel(ParticipantesTab participantesTabPanel) {
+        this.participantesTabPanel = participantesTabPanel;
+    }
+
+    public void setGruposTabPanel(GruposTab gruposTabPanel) {
+        this.gruposTabPanel = gruposTabPanel;
+    }
+
+    public void setEquiposTabPanel(EquiposTab equiposTabPanel) {
+        this.equiposTabPanel = equiposTabPanel;
+    }
+
+    public void setRegistrosTabPanel(RegistrosTab registrosTabPanel) {
+        this.registrosTabPanel = registrosTabPanel;
+    }
+
+    public Competicion getSeleccionada() {
+        return seleccionada;
+    }
+
+    public void setSeleccionada(Competicion seleccionada) {
+        this.seleccionada = seleccionada;
+    }
+
+    public VistaPrincipal getVista() {
+        return vista;
+    }
+
+    public void setVista(PanelPrincipal vista) {
+        this.vista = vista;
+    }
+
+    /**
+     * Devuelve una lista con el nombre de todas las competiciones
+     *
+     * @return List<String>
+     */
+    public static List<String> getCompeticiones() {
+        List<String> res;
+        CompeticionJpa compjpa = new CompeticionJpa();
+        res = compjpa.findAllCompeticionNames();
+        return res;
+    }
+
+    /**
+     * Devuelve un objeto Competicion a partir del nombre de la competicion
+     *
+     * @param nombre Nombre de la competicion
+     * @return Competicion
+     */
+    public static Competicion getCompeticion(String nombre) {
+        Competicion res;
+        CompeticionJpa compjpa = new CompeticionJpa();
+        res = compjpa.findCompeticionByName(nombre);
+        return res;
+    }
+
+    /**
+     * Establece como seleccionada a la competicion cuyo nombre es el pasado
+     * como parámetro y cargar los datos en el TabGeneral
+     *
+     * @param nombreCompeticion Nombre de la competicion
+     */
+    public void cargarCompeticionGeneral(String nombreCompeticion) {
+        this.seleccionada = getCompeticion(nombreCompeticion);
+        vista.cargarCompeticionTabGeneral();
+
+    }
+
+    /**
+     * Elimina la Competicion y todo sus datos (grupos, participantes,
+     * resultados) dado su nombre
+     *
+     * @param nombreCompeticion Nombre de la competicion
+     * @return
+     */
+    public boolean eliminarCompeticion(String nombreCompeticion) {
+
+        CompeticionJpa competicionjpa = new CompeticionJpa();
+        AdministradoJpa admjpa = new AdministradoJpa();
+        CompuestaJpa compuestajpa = new CompuestaJpa();
+        PruebaJpa pruebajpa = new PruebaJpa();
+        InscripcionJpa inscripcionjpa = new InscripcionJpa();
+        GrupoJpa grupojpa = new GrupoJpa();
+        RegistroJpa registrosjpa = new RegistroJpa();
+
+        // Obtenemos la competicion y la lista de todos sus componentes
+        // relacionados
+        Competicion c = competicionjpa.findCompeticionByName(nombreCompeticion);
+        List<Compuesta> compuesta = compuestajpa.findCompuestaByCompeticion(c.getId());
+        List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticon(c);
+        List<Integer> gruposIds = new ArrayList<>();
+        List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(seleccionada.getId());
+
+        try {
+
+            // Eliminamos todos los permisos de administración
+            for (Administrado temp : administra) {
+                admjpa.destroy(temp.getId());
+            }
+            // Eliminamos todas las inscripciones de la competición
+            for (Inscripcion insc : inscripciones) {
+                gruposIds.add(insc.getGrupoId().getId());
+                List<Registro> registros = registrosjpa.findByInscripcion(insc.getId());
+                if (registros != null) {
+                    // Eliminamos todos los registros
+                    for (Registro r : registros) {
+                        registrosjpa.destroy(r.getId());
+                    }
+                }
+                inscripcionjpa.destroy(insc.getId());
+            }
+            // Eliminamos todas las pruebas
+            for (Compuesta comp : compuesta) {
+                compuestajpa.destroy(comp.getId());
+                pruebajpa.destroy(comp.getPruebaId().getId());
+            }
+            // Eliminamos todos los grupos y sus participantes
+            for (Integer g : gruposIds) {
+                Grupo grupo = grupojpa.findGrupo(g);
+                if (grupo != null) {
+                    if (grupo.getInscripcionCollection().isEmpty()
+                            && grupo.getGrupoId() == null) {
+                        eliminarGrupo(grupo);
+                    }
+                }
+            }
+            // Eliminamos la competición
+            competicionjpa.destroy(c.getId());
+        } catch (modelo.dao.exceptions.NonexistentEntityException |
+                modelo.dao.exceptions.IllegalOrphanException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Elimina un grupo g y todos sus subgrupos, participantes y registros
+     *
+     * @param g Grupo a eliminar
+     */
+    public void eliminarGrupo(Grupo g) {
+        GrupoJpa grupojpa = new GrupoJpa();
+        InscripcionJpa inscrjpa = new InscripcionJpa();
+        RegistroJpa registrosjpa = new RegistroJpa();
+
+        // Obtenemos la lista de subgrupos y los eliminamos
+        List<Grupo> subgrupos = grupojpa.findGrupoByGrupoId(g.getId());
+        for (Grupo subgrupo : subgrupos) {
+            eliminarGrupo(subgrupo);
+        }
+        try {
+            Inscripcion i = inscrjpa.findInscripcionByCompeticionByGrupo(
+                    seleccionada.getId(), g.getId());
+            if (i != null) {
+                // Obtenemos los registros de este grupo y los eliminamos
+                List<Registro> registros = registrosjpa.findByInscripcion(i.getId());
+                if (registros != null) {
+                    for (Registro r : registros) {
+                        registrosjpa.destroy(r.getId());
+                    }
+                }
+                // Eliminamos la inscripción en este grupo
+                inscrjpa.destroy(i.getId());
+            }
+            // Eliminamos los participantes
+            eliminarParticipantes(g);
+            // Eliminamos el grupo
+            grupojpa.destroy(g.getId());
+        } catch (IllegalOrphanException | NonexistentEntityException ex) {
+
+        }
+    }
+
+    /**
+     * Elimina los participantes de un grupo g (No elimina los registros)
+     *
+     * @param g Grupo al que pertenecen los participantes
+     */
+    public void eliminarParticipantes(Grupo g) {
+        ParticipaJpa participajpa = new ParticipaJpa();
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        PersonaJpa personajpa = new PersonaJpa();
+
+        // Elimina los equipos
+        eliminarEquiposGrupo(g);
+        try {
+            // Obtenemos las participaciones individuales
+            List<Participa> participa = participajpa.findPersonasByGrupo(g.getId());
+            // Por cada participacion individual
+            for (Participa part : participa) {
+                Integer personaId = part.getParticipanteId().getPersonaId().getId();
+                Integer participanteId = part.getParticipanteId().getId();
+                // Eliminamos la participación y el participante
+                participajpa.destroy(part.getId());
+                participantejpa.destroy(participanteId);
+                if (personajpa.findPersona(personaId).getParticipanteCollection().isEmpty()) {
+                    personajpa.destroy(personaId);
+                }
+            }
+        } catch (IllegalOrphanException | NonexistentEntityException ex) {
+
+        }
+    }
+
+    /**
+     * Elimina todos los equipos de un grupo g (No sus participantes)
+     *
+     * @param g Grupo al que pertenecen los equipos
+     */
+    public void eliminarEquiposGrupo(Grupo g) {
+        ParticipaJpa participajpa = new ParticipaJpa();
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        MiembroJpa miembrojpa = new MiembroJpa();
+        EquipoJpa equipojpa = new EquipoJpa();
+
+        try {
+
+            // Obtenemos la lista de equipos que participan en el grupo g
+            List<Participa> participaEquipos = participajpa.findEquiposByGrupo(g.getId());
+            // Por cada participacion de un equipo
+            for (Participa part : participaEquipos) {
+                Integer participanteId = part.getParticipanteId().getId();
+                Integer equipoId = part.getParticipanteId().getEquipoId().getId();
+                participajpa.destroy(part.getId());
+                participantejpa.destroy(participanteId);
+                List<Miembro> miembros = miembrojpa.findByEquipo(equipoId);
+                // Elimina los miembros del equipo
+                for (Miembro m : miembros) {
+                    miembrojpa.destroy(m.getId());
+                }
+                // Elimina el equipo
+                equipojpa.destroy(equipoId);
+            }
+        } catch (NonexistentEntityException | IllegalOrphanException ex) {
+
+        }
+    }
+
+
+    /*public void cargarPruebasComboBox() {
+     PruebaJpa pruebajpa = new PruebaJpa();
+
+     List<Prueba> pruebas = pruebajpa.findPruebasByNotCompeticon(seleccionada);
+     vista.getGeneralTabPanel().getPruebasComboBox().removeAllItems();
+     if (pruebas != null) {
+     for (Prueba p : pruebas) {
+     vista.getGeneralTabPanel().getPruebasComboBox().addItem(p.getNombre());
+     }
+     }
+     }*/
+    /**
+     * Obtiene una lista de los Grupos de una Competicion c
+     *
+     * @param c Competicion
+     * @return List<Grupo> Lista de grupos
+     */
+    public List<Grupo> gruposByCompeticion(Competicion c) {
+        GrupoJpa grupojpa = new GrupoJpa();
+        List<Grupo> grupos = grupojpa.findGruposByCompeticon(c);
+        return grupos;
+    }
+
+    /**
+     * Carga en el comboBox de Tab de Equipos los grupos de la competicion
+     * seleccionada
+     */
+    public void cargarGruposEnEquipos() {
+        List<Grupo> grupos = gruposByCompeticion(seleccionada);
+        equiposTabPanel.getGruposComboBox().removeAllItems();
+        if (grupos != null) {
+            for (Grupo g : grupos) {
+                equiposTabPanel.getGruposComboBox().addItem(g.getNombre());
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Registros los grupos de la competición seleccionada
+     */
+    public void cargarGruposEnRegistros() {
+        List<Grupo> grupos = gruposByCompeticion(seleccionada);
+        registrosTabPanel.getGruposComboBox().removeAllItems();
+        registrosTabPanel.getFiltroGrupoComboBox().removeAllItems();
+        registrosTabPanel.getFiltroGrupoComboBox().addItem("Todos");
+        if (grupos != null) {
+            for (Grupo g : grupos) {
+                registrosTabPanel.getFiltroGrupoComboBox().addItem(g.getNombre());
+                registrosTabPanel.getGruposComboBox().addItem(g.getNombre());
+            }
+        }
+    }
+
+    /**
+     * Carga en el tab de Registros las pruebas de la competición seleccionada
+     */
+    public void cargarPruebasEnRegistros() {
+        PruebaJpa pruebajpa = new PruebaJpa();
+        List<Prueba> pruebas = pruebajpa.findPruebasByCompeticon(seleccionada);
+        registrosTabPanel.getPruebasComboBox().removeAllItems();
+        registrosTabPanel.getFiltroPruebasComboBox().removeAllItems();
+        registrosTabPanel.getFiltroPruebasComboBox().addItem("Todas");
+        if (pruebas != null) {
+            for (Prueba p : pruebas) {
+                registrosTabPanel.getPruebasComboBox().addItem(p.getNombre());
+                registrosTabPanel.getFiltroPruebasComboBox().addItem(p.getNombre());
+            }
+        }
+    }
+
+    /**
+     * Carga en el comboBox del Tab de Grupos los subGrupos disponibles
+     */
+    public void cargarSubGruposComboBox() {
+
+        List<Grupo> grupos = gruposByCompeticion(seleccionada);
+        gruposTabPanel.getSubgrupoDeComboBox().removeAllItems();
+        if (grupos != null) {
+            gruposTabPanel.getSubgrupoDeComboBox().addItem("Ninguno");
+            for (Grupo g : grupos) {
+                gruposTabPanel.getSubgrupoDeComboBox().addItem(g.getNombre());
+            }
+        }
+    }
+
+    /**
+     * Carga la tabla de Equipos de la competición seleccionada
+     */
+    public void cargarTablaEquipos() {
+        EquipoJpa equipojpa = new EquipoJpa();
+        // Obtenemos la lista de equipos
+        List<Equipo> equipos = equipojpa.findByCompeticion(Coordinador.getInstance().getSeleccionada().getId());
+        GrupoJpa grupojpa = new GrupoJpa();
+
+        // Limpiamos la tabla
+        int count = equiposTabPanel.getModeloEquiposTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            equiposTabPanel.getModeloEquiposTable().removeRow(0);
+        }
+
+        // Añadimos una fila por cada equipo
+        if (equipos != null) {
+            for (Equipo e : equipos) {
+                Grupo g = grupojpa.findByEquipoCompeticion(
+                        Coordinador.getInstance().getSeleccionada().getId(),
+                        e.getId());
+                equiposTabPanel.getModeloEquiposTable().addRow(new Object[]{
+                    e.getId(),
+                    e.getNombre(),
+                    g.getNombre(),
+                    e.getMiembroCollection().size()});
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Registros los registros pasados como parámetro
+     *
+     * @param registros Lista de registros que se cargarán en la tabla
+     */
+    public void cargarTablaRegistros(List<Registro> registros) {
+
+        // Limpia la tabla
+        int count = registrosTabPanel.getModeloRegistrosTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            registrosTabPanel.getModeloRegistrosTable().removeRow(0);
+        }
+
+        if (registros != null) {
+            String participante;
+            SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
+            // Por cada registro crea una fila con sus datos
+            for (Registro r : registros) {
+                if (r.getParticipanteId().getEquipoId() != null) {
+                    participante = r.getParticipanteId().getEquipoId().getNombre() + " (E)";
+                    registrosTabPanel.getModeloRegistrosTable().addRow(
+                            new Object[]{r.getId(),
+                                "#",
+                                participante,
+                                r.getPruebaId().getNombre() + (r.getSorteo() == 1
+                                ? " (Sorteo)" : ""),
+                                r.getPruebaId().getTiporesultado().equals("Tiempo")
+                                ? dt.format(r.getTiempo()).toString()
+                                : r.getNum(), r.getNumIntento()});
+                } else {
+                    participante = r.getParticipanteId().getPersonaId().getApellidos()
+                            + ", " + r.getParticipanteId().getPersonaId().getNombre();
+                    registrosTabPanel.getModeloRegistrosTable().addRow(
+                            new Object[]{r.getId(),
+                                r.getParticipanteId().getPersonaId().getDorsal(),
+                                participante,
+                                r.getPruebaId().getNombre() + (r.getSorteo() == 1
+                                ? " (Sorteo)" : ""),
+                                r.getPruebaId().getTiporesultado().equals("Tiempo")
+                                ? dt.format(r.getTiempo()).toString()
+                                : r.getNum(), r.getNumIntento()});
+                }
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Grupos la tabla de grupos de la competición
+     * seleccionada
+     */
+    public void cargarTablaGrupos() {
+
+        // Obtenemos la lista de grupos de la competición seleccionada
+        GrupoJpa grupojpa = new GrupoJpa();
+        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+
+        //Limpia la tabla
+        int count = gruposTabPanel.getModeloGruposTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            gruposTabPanel.getModeloGruposTable().removeRow(0);
+        }
+
+        // Añade una fila por cada grupo
+        if (grupos != null) {
+            for (Grupo g : grupos) {
+                gruposTabPanel.getModeloGruposTable().addRow(
+                        new Object[]{g.getId(),
+                            g.getNombre(),
+                            g.getGrupoId() != null
+                            ? g.getGrupoId().getNombre() : null});
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Participantes el comboBox de Grupos
+     */
+    public void cargarGruposEnParticipantes() {
+
+        // Obtenemos la lista de grupos de la competición seleccionada
+        GrupoJpa grupojpa = new GrupoJpa();
+        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+
+        // Limpiamos el combobox
+        participantesTabPanel.getGrupoComboBox().removeAllItems();
+        // Añadimos el nombre de cada grupo al combobox
+        if (grupos != null) {
+            for (Grupo g : grupos) {
+                participantesTabPanel.getGrupoComboBox().addItem(g.getNombre());
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Participantes el comboBox de Equipos
+     *
+     * @param grupo Nombre del grupo
+     */
+    public void cargarEquipoEnParticipantes(String grupo) {
+        EquipoJpa equipojpa = new EquipoJpa();
+        GrupoJpa grupojpa = new GrupoJpa();
+
+        // Obtenemos el grupo por el nombre
+        Grupo g = grupojpa.findGrupoByNombre(grupo);
+        if (g != null) {
+            // Obtenemos la lista de equipos del grupo anterior
+            List<Equipo> equipos = equipojpa.findByGrupo(g.getId());
+            // Limpiamos el comboBox
+            participantesTabPanel.getEquipoComboBox().removeAllItems();
+            // Añadimos el nombre de cada equipo y un componente "Ninguno"
+            if (equipos != null) {
+                participantesTabPanel.getEquipoComboBox().addItem("Ninguno");
+                for (Equipo e : equipos) {
+                    participantesTabPanel.getEquipoComboBox().addItem(e.getNombre());
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Carga en el tab de Registros el comboBox de participantes (individuales)
+     *
+     * @param grupo Nombre del grupo al que pertenecen los participantes
+     * @param nombrePrueba Nombre de la prueba. Se utiliza para saber si es
+     * individual o en equipo
+     */
+    public void cargarParticipantesEnRegistros(String grupo, String nombrePrueba) {
+
+        GrupoJpa grupojpa = new GrupoJpa();
+        PruebaJpa pruebajpa = new PruebaJpa();
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        // Obtenemos el grupo a partir del nombre
+        Grupo g = grupojpa.findGrupoByNombre(grupo);
+        // Obtenemos la prueba a partir del nombre
+        Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, seleccionada.getId());
+        if (g != null && prueba != null) {
+            if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
+                // Obtenemos todas las personas de este grupo
+                List<Persona> personas = participantejpa.findPersonaByGrupo(g.getId());
+                // Limpiamos el combobox
+                registrosTabPanel.getParticipantesComboBox().removeAllItems();
+                // Añadimos cada participante 
+                if (personas != null) {
+                    for (Persona p : personas) {
+                        registrosTabPanel.getParticipantesComboBox().addItem(
+                                p.getDorsal() + ": " + p.getApellidos()
+                                + ", " + p.getNombre());
+                    }
+                }
+            } else {
+                EquipoJpa equipojpa = new EquipoJpa();
+                // Obtenemos los equipos de ese grupo
+                List<Equipo> equipos = equipojpa.findByGrupo(g.getId());
+
+                // Limpiamos el comboBox
+                registrosTabPanel.getParticipantesComboBox().removeAllItems();
+                // Añadimos el nombre de cada equipo 
+                if (equipos != null) {
+                    for (Equipo e : equipos) {
+                        registrosTabPanel.getParticipantesComboBox().addItem(e.getNombre());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Carga en el tab de participantes la tabla de participantes
+     */
+    public void cargarTablaParticipantes() {
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        GrupoJpa grupojpa = new GrupoJpa();
+        MiembroJpa miembrojpa = new MiembroJpa();
+
+        // Obtenemos una lista de grupos de la competición seleccionada
+        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+
+        // Limpiamos la tabla
+        int count = participantesTabPanel.getModeloParticipantesTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            participantesTabPanel.getModeloParticipantesTable().removeRow(0);
+        }
+        // Añadimos una fila por cada participante con sus datos
+        if (grupos != null) {
+            for (Grupo g : grupos) {
+                List<Persona> particip = participantejpa.findPersonaByGrupo(g.getId());
+                for (Persona p : particip) {
+                    Miembro m = miembrojpa.findByPersonaGrupo(p.getId(), g.getId());
+                    participantesTabPanel.getModeloParticipantesTable().addRow(
+                            new Object[]{p.getId(),
+                                p.getDorsal(),
+                                p.getApellidos(),
+                                p.getNombre(),
+                                g.getNombre(),
+                                m != null
+                                ? m.getEquipoId().getNombre()
+                                : "Ninguno"});
+                }
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        String command = ae.getActionCommand();
+        switch (command) {
+            case VistaPrincipal.CREARCOMPETICION:
+
+                // Abrimos un diálogo para crear la competición
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        DialogoCrearCompeticion dialog
+                                = new DialogoCrearCompeticion("Crear competición",
+                                        new javax.swing.JFrame(), true);
+                        dialog.setMinimumSize(new Dimension(650, 400));
+                        Dimension dimension
+                                = Toolkit.getDefaultToolkit().getScreenSize();
+                        dialog.setLocation(dimension.width / 2
+                                - dialog.getSize().width / 2, dimension.height / 2 - dialog.getSize().height / 2);
+                        ActionListener controladorDialog = new ControlCrearCompeticion(dialog);
+                        dialog.controlador(controladorDialog);
+                        dialog.setVisible(true);
+                    }
+                });
+                break;
+            case VistaPrincipal.MODIFICARCOMPETICION:
+                // Abrimos un diálogo para modificar la competición
+                if (vista.getCompeticionSelected() != null) {
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            DialogoCrearCompeticion dialog
+                                    = new DialogoCrearCompeticion(
+                                            "Modificar competición",
+                                            new javax.swing.JFrame(), true);
+                            dialog.setMinimumSize(new Dimension(650, 400));
+                            Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+                            dialog.setLocation(dimension.width / 2
+                                    - dialog.getSize().width / 2, dimension.height / 2 - dialog.getSize().height / 2);
+                            ActionListener controladorDialog = new ControlModificarCompeticion(dialog);
+                            dialog.controlador(controladorDialog);
+                            seleccionada = getCompeticion(vista.getCompeticionSelected());
+                            dialog.cargarDatosCompeticion(seleccionada);
+                            dialog.setVisible(true);
+                        }
+                    });
+                }
+                break;
+            case VistaPrincipal.ELIMINARCOMPETICION:
+                // Mostramos un mensaje de confirmación
+                int confirmDialog = JOptionPane.showConfirmDialog(null,
+                        "¿Está seguro de que desea eliminar la competición seleccionada?",
+                        "Aviso",
+                        JOptionPane.YES_NO_OPTION);
+                if (confirmDialog == JOptionPane.YES_OPTION) {
+                    // Confirmación aceptada
+                    if (vista.getCompeticionSelected() != null) {
+                        // Eliminamos la competición
+                        if (eliminarCompeticion(vista.getCompeticionSelected())) {
+                            // Actualizamos la vista
+                            vista.eliminarCompeticionSeleccionada();
+                            vista.getTabbedPane().setSelectedIndex(0);
+                            Coordinador.getInstance().setEstadoLabel(
+                                    "Competición eliminada correctamente",
+                                    Color.BLUE);
+                            if (participantesTabPanel != null) {
+                                vista.getTabbedPane().removeTabAt(
+                                        vista.getTabbedPane().indexOfTab("Participantes"));
+                                participantesTabPanel = null;
+                            }
+                            if (gruposTabPanel != null) {
+                                vista.getTabbedPane().removeTabAt(
+                                        vista.getTabbedPane().indexOfTab("Grupos"));
+                                gruposTabPanel = null;
+                            }
+                            if (equiposTabPanel != null) {
+                                vista.getTabbedPane().removeTabAt(
+                                        vista.getTabbedPane().indexOfTab("Equipos"));
+                                equiposTabPanel = null;
+                            }
+                            if (registrosTabPanel != null) {
+                                vista.getTabbedPane().removeTabAt(
+                                        vista.getTabbedPane().indexOfTab("Registros"));
+                                registrosTabPanel = null;
+                            }
+                        }
+                        Coordinador.getInstance().getControladorPrincipal().vista.limpiarDatosCompeticion();
+                    }
+                }
+                break;
+
+            case VistaPrincipal.ABRIRPARTICIPANTES:
+                if (seleccionada != null) {
+                    if (participantesTabPanel == null) {
+                        participantesTabPanel = new ParticipantesTab();
+                        controlParticipantes = new ControlParticipantes(participantesTabPanel);
+                        participantesTabPanel.controlador(controlParticipantes);
+                        vista.getTabbedPane().addTab("Participantes", participantesTabPanel);
+                    }
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("Participantes"));
+                }
+                break;
+            case VistaPrincipal.ABRIRREGISTROS:
+                if (seleccionada != null) {
+                    if (registrosTabPanel == null) {
+                        registrosTabPanel = new RegistrosTab();
+                        controlRegistros = new ControlRegistros((registrosTabPanel));
+                        registrosTabPanel.controlador(controlRegistros);
+                        vista.getTabbedPane().addTab("Registros", registrosTabPanel);
+                    }
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("Registros"));
+                    Coordinador.getInstance().getControladorPrincipal().registrosTabPanel.limpiarFormulario();
+                }
+                break;
+            case VistaPrincipal.ABRIRGRUPOS:
+                if (seleccionada != null) {
+                    if (gruposTabPanel == null) {
+                        gruposTabPanel = new GruposTab();
+                        controlGrupos = new ControlGrupos(gruposTabPanel);
+                        gruposTabPanel.controlador(controlGrupos);
+                        vista.getTabbedPane().addTab("Grupos", gruposTabPanel);
+                    }
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("Grupos"));
+                }
+                break;
+            case VistaPrincipal.ABRIREQUIPOS:
+                if (seleccionada != null) {
+                    if (equiposTabPanel == null) {
+                        equiposTabPanel = new EquiposTab();
+                        controlEquipos = new ControlEquipos(equiposTabPanel);
+                        equiposTabPanel.controlador(controlEquipos);
+                        vista.getTabbedPane().addTab("Equipos", equiposTabPanel);
+                    }
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("Equipos"));
+                }
+                break;
+            case VistaPrincipal.ABRIRPRUEBAS:
+                if (seleccionada != null) {
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("General"));
+                }
+                break;
+            case VistaPrincipal.IMPRIMIRPDF:
+                if (PDFHelper.imprimirResultadosPDF()) {
+                    Coordinador.getInstance().setEstadoLabel(
+                            "Resultados imprimidos correctamente", Color.BLUE);
+                } else {
+                    Coordinador.getInstance().setEstadoLabel(
+                            "Impresión cancelada", Color.RED);
+                }
+                break;
+        }
+    }
+
+}
