@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
@@ -32,7 +33,7 @@ public class PanelLogin extends JPanel implements VistaLogin {
     private JPasswordField contraseñaJPF;
     private JButton iniciarsesionJB;
     private JLabel estadoJL;
-    
+
     public PanelLogin() {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");  // Pone el estilo visual de Windows
@@ -40,13 +41,12 @@ public class PanelLogin extends JPanel implements VistaLogin {
             Logger.getLogger(PanelLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
         initComponents();
-        
+
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
-        
-        
-        jpcontenido = new JPanel(new GridLayout(3,1,5,5));
-        jpcontenido.setBorder(new EmptyBorder(20, 20, 20, 20) );
+
+        jpcontenido = new JPanel(new GridLayout(3, 1, 5, 5));
+        jpcontenido.setBorder(new EmptyBorder(20, 20, 20, 20));
         jpcontenido.setBackground(Color.WHITE);
         usuarioJL = new JLabel("Nombre de usuario");
         contraseñaJL = new JLabel("Contraseña");
@@ -54,8 +54,7 @@ public class PanelLogin extends JPanel implements VistaLogin {
         contraseñaJPF = new JPasswordField(20);
         iniciarsesionJB = new JButton("Iniciar Sesión");
         estadoJL = new JLabel("");
-        
-        
+
         this.add(jpcontenido, constraints);
         jpcontenido.add(usuarioJL);
         jpcontenido.add(usuarioJTF);
@@ -63,9 +62,9 @@ public class PanelLogin extends JPanel implements VistaLogin {
         jpcontenido.add(contraseñaJPF);
         jpcontenido.add(iniciarsesionJB);
         jpcontenido.add(estadoJL);
-        
+
     }
-    
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -75,7 +74,7 @@ public class PanelLogin extends JPanel implements VistaLogin {
         int ancho = this.getWidth();
         int alto = this.getHeight();
         GradientPaint gp = new GradientPaint(
-            0, 0, color1, 0, alto, color2);
+                0, 0, color1, 0, alto, color2);
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, ancho, alto);
     }
@@ -104,8 +103,14 @@ public class PanelLogin extends JPanel implements VistaLogin {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-
     
+    
+    
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        SwingUtilities.getRootPane(iniciarsesionJB).setDefaultButton(iniciarsesionJB);
+    }
 
     @Override
     public void controlador(ActionListener al) {

@@ -21,7 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;  
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -62,7 +62,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     private JButton imprimirButton;
     private JLabel listaCompeticionesLabel;
     private JProgressBar progressBar;
-    
+
     /**
      * Creates new form PanelPrincipal
      */
@@ -75,28 +75,28 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         // BARRA DE TAREAS
         barraHerramientasPanel = new JPanel();
         barraHerramientasPanel.setLayout(new FlowLayout());
-        
+
         crearcompeticionButton = new JButton("Crear competición");
         crearcompeticionButton = new JButton("Crear competición");
         crearcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         crearcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         crearcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/img/añadircompeticion.png")));
         barraHerramientasPanel.add(crearcompeticionButton);
-        
+
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         modificarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         modificarcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/img/modificarCompeticion.png")));
         barraHerramientasPanel.add(modificarcompeticionButton);
-        
-        eliminarcompeticionButton = new JButton("Eliminar");        
+
+        eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         eliminarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         eliminarcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/img/borrarCompeticion.png")));
         barraHerramientasPanel.add(eliminarcompeticionButton);
-        
+
         pruebasButton = new JButton("Pruebas");
         pruebasButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         pruebasButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -126,7 +126,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         registrosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         registrosButton.setIcon(new ImageIcon(getClass().getResource("/img/registro.png")));
         barraHerramientasPanel.add(registrosButton);
-        
+
         imprimirButton = new JButton("Imprimir Resultados");
         imprimirButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         imprimirButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -151,7 +151,6 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.weightx = 0;
 
         // BOTON DE AÑADIR COMPETICION
-        
         constraints.gridx = 0;
         constraints.gridy = 3;
         constraints.gridwidth = 2;
@@ -162,18 +161,17 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         // BOTONES DE ELIMINAR Y MODIFCAR COMPETICION
         modElimButtonPanel = new JPanel(new GridLayout(1, 2));
-        
-        /*modElimButtonPanel.add(modificarcompeticionButton);
-        modElimButtonPanel.add(eliminarcompeticionButton);
 
-        constraints.gridx = 0;
-        constraints.gridy = 4;
-        constraints.gridwidth = 2;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.WEST;
-        this.add(modElimButtonPanel, constraints);*/
-        
+        /*modElimButtonPanel.add(modificarcompeticionButton);
+         modElimButtonPanel.add(eliminarcompeticionButton);
+
+         constraints.gridx = 0;
+         constraints.gridy = 4;
+         constraints.gridwidth = 2;
+         constraints.gridheight = 1;
+         constraints.fill = GridBagConstraints.HORIZONTAL;
+         constraints.anchor = GridBagConstraints.WEST;
+         this.add(modElimButtonPanel, constraints);*/
         listaCompeticionesLabel = new JLabel("Lista de competiciones");
         //listaCompeticionesLabel.setFont(new Font("TimesRoman", Font.BOLD, 14));
         constraints.gridx = 0;
@@ -182,7 +180,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.CENTER;
-        constraints.insets = new Insets(5,15,5,15);
+        constraints.insets = new Insets(5, 15, 5, 15);
         this.add(listaCompeticionesLabel, constraints);
 
         // LISTA DE COMPETICIONES
@@ -197,19 +195,18 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
             public void valueChanged(ListSelectionEvent lse) {
                 if (!lse.getValueIsAdjusting()) {
 
-                    
                     Coordinador.getInstance().getControladorPrincipal().cargarCompeticionGeneral(getCompeticionSelected());
 
                     // Cargar Tab general
                     cargarTablaPruebas();
                     tabbedPane.setSelectedIndex(0);
-                    
-                    if(getCompeticionSelected()!=null){
+
+                    if (getCompeticionSelected() != null) {
                         habilitarBotones(true);
-                    }else{
+                    } else {
                         habilitarBotones(false);
                     }
-                    
+
                 }
             }
         }));
@@ -222,15 +219,14 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weighty = 1.0;
-        constraints.insets = new Insets(5,5,0,5);
+        constraints.insets = new Insets(5, 5, 0, 5);
         this.add(listaScrollPane, constraints);
         constraints.weighty = 0.0;
-        constraints.insets = new Insets(0,0,0,0);
-        
-        
+        constraints.insets = new Insets(0, 0, 0, 0);
+
         // BARRA INFERIOR
         barraInferiorPanel = new JPanel(new FlowLayout());
-        
+
         estadoEtiquetaLabel = new JLabel("Estado: ");
         estadoLabel = new JLabel();
         constraints.gridx = 0;
@@ -242,17 +238,15 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.anchor = GridBagConstraints.WEST;
         barraInferiorPanel.add(estadoEtiquetaLabel);
         barraInferiorPanel.add(estadoLabel);
-        
-        progressBar = new JProgressBar(0,100);
+
+        progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
         barraInferiorPanel.add(progressBar);
-        progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
-        
+        progressBar.setVisible(false);
+        //progressBar.setIndeterminate(true);
+
         this.add(barraInferiorPanel, constraints);
         constraints.weightx = 0;
-        
-        
 
         // CONTENIDO PRINCIPAL
         tabbedPane = new JTabbedPane();
@@ -262,26 +256,26 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         tabbedPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 int sele = tabbedPane.getSelectedIndex();
-                
-                if(sele == tabbedPane.indexOfTab("Participantes")){
+
+                if (sele == tabbedPane.indexOfTab("Participantes")) {
                     //System.out.println("Pestaña participantes seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().getParticipantesTabPanel().clearSelectionParticipante();
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
-                }else if(sele == tabbedPane.indexOfTab("Grupos")){
+                } else if (sele == tabbedPane.indexOfTab("Grupos")) {
                     //System.out.println("Pestaña grupos seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaGrupos();
-                }else if(sele == tabbedPane.indexOfTab("Equipos")){
+                } else if (sele == tabbedPane.indexOfTab("Equipos")) {
                     //System.out.println("Pestaña equipos seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaEquipos();
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnEquipos();
-                }else if(sele == tabbedPane.indexOfTab("Registros")){
+                } else if (sele == tabbedPane.indexOfTab("Registros")) {
                     //System.out.println("Pestaña registros seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnRegistros();
                     Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnRegistros();
-                    Coordinador.getInstance().limpiarTablaRegistros();           
-                }else if(sele == tabbedPane.indexOfTab("General")){
+                    Coordinador.getInstance().limpiarTablaRegistros();
+                } else if (sele == tabbedPane.indexOfTab("General")) {
                     Coordinador.getInstance().cargarTablaPruebasCompeticion(Coordinador.getInstance().getSeleccionada());
                 }
             }
@@ -345,10 +339,10 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         equiposButton.addActionListener(al);
         equiposButton.setActionCommand(ABRIREQUIPOS);
-        
+
         pruebasButton.addActionListener(al);
         pruebasButton.setActionCommand(ABRIRPRUEBAS);
-        
+
         imprimirButton.addActionListener(al);
         imprimirButton.setActionCommand(IMPRIMIRPDF);
     }
@@ -369,26 +363,25 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
             generalTabPanel.setLugar(c.getCiudad());
             generalTabPanel.setOrganizador(c.getOrganizador());
             SimpleDateFormat textFormat = new SimpleDateFormat("dd-MM-yyyy");
-            if(c.getFechainicio()!= null){
-                
+            if (c.getFechainicio() != null) {
+
                 generalTabPanel.setFechaInicio(textFormat.format(c.getFechainicio()));
             } else {
                 generalTabPanel.setFechaInicio("");
             }
-            if(c.getFechafin()!= null)
-            {
+            if (c.getFechafin() != null) {
                 generalTabPanel.setFechaFin(textFormat.format(c.getFechafin()));
-            }else {
+            } else {
                 generalTabPanel.setFechaFin("");
             }
-            if(c.getImagen()!=null && c.getImagen().length()>0){
+            if (c.getImagen() != null && c.getImagen().length() > 0) {
                 //System.out.println("Ruta : " + System.getProperty("user.dir") + "/src/img/" + c.getImagen());
                 generalTabPanel.setImagen(System.getProperty("user.dir") + "/src/img/" + c.getImagen());
-            }else{
+            } else {
                 //System.out.println(getClass().getResource("/img/image_not_found.jpg").toString());
                 generalTabPanel.setImagen(getClass().getResource("/img/image_not_found.jpg"));
             }
-            
+
         } else {
             generalTabPanel.getNombreCompeticion().setText("");
         }
@@ -444,14 +437,14 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     }
 
     /*@Override
-    public String getNamePrueba() {
-        return generalTabPanel.getNombrePruebaTextField().getText().toString();
-    }
+     public String getNamePrueba() {
+     return generalTabPanel.getNombrePruebaTextField().getText().toString();
+     }
 
-    @Override
-    public String getTipoPrueba() {
-        return generalTabPanel.getTipoPruebaComboBox().getSelectedItem().toString();
-    }*/
+     @Override
+     public String getTipoPrueba() {
+     return generalTabPanel.getTipoPruebaComboBox().getSelectedItem().toString();
+     }*/
 
     /*@Override
      public boolean getElegidaPrueba() {
@@ -473,15 +466,13 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         this.tabbedPane = tabbedPane;
     }
 
-    
-
     @Override
     public void setEstadoLabel(String estado, Color color) {
         this.estadoLabel.setText(estado);
         this.estadoLabel.setForeground(color);
     }
 
-    private void habilitarBotones(Boolean bool){
+    private void habilitarBotones(Boolean bool) {
         this.pruebasButton.setEnabled(bool);
         this.gruposButton.setEnabled(bool);
         this.equiposButton.setEnabled(bool);
@@ -495,11 +486,11 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         this.getGeneralTabPanel().getEliminarPruebaButton().setEnabled(bool);
         this.getGeneralTabPanel().getLimpiarPruebaButton().setEnabled(bool);
     }
-    
-    public void mostrarBarraProgreso(Boolean mostrar){
+
+    @Override
+    public void mostrarBarraProgreso(Boolean mostrar) {
         progressBar.setVisible(mostrar);
         progressBar.setIndeterminate(mostrar);
     }
-    
-    
+
 }

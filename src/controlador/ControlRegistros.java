@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import main.IOFile;
+import main.ImportarRegistros;
 import modelo.Equipo;
 import modelo.Grupo;
 import modelo.Inscripcion;
@@ -125,12 +126,13 @@ public class ControlRegistros implements ActionListener {
                 fc.setDialogTitle("Abrir");
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
-                    Coordinador.getInstance().setEstadoLabel("Cargando ...", Color.BLACK);
+                    
+                    Coordinador.getInstance().setEstadoLabel("Importando registros ...", Color.BLACK);
                     Coordinador.getInstance().mostrarBarraProgreso(true);
-                    IOFile.importarRegistrosDeExcel(fc.getSelectedFile().getPath());
-                    // Cargar Tabla de registros (?)
-                    Coordinador.getInstance().setEstadoLabel("Registros importardos", Color.BLUE);
-                    Coordinador.getInstance().mostrarBarraProgreso(false);
+                    
+                    ImportarRegistros imReg;
+                    (imReg = new ImportarRegistros(fc.getSelectedFile().getPath())).execute();
+                    
                 }
                 break;
         }

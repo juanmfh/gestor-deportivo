@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import main.IOFile;
+import main.ImportarParticipantes;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Grupo;
@@ -29,6 +30,7 @@ import modelo.dao.RegistroJpa;
 import modelo.dao.exceptions.IllegalOrphanException;
 import modelo.dao.exceptions.NonexistentEntityException;
 import vista.VistaParticipantes;
+import main.*;
 
 /**
  *
@@ -104,30 +106,13 @@ public class ControlParticipantes implements ActionListener {
                 fc.setDialogTitle("Abrir");
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
-                    Thread barraCarga = new Thread() {
-                        public void run() {
-                            try {
-                                SwingUtilities.invokeAndWait(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Coordinador.getInstance().setEstadoLabel("Cargando ...", Color.BLACK);
-                                        Coordinador.getInstance().mostrarBarraProgreso(true);
-                                        Coordinador.getInstance().getPanelPrincipal().revalidate();
-                                        Coordinador.getInstance().getPanelPrincipal().repaint();
-                                    }
-                                });
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(ControlParticipantes.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (InvocationTargetException ex) {
-                                Logger.getLogger(ControlParticipantes.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    };
-                    barraCarga.start();
-                    IOFile.importarParticipantesDeExcel(fc.getSelectedFile().getPath());
-                    Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
-                    Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
-                    Coordinador.getInstance().mostrarBarraProgreso(false);
+                    
+                    Coordinador.getInstance().setEstadoLabel("Importando participantes ...", Color.BLACK);
+                    Coordinador.getInstance().mostrarBarraProgreso(true);
+                    
+                    ImportarParticipantes inPart;
+                    (inPart = new ImportarParticipantes(fc.getSelectedFile().getPath())).execute();
+                      
                 }
 
         }

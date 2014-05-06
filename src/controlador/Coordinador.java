@@ -10,6 +10,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import main.DataBaseHelper;
 import modelo.Competicion;
 import modelo.Equipo;
@@ -46,7 +47,7 @@ public class Coordinador {
     private Usuario usuario;
 
     public static Coordinador getInstance() {
-        return coordinador; 
+        return coordinador;
     }
 
     /**
@@ -79,19 +80,24 @@ public class Coordinador {
             }
         }
 
-        // Cargamos la pantalla de Login
-        jf = new JFrame("Aplicación para Gestión de Actividades Físicas y Deportivas");
-        login = new PanelLogin();
-        controladorLogin = new ControlLogin(login);
-        login.controlador(controladorLogin);
-        jf.setContentPane((JPanel) login);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jf.setMinimumSize(new Dimension(1024, 768));
-        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        jf.setLocation(dimension.width / 2 - jf.getSize().width / 2, dimension.height / 2 - jf.getSize().height / 2);
-        jf.pack();
-        jf.setVisible(true);
-
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
+                // Cargamos la pantalla de Login
+                jf = new JFrame("Aplicación para Gestión de Actividades Físicas y Deportivas");
+                login = new PanelLogin();
+                controladorLogin = new ControlLogin(login);
+                login.controlador(controladorLogin);
+                jf.setContentPane((JPanel) login);
+                jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                jf.setMinimumSize(new Dimension(1024, 768));
+                Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+                jf.setLocation(dimension.width / 2 - jf.getSize().width / 2, dimension.height / 2 - jf.getSize().height / 2);
+                jf.pack();
+                jf.setVisible(true);
+            }
+        });
     }
 
     // GETTERS AND SETTERS
@@ -111,11 +117,11 @@ public class Coordinador {
         }
 
     }
-    
-    public PanelPrincipal getPanelPrincipal(){
+
+    public PanelPrincipal getPanelPrincipal() {
         return principal;
     }
-    
+
     public ControlPrincipal getControladorPrincipal() {
         return controladorPrincipal;
     }
@@ -283,8 +289,8 @@ public class Coordinador {
     public void setEstadoLabel(String estado, Color color) {
         controladorPrincipal.getVista().setEstadoLabel(estado, color);
     }
-    
-    public void mostrarBarraProgreso(Boolean mostrar){
+
+    public void mostrarBarraProgreso(Boolean mostrar) {
         controladorPrincipal.getVista().mostrarBarraProgreso(mostrar);
     }
 
