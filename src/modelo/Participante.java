@@ -9,7 +9,6 @@ package modelo;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,9 +33,15 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Participante.findAll", query = "SELECT p FROM Participante p"),
     @NamedQuery(name = "Participante.findById", query = "SELECT p FROM Participante p WHERE p.id = :id"),
-    @NamedQuery(name = "Participante.findPersonaByGrupo", query = "SELECT p.personaId FROM Participante p JOIN p.participaCollection pa WHERE pa.grupoId.id = :grupoid and p.equipoId IS NULL"),
-    @NamedQuery(name = "Participante.findByPersonaId", query = "SELECT p FROM Participante p WHERE p.personaId.id = :id"),
-    @NamedQuery(name = "Participante.findByEquipoId", query = "SELECT p FROM Participante p WHERE p.equipoId.id = :id")
+    @NamedQuery(name = "Participante.findByApellidos", query = "SELECT p FROM Participante p WHERE p.apellidos = :apellidos"),
+    @NamedQuery(name = "Participante.findByNombre", query = "SELECT p FROM Participante p WHERE p.nombre = :nombre"),
+    @NamedQuery(name = "Participante.findByEdad", query = "SELECT p FROM Participante p WHERE p.edad = :edad"),
+    @NamedQuery(name = "Participante.findBySexo", query = "SELECT p FROM Participante p WHERE p.sexo = :sexo"),
+    @NamedQuery(name = "Participante.findByDorsal", query = "SELECT p FROM Participante p WHERE p.dorsal = :dorsal"),
+    
+    @NamedQuery(name = "Participante.findPersonaByGrupo", query = "SELECT p FROM Participante p WHERE p.grupoId.id = :grupoid"),
+    @NamedQuery(name = "Participante.findByEquipo", query = "SELECT p FROM Participante p WHERE p.equipoId.id = :equipoid"),
+    @NamedQuery(name = "Participante.findByDorsalAndCompeticion", query = "SELECT p FROM Participante p WHERE p.dorsal = :dorsal AND p IN (SELECT p2 FROM Participante p2 WHERE p2.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid))")
 })
 public class Participante implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -45,16 +50,29 @@ public class Participante implements Serializable {
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
-    @JoinColumn(name = "PERSONA_ID", referencedColumnName = "ID")
+    @Basic(optional = false)
+    @Column(name = "APELLIDOS")
+    private String apellidos;
+    @Basic(optional = false)
+    @Column(name = "NOMBRE")
+    private String nombre;
+    @Column(name = "EDAD")
+    private Integer edad;
+    @Column(name = "SEXO")
+    private Integer sexo;
+    @Basic(optional = false)
+    @Column(name = "DORSAL")
+    private int dorsal;
+    @JoinColumn(name = "PRUEBAASIGNADA", referencedColumnName = "ID")
     @ManyToOne
-    private Persona personaId;
+    private Prueba pruebaasignada;
+    @JoinColumn(name = "GRUPO_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Grupo grupoId;
     @JoinColumn(name = "EQUIPO_ID", referencedColumnName = "ID")
     @ManyToOne
     private Equipo equipoId;
-    //modificado
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "participanteId")
-    private Collection<Participa> participaCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "participanteId")
+    @OneToMany(mappedBy = "participanteId")
     private Collection<Registro> registroCollection;
 
     public Participante() {
@@ -62,6 +80,13 @@ public class Participante implements Serializable {
 
     public Participante(Integer id) {
         this.id = id;
+    }
+
+    public Participante(Integer id, String apellidos, String nombre, int dorsal) {
+        this.id = id;
+        this.apellidos = apellidos;
+        this.nombre = nombre;
+        this.dorsal = dorsal;
     }
 
     public Integer getId() {
@@ -72,12 +97,60 @@ public class Participante implements Serializable {
         this.id = id;
     }
 
-    public Persona getPersonaId() {
-        return personaId;
+    public String getApellidos() {
+        return apellidos;
     }
 
-    public void setPersonaId(Persona personaId) {
-        this.personaId = personaId;
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Integer getEdad() {
+        return edad;
+    }
+
+    public void setEdad(Integer edad) {
+        this.edad = edad;
+    }
+
+    public Integer getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(Integer sexo) {
+        this.sexo = sexo;
+    }
+
+    public int getDorsal() {
+        return dorsal;
+    }
+
+    public void setDorsal(int dorsal) {
+        this.dorsal = dorsal;
+    }
+
+    public Prueba getPruebaasignada() {
+        return pruebaasignada;
+    }
+
+    public void setPruebaasignada(Prueba pruebaasignada) {
+        this.pruebaasignada = pruebaasignada;
+    }
+
+    public Grupo getGrupoId() {
+        return grupoId;
+    }
+
+    public void setGrupoId(Grupo grupoId) {
+        this.grupoId = grupoId;
     }
 
     public Equipo getEquipoId() {
@@ -86,15 +159,6 @@ public class Participante implements Serializable {
 
     public void setEquipoId(Equipo equipoId) {
         this.equipoId = equipoId;
-    }
-
-    @XmlTransient
-    public Collection<Participa> getParticipaCollection() {
-        return participaCollection;
-    }
-
-    public void setParticipaCollection(Collection<Participa> participaCollection) {
-        this.participaCollection = participaCollection;
     }
 
     @XmlTransient
@@ -128,7 +192,7 @@ public class Participante implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Participante[ id=" + id + " ]";
+        return "entities.Participante[ id=" + id + " ]";
     }
     
 }

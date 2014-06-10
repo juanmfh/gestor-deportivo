@@ -1,4 +1,10 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -8,15 +14,15 @@ import javax.persistence.criteria.Root;
 import modelo.Acceso;
 import java.util.ArrayList;
 import java.util.Collection;
+import modelo.Administrado;
+import modelo.Usuario;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Administrado;
-import modelo.Usuario;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.IllegalOrphanException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -251,6 +257,8 @@ public class UsuarioJpa implements Serializable {
             em.close();
         }
     }
+    
+    // Creados por mi
     
     public Usuario findUsuariobyNick(String nick){
         EntityManager em = getEntityManager();

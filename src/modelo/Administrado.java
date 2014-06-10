@@ -98,7 +98,7 @@ public class Administrado implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Administrado[ id=" + id + " ]";
+        return "entities.Administrado[ id=" + id + " ]";
     }
     
 }

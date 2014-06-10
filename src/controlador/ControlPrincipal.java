@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import main.PDFHelper;
 import modelo.Administrado;
@@ -15,26 +17,21 @@ import modelo.Competicion;
 import modelo.Compuesta;
 import modelo.Equipo;
 import modelo.Prueba;
-import modelo.dao.AdministradoJpa;
-import modelo.dao.CompeticionJpa;
-import modelo.dao.CompuestaJpa;
-import modelo.dao.PruebaJpa;
+import jpa.AdministradoJpa;
+import jpa.CompeticionJpa;
+import jpa.CompuestaJpa;
+import jpa.PruebaJpa;
 import modelo.Grupo;
 import modelo.Inscripcion;
-import modelo.Miembro;
-import modelo.Participa;
-import modelo.Persona;
 import modelo.Registro;
-import modelo.dao.EquipoJpa;
-import modelo.dao.GrupoJpa;
-import modelo.dao.InscripcionJpa;
-import modelo.dao.MiembroJpa;
-import modelo.dao.ParticipaJpa;
-import modelo.dao.ParticipanteJpa;
-import modelo.dao.PersonaJpa;
-import modelo.dao.RegistroJpa;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.EquipoJpa;
+import jpa.GrupoJpa;
+import jpa.InscripcionJpa;
+import jpa.ParticipanteJpa;
+import jpa.RegistroJpa;
+import jpa.exceptions.IllegalOrphanException;
+import jpa.exceptions.NonexistentEntityException;
+import modelo.Participante;
 import vista.DialogoCrearCompeticion;
 import vista.EquiposTab;
 import vista.GruposTab;
@@ -220,8 +217,8 @@ public class ControlPrincipal implements ActionListener {
             }
             // Eliminamos la competición
             competicionjpa.destroy(c.getId());
-        } catch (modelo.dao.exceptions.NonexistentEntityException |
-                modelo.dao.exceptions.IllegalOrphanException ex) {
+        } catch (jpa.exceptions.NonexistentEntityException |
+                jpa.exceptions.IllegalOrphanException ex) {
             return false;
         }
 
@@ -272,28 +269,19 @@ public class ControlPrincipal implements ActionListener {
      * @param g Grupo al que pertenecen los participantes
      */
     public void eliminarParticipantes(Grupo g) {
-        ParticipaJpa participajpa = new ParticipaJpa();
+
         ParticipanteJpa participantejpa = new ParticipanteJpa();
-        PersonaJpa personajpa = new PersonaJpa();
 
         // Elimina los equipos
         eliminarEquiposGrupo(g);
+        List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
         try {
-            // Obtenemos las participaciones individuales
-            List<Participa> participa = participajpa.findPersonasByGrupo(g.getId());
-            // Por cada participacion individual
-            for (Participa part : participa) {
-                Integer personaId = part.getParticipanteId().getPersonaId().getId();
-                Integer participanteId = part.getParticipanteId().getId();
-                // Eliminamos la participación y el participante
-                participajpa.destroy(part.getId());
-                participantejpa.destroy(participanteId);
-                if (personajpa.findPersona(personaId).getParticipanteCollection().isEmpty()) {
-                    personajpa.destroy(personaId);
-                }
+            for (Participante participante : participantes) {
+                // Eliminamos el participante
+                participantejpa.destroy(participante.getId());
             }
-        } catch (IllegalOrphanException | NonexistentEntityException ex) {
-
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -303,46 +291,21 @@ public class ControlPrincipal implements ActionListener {
      * @param g Grupo al que pertenecen los equipos
      */
     public void eliminarEquiposGrupo(Grupo g) {
-        ParticipaJpa participajpa = new ParticipaJpa();
-        ParticipanteJpa participantejpa = new ParticipanteJpa();
-        MiembroJpa miembrojpa = new MiembroJpa();
+
         EquipoJpa equipojpa = new EquipoJpa();
 
+        // Obtenemos la lista de equipos que participan en el grupo g
+        List<Equipo> equipos = equipojpa.findByGrupo(g.getId());
         try {
-
-            // Obtenemos la lista de equipos que participan en el grupo g
-            List<Participa> participaEquipos = participajpa.findEquiposByGrupo(g.getId());
             // Por cada participacion de un equipo
-            for (Participa part : participaEquipos) {
-                Integer participanteId = part.getParticipanteId().getId();
-                Integer equipoId = part.getParticipanteId().getEquipoId().getId();
-                participajpa.destroy(part.getId());
-                participantejpa.destroy(participanteId);
-                List<Miembro> miembros = miembrojpa.findByEquipo(equipoId);
-                // Elimina los miembros del equipo
-                for (Miembro m : miembros) {
-                    miembrojpa.destroy(m.getId());
-                }
-                // Elimina el equipo
-                equipojpa.destroy(equipoId);
+            for (Equipo e : equipos) {
+                equipojpa.destroy(e.getId());
             }
-        } catch (NonexistentEntityException | IllegalOrphanException ex) {
-
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-
-    /*public void cargarPruebasComboBox() {
-     PruebaJpa pruebajpa = new PruebaJpa();
-
-     List<Prueba> pruebas = pruebajpa.findPruebasByNotCompeticon(seleccionada);
-     vista.getGeneralTabPanel().getPruebasComboBox().removeAllItems();
-     if (pruebas != null) {
-     for (Prueba p : pruebas) {
-     vista.getGeneralTabPanel().getPruebasComboBox().addItem(p.getNombre());
-     }
-     }
-     }*/
     /**
      * Obtiene una lista de los Grupos de una Competicion c
      *
@@ -442,7 +405,7 @@ public class ControlPrincipal implements ActionListener {
                     e.getId(),
                     e.getNombre(),
                     g.getNombre(),
-                    e.getMiembroCollection().size()});
+                    e.getParticipanteCollection().size()});
             }
         }
     }
@@ -461,28 +424,26 @@ public class ControlPrincipal implements ActionListener {
         }
 
         if (registros != null) {
-            String participante;
+
             SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
             // Por cada registro crea una fila con sus datos
             for (Registro r : registros) {
-                if (r.getParticipanteId().getEquipoId() != null) {
-                    participante = r.getParticipanteId().getEquipoId().getNombre() + " (E)";
+                if (r.getEquipoId() != null) {
                     registrosTabPanel.getModeloRegistrosTable().addRow(
                             new Object[]{r.getId(),
-                                "#",
-                                participante,
+                                r.getEquipoId().getId(),
+                                r.getEquipoId().getNombre(),
                                 r.getPruebaId().getNombre() + (r.getSorteo() == 1
                                 ? " (Sorteo)" : ""),
                                 r.getPruebaId().getTiporesultado().equals("Tiempo")
                                 ? dt.format(r.getTiempo()).toString()
                                 : r.getNum(), r.getNumIntento()});
                 } else {
-                    participante = r.getParticipanteId().getPersonaId().getApellidos()
-                            + ", " + r.getParticipanteId().getPersonaId().getNombre();
                     registrosTabPanel.getModeloRegistrosTable().addRow(
                             new Object[]{r.getId(),
-                                r.getParticipanteId().getPersonaId().getDorsal(),
-                                participante,
+                                r.getParticipanteId().getDorsal(),
+                                r.getParticipanteId().getApellidos()
+                                + ", " + r.getParticipanteId().getNombre(),
                                 r.getPruebaId().getNombre() + (r.getSorteo() == 1
                                 ? " (Sorteo)" : ""),
                                 r.getPruebaId().getTiporesultado().equals("Tiempo")
@@ -566,7 +527,6 @@ public class ControlPrincipal implements ActionListener {
         }
     }
 
-
     /**
      * Carga en el tab de Registros el comboBox de participantes (individuales)
      *
@@ -580,18 +540,19 @@ public class ControlPrincipal implements ActionListener {
         PruebaJpa pruebajpa = new PruebaJpa();
         ParticipanteJpa participantejpa = new ParticipanteJpa();
         // Obtenemos el grupo a partir del nombre
-        Grupo g = grupojpa.findGrupoByNombre(grupo);
+        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo, seleccionada.getId());
         // Obtenemos la prueba a partir del nombre
         Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, seleccionada.getId());
         if (g != null && prueba != null) {
+            // Si la prueba es individual
             if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                 // Obtenemos todas las personas de este grupo
-                List<Persona> personas = participantejpa.findPersonaByGrupo(g.getId());
+                List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
                 // Limpiamos el combobox
                 registrosTabPanel.getParticipantesComboBox().removeAllItems();
                 // Añadimos cada participante 
-                if (personas != null) {
-                    for (Persona p : personas) {
+                if (participantes != null) {
+                    for (Participante p : participantes) {
                         registrosTabPanel.getParticipantesComboBox().addItem(
                                 p.getDorsal() + ": " + p.getApellidos()
                                 + ", " + p.getNombre());
@@ -620,7 +581,6 @@ public class ControlPrincipal implements ActionListener {
     public void cargarTablaParticipantes() {
         ParticipanteJpa participantejpa = new ParticipanteJpa();
         GrupoJpa grupojpa = new GrupoJpa();
-        MiembroJpa miembrojpa = new MiembroJpa();
 
         // Obtenemos una lista de grupos de la competición seleccionada
         List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
@@ -633,17 +593,16 @@ public class ControlPrincipal implements ActionListener {
         // Añadimos una fila por cada participante con sus datos
         if (grupos != null) {
             for (Grupo g : grupos) {
-                List<Persona> particip = participantejpa.findPersonaByGrupo(g.getId());
-                for (Persona p : particip) {
-                    Miembro m = miembrojpa.findByPersonaGrupo(p.getId(), g.getId());
+                List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
+                for (Participante p : participantes) {
                     participantesTabPanel.getModeloParticipantesTable().addRow(
                             new Object[]{p.getId(),
                                 p.getDorsal(),
                                 p.getApellidos(),
                                 p.getNombre(),
                                 g.getNombre(),
-                                m != null
-                                ? m.getEquipoId().getNombre()
+                                p.getEquipoId() != null
+                                ? p.getEquipoId().getNombre()
                                 : "Ninguno"});
                 }
             }

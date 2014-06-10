@@ -15,17 +15,15 @@ import modelo.Equipo;
 import modelo.Grupo;
 import modelo.Inscripcion;
 import modelo.Participante;
-import modelo.Persona;
 import modelo.Prueba;
 import modelo.Registro;
-import modelo.dao.EquipoJpa;
-import modelo.dao.GrupoJpa;
-import modelo.dao.InscripcionJpa;
-import modelo.dao.ParticipanteJpa;
-import modelo.dao.PersonaJpa;
-import modelo.dao.PruebaJpa;
-import modelo.dao.RegistroJpa;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.EquipoJpa;
+import jpa.GrupoJpa;
+import jpa.InscripcionJpa;
+import jpa.ParticipanteJpa;
+import jpa.PruebaJpa;
+import jpa.RegistroJpa;
+import jpa.exceptions.NonexistentEntityException;
 import vista.VistaRegistros;
 
 /**
@@ -156,6 +154,8 @@ public class ControlRegistros implements ActionListener {
             String nombrePrueba, String nombreEquipo, Boolean sorteo,
             Double segundos, Integer minutos, Integer horas) {
 
+        return null; 
+        /*
         Registro registro = null;
         RegistroJpa registrojpa = new RegistroJpa();
         InscripcionJpa inscripcionjpa = new InscripcionJpa();
@@ -224,7 +224,7 @@ public class ControlRegistros implements ActionListener {
             // Creamos el registro en la base de datos
             registrojpa.create(registro);
         }
-        return registro;
+        return registro;*/
     }
 
     private void añadirRegistroAVista(Registro r) {
@@ -242,7 +242,7 @@ public class ControlRegistros implements ActionListener {
                 ? dt.format(r.getTiempo()) : r.getNum(),
                 r.getNumIntento()});
             // Si es un participante individual
-        } else {
+        } else {/*
             part = r.getParticipanteId().getPersonaId().getApellidos()
                     + ", " + r.getParticipanteId().getPersonaId().getNombre();
             vista.añadirRegistroATabla(new Object[]{r.getId(),
@@ -253,7 +253,7 @@ public class ControlRegistros implements ActionListener {
                 r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
                 ? dt.format(r.getTiempo())
                 : r.getNum(),
-                r.getNumIntento()});
+                r.getNumIntento()});*/
         }
     }
 
@@ -494,7 +494,7 @@ public class ControlRegistros implements ActionListener {
                     registro.getPruebaId().getTiporesultado().equals("Tiempo")
                     ? dt.format(registro.getTiempo())
                     : registro.getNum(), registro.getNumIntento()});
-            } else {
+            } else {/*
                 part = registro.getParticipanteId().getPersonaId().getApellidos()
                         + ", " + registro.getParticipanteId().getPersonaId().getNombre();
                 vista.añadirRegistroATabla(new Object[]{registro.getId(),
@@ -505,7 +505,7 @@ public class ControlRegistros implements ActionListener {
                     registro.getPruebaId().getTiporesultado().equals("Tiempo")
                     ? dt.format(registro.getTiempo())
                     : registro.getNum(),
-                    registro.getNumIntento()});
+                    registro.getNumIntento()});*/
             }
             return true;
         }

@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
+import jpa.CompeticionJpa;
 import main.IOFile;
 import modelo.Competicion;
-import modelo.dao.CompeticionJpa;
 import vista.VistaCrearCompeticion;
 
 /**
@@ -112,7 +112,7 @@ public class ControlModificarCompeticion implements ActionListener {
             try {
                 // Cargamos la modificación en la base de datos
                 competicionjpa.edit(competicion);
-            } catch (modelo.dao.exceptions.NonexistentEntityException ex) {
+            } catch (jpa.exceptions.NonexistentEntityException ex) {
                 return null;
             } catch (Exception ex) {
                 return null;

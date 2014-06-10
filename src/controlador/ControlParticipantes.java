@@ -3,34 +3,23 @@ package controlador;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import main.IOFile;
 import main.ImportarParticipantes;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Grupo;
-import modelo.Miembro;
-import modelo.Participa;
 import modelo.Participante;
-import modelo.Persona;
 import modelo.Registro;
-import modelo.dao.EquipoJpa;
-import modelo.dao.GrupoJpa;
-import modelo.dao.MiembroJpa;
-import modelo.dao.ParticipaJpa;
-import modelo.dao.ParticipanteJpa;
-import modelo.dao.PersonaJpa;
-import modelo.dao.RegistroJpa;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.EquipoJpa;
+import jpa.GrupoJpa;
+import jpa.ParticipanteJpa;
+import jpa.RegistroJpa;
+import jpa.exceptions.NonexistentEntityException;
 import vista.VistaParticipantes;
-import main.*;
 
 /**
  *
@@ -60,12 +49,12 @@ public class ControlParticipantes implements ActionListener {
                 if (p != null) {
                     // Actualizamos la vista
                     vista.añadirParticipanteATabla(new Object[]{
-                        p.getPersonaId().getId(),
-                        p.getPersonaId().getDorsal(),
-                        p.getPersonaId().getApellidos(),
-                        p.getPersonaId().getNombre(),
-                        vista.getGrupoParticipante(),
-                        vista.getEquipoParticipante()});
+                        p.getId(),
+                        p.getDorsal(),
+                        p.getApellidos(),
+                        p.getNombre(),
+                        p.getGrupoId().getNombre(),
+                        p.getEquipoId()!=null?p.getEquipoId().getNombre():""});
                     vista.limpiarFormularioParticipante();
                     Coordinador.getInstance().setEstadoLabel(
                             "Participante creado correctamente", Color.BLUE);
@@ -99,7 +88,7 @@ public class ControlParticipantes implements ActionListener {
                 break;
             case VistaParticipantes.LIMPIARPARTICIPANTE:
                 vista.limpiarFormularioParticipante();
-
+                break;
             case VistaParticipantes.IMPORTAR:
                 JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -135,6 +124,7 @@ public class ControlParticipantes implements ActionListener {
     public static Participante crearParticipante(String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
             String nombreEquipo) {
+        
 
         // Comprobamos que el nombre, apellidos, dorsal y grupo del participante
         // son válidos
@@ -142,50 +132,33 @@ public class ControlParticipantes implements ActionListener {
                 && nombreGrupo != null && dorsalLibre(dorsal,
                         Coordinador.getInstance().getSeleccionada())) {
 
-            PersonaJpa personajpa = new PersonaJpa();
             ParticipanteJpa participantejpa = new ParticipanteJpa();
-            ParticipaJpa participajpa = new ParticipaJpa();
             GrupoJpa grupojpa = new GrupoJpa();
 
             // Creamos un objeto Persona y establecemos sus atributos
             // a partir de los datos de la vista
-            Persona p = new Persona();
-            p.setNombre(nombre);
-            p.setApellidos(apellidos);
-            p.setDorsal(dorsal);
-            p.setEdad(edad);
-            p.setSexo(sexo);
-            personajpa.create(p);
-
-            // Creamos un participante que representa a la persona
             Participante participante = new Participante();
-            participante.setPersonaId(p);
-            participantejpa.create(participante);
-
-            // Creamos una participación de la persona en el grupo seleccionado
-            // en la vista
-            Participa participa = new Participa();
+            
+            // Buscamos el grupo por el nombre
             Grupo g = grupojpa.findGrupoByNombre(nombreGrupo);
-            participa.setGrupoId(g);
-            participa.setParticipanteId(participante);
-            participajpa.create(participa);
+            
+            participante.setNombre(nombre);
+            participante.setApellidos(apellidos);
+            participante.setDorsal(dorsal);
+            participante.setEdad(edad);
+            participante.setSexo(sexo);
+            participante.setGrupoId(g);
+            
 
             // Si se ha seleccionado un equipo
-            Miembro miembro = null;
             if (!nombreEquipo.equals("Ninguno")) {
-
-                MiembroJpa miembrojpa = new MiembroJpa();
                 EquipoJpa equipojpa = new EquipoJpa();
-
-                // Creamos un objeto miembro con el equipo seleccionado y la 
-                // persona que hemos creado anteriormente
-                miembro = new Miembro();
-                miembro.setEquipoId(equipojpa.findByNombreAndCompeticion(
+                
+                participante.setEquipoId(equipojpa.findByNombreAndCompeticion(
                         nombreEquipo.toString(),
                         Coordinador.getInstance().getSeleccionada().getId()));
-                miembro.setPersonaId(p);
-                miembrojpa.create(miembro);
             }
+            participantejpa.create(participante);
 
             return participante;
         } else {
@@ -194,56 +167,29 @@ public class ControlParticipantes implements ActionListener {
     }
 
     /**
-     * Elimina al participante cuyo id es "personaid"
+     * Elimina al participante cuyo id es "participanteid"
      *
-     * @param personaid Id de la persona
+     * @param participanteid Id del participante
      * @return true si se ha eliminado el participante correctamente
      */
-    public boolean eliminarParticipante(Integer personaid) {
-
+    public boolean eliminarParticipante(Integer participanteid) {
+        
         // Comprobamos que el id es válido
-        if (personaid != -1) {
+        if (participanteid != -1) {
 
-            PersonaJpa personajpa = new PersonaJpa();
             ParticipanteJpa participantejpa = new ParticipanteJpa();
-            ParticipaJpa participajpa = new ParticipaJpa();
 
-            //Buscamos el participante que representa a la persona
-            //con id "personaid"
-            Participante participante = participantejpa.findByPersonaId(personaid);
+            //Buscamos el participante a partid del ID
+            Participante participante = participantejpa.findParticipante(participanteid);
+            eliminarRegistros(participante);
             try {
-                // Eliminamos sus registros
-                eliminarRegistros(participante);
-
-                // Eliminamos su participación en la competición
-                Participa participa
-                        = participajpa.findByCompeticionAndParticipante(
-                                Coordinador.getInstance().getSeleccionada().getId(),
-                                participante.getId());
-                participajpa.destroy(participa.getId());
-
-                // Comprobamos que no participa en más competiciones
-                if (participajpa.countByParticipante(participante.getId()) == 0) {
-
-                    // Eliminamos al participante
-                    participantejpa.destroy(participante.getId());
-
-                    // Buscamos en que equipos es miembro
-                    MiembroJpa miembrojpa = new MiembroJpa();
-                    List<Miembro> miembro = miembrojpa.findByPersona(personaid);
-                    // Eliminamos al participante de los equipos a los que pertenece
-                    for (Miembro m : miembro) {
-                        miembrojpa.destroy(m.getId());
-                    }
-                    // Eliminamos a la persona
-                    personajpa.destroy(personaid);
-                }
-                // Actualizamos la vista
-                vista.eliminarParticipanteDeTabla();
-                return true;
-            } catch (IllegalOrphanException | NonexistentEntityException ex) {
+                participantejpa.destroy(participante.getId());
+            } catch (NonexistentEntityException ex) {
+                Logger.getLogger(ControlParticipantes.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
+            vista.eliminarParticipanteDeTabla();
+            return true;
         }
         return false;
     }
@@ -255,7 +201,7 @@ public class ControlParticipantes implements ActionListener {
      * @return true si se ha modificado correctamte los datos del participante
      */
     public boolean modificarParticipante(Integer participanteid) {
-
+        
         // Comprueba que los datos de la vista sean válidos y el dorsal esté
         // disponible
         if (participanteid != null
@@ -265,45 +211,24 @@ public class ControlParticipantes implements ActionListener {
                 && vista.getGrupoParticipante() != null
                 && dorsalLibreOMio(vista.getDorsalParticipante(), participanteid)) {
 
-            PersonaJpa personajpa = new PersonaJpa();
             ParticipanteJpa participantejpa = new ParticipanteJpa();
-            ParticipaJpa participajpa = new ParticipaJpa();
             GrupoJpa grupojpa = new GrupoJpa();
 
             try {
                 // Busca a la persona identificada por el participante
                 // y modifica sus atributos con los datos de la vista
-                Persona p = personajpa.findPersona(participanteid);
-                p.setNombre(vista.getNombreParticipante());
-                p.setApellidos(vista.getApellidosParticipante());
-                p.setDorsal(vista.getDorsalParticipante());
-                p.setEdad(vista.getEdadParticipante());
-                p.setSexo(vista.getSexoParticipante());
-                personajpa.edit(p);
-
-                // Busca el grupo al que pertenece el participante
-                MiembroJpa miembrojpa = new MiembroJpa();
-                Grupo g = grupojpa.findByPersonaCompeticion(
-                        Coordinador.getInstance().getSeleccionada().getId(),
-                        p.getId());
-
-                //Busca si el participante pertenece a algún equipo y lo elimina
-                Miembro miembroviejo = miembrojpa.findByPersonaGrupo(p.getId(),
-                        g.getId());
-                if (miembroviejo != null) {
-                    miembrojpa.destroy(miembroviejo.getId());
-                }
+                Participante participante = participantejpa.findParticipante(participanteid);
+                participante.setNombre(vista.getNombreParticipante());
+                participante.setApellidos(vista.getApellidosParticipante());
+                participante.setDorsal(vista.getDorsalParticipante());
+                participante.setEdad(vista.getEdadParticipante());
+                participante.setSexo(vista.getSexoParticipante());
+                participantejpa.edit(participante);
 
                 // Cambia el grupo al que pertenece el participante
-                Participante part = participantejpa.findByPersonaId(p.getId());
-                g = grupojpa.findGrupoByNombre(vista.getGrupoParticipante());
-                Participa participa = participajpa.findByCompeticionAndParticipante(
-                        Coordinador.getInstance().getSeleccionada().getId(),
-                        part.getId());
-                participa.setGrupoId(g);
-                participajpa.edit(participa);
+                Grupo g = grupojpa.findGrupoByNombre(vista.getGrupoParticipante());
+                participante.setGrupoId(g);
 
-                Miembro miembro = null;
                 // Si se ha seleccionado un equipo
                 if (!vista.getEquipoParticipante().equals("Ninguno")) {
                     // Buscamos el equipo y ponemos al participante como miembro
@@ -311,22 +236,22 @@ public class ControlParticipantes implements ActionListener {
                     Equipo equiponuevo = equipojpa.findByNombreAndCompeticion(
                             vista.getEquipoParticipante(),
                             Coordinador.getInstance().getSeleccionada().getId());
-                    miembro = new Miembro();
-                    miembro.setEquipoId(equiponuevo);
-                    miembro.setPersonaId(p);
-                    miembrojpa.create(miembro);
+                    participante.setEquipoId(equiponuevo);
+                } else {
+                    participante.setEquipoId(null);
                 }
+                participantejpa.edit(participante);
 
                 // Actualizamos la vista
                 vista.eliminarParticipanteDeTabla();
-                vista.añadirParticipanteATabla(new Object[]{p.getId(),
-                    p.getDorsal(),
-                    p.getApellidos(),
-                    p.getNombre(),
+                vista.añadirParticipanteATabla(new Object[]{participante.getId(),
+                    participante.getDorsal(),
+                    participante.getApellidos(),
+                    participante.getNombre(),
                     g.getNombre(),
-                    miembro == null
+                    participante.getEquipoId() == null
                     ? "Ninguno"
-                    : miembro.getEquipoId().getNombre()});
+                    : participante.getEquipoId().getNombre()});
             } catch (NonexistentEntityException ex) {
                 return false;
             } catch (Exception ex) {
@@ -365,23 +290,24 @@ public class ControlParticipantes implements ActionListener {
      * @return true si el dorsal no está ocupado
      */
     private static boolean dorsalLibre(Integer dorsal, Competicion competicion) {
-        PersonaJpa personajpa = new PersonaJpa();
-        return (personajpa.findByDorsalAndCompeticion(dorsal,
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        return (participantejpa.findByDorsalAndCompeticion(dorsal,
                 competicion.getId())) == null;
     }
 
     /**
-     * Comprueba que el dorsal solo esté ocupado
+     * Comprueba que el dorsal esté disponible o que lo tenga
+     * el propio participante que lo solicita
      *
      * @param dorsal Dorsal del participante
-     * @param personaid identificador de la persona
-     * @return true si el dorsal está libre o es el de la persona cuyo id es
-     * personaid
+     * @param participanteid identificador del participante
+     * @return true si el dorsal está libre o es el del participante cuyo id es
+     * participanteid
      */
-    private boolean dorsalLibreOMio(Integer dorsal, Integer personaid) {
-        PersonaJpa personajpa = new PersonaJpa();
-        Persona persona = personajpa.findByDorsalAndCompeticion(dorsal,
+    private boolean dorsalLibreOMio(Integer dorsal, Integer participanteid) {
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        Participante participante = participantejpa.findByDorsalAndCompeticion(dorsal,
                 Coordinador.getInstance().getSeleccionada().getId());
-        return (persona == null || persona.getId() == personaid);
+        return (participante == null || participante.getId() == participanteid);
     }
 }

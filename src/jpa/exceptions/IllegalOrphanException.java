@@ -1,4 +1,4 @@
-package modelo.dao.exceptions;
+package jpa.exceptions;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,22 +1,28 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
+import javax.persistence.Query;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import modelo.Prueba;
+import modelo.Participante;
+import modelo.Inscripcion;
+import modelo.Equipo;
+import modelo.Registro;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import modelo.Prueba;
-import modelo.Persona;
-import modelo.Participante;
-import modelo.Inscripcion;
-import modelo.Registro;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -43,11 +49,6 @@ public class RegistroJpa implements Serializable {
                 pruebaId = em.getReference(pruebaId.getClass(), pruebaId.getId());
                 registro.setPruebaId(pruebaId);
             }
-            Persona personaId = registro.getPersonaId();
-            if (personaId != null) {
-                personaId = em.getReference(personaId.getClass(), personaId.getId());
-                registro.setPersonaId(personaId);
-            }
             Participante participanteId = registro.getParticipanteId();
             if (participanteId != null) {
                 participanteId = em.getReference(participanteId.getClass(), participanteId.getId());
@@ -58,14 +59,15 @@ public class RegistroJpa implements Serializable {
                 inscripcionId = em.getReference(inscripcionId.getClass(), inscripcionId.getId());
                 registro.setInscripcionId(inscripcionId);
             }
+            Equipo equipoId = registro.getEquipoId();
+            if (equipoId != null) {
+                equipoId = em.getReference(equipoId.getClass(), equipoId.getId());
+                registro.setEquipoId(equipoId);
+            }
             em.persist(registro);
             if (pruebaId != null) {
                 pruebaId.getRegistroCollection().add(registro);
                 pruebaId = em.merge(pruebaId);
-            }
-            if (personaId != null) {
-                personaId.getRegistroCollection().add(registro);
-                personaId = em.merge(personaId);
             }
             if (participanteId != null) {
                 participanteId.getRegistroCollection().add(registro);
@@ -74,6 +76,10 @@ public class RegistroJpa implements Serializable {
             if (inscripcionId != null) {
                 inscripcionId.getRegistroCollection().add(registro);
                 inscripcionId = em.merge(inscripcionId);
+            }
+            if (equipoId != null) {
+                equipoId.getRegistroCollection().add(registro);
+                equipoId = em.merge(equipoId);
             }
             em.getTransaction().commit();
         } finally {
@@ -91,19 +97,15 @@ public class RegistroJpa implements Serializable {
             Registro persistentRegistro = em.find(Registro.class, registro.getId());
             Prueba pruebaIdOld = persistentRegistro.getPruebaId();
             Prueba pruebaIdNew = registro.getPruebaId();
-            Persona personaIdOld = persistentRegistro.getPersonaId();
-            Persona personaIdNew = registro.getPersonaId();
             Participante participanteIdOld = persistentRegistro.getParticipanteId();
             Participante participanteIdNew = registro.getParticipanteId();
             Inscripcion inscripcionIdOld = persistentRegistro.getInscripcionId();
             Inscripcion inscripcionIdNew = registro.getInscripcionId();
+            Equipo equipoIdOld = persistentRegistro.getEquipoId();
+            Equipo equipoIdNew = registro.getEquipoId();
             if (pruebaIdNew != null) {
                 pruebaIdNew = em.getReference(pruebaIdNew.getClass(), pruebaIdNew.getId());
                 registro.setPruebaId(pruebaIdNew);
-            }
-            if (personaIdNew != null) {
-                personaIdNew = em.getReference(personaIdNew.getClass(), personaIdNew.getId());
-                registro.setPersonaId(personaIdNew);
             }
             if (participanteIdNew != null) {
                 participanteIdNew = em.getReference(participanteIdNew.getClass(), participanteIdNew.getId());
@@ -113,6 +115,10 @@ public class RegistroJpa implements Serializable {
                 inscripcionIdNew = em.getReference(inscripcionIdNew.getClass(), inscripcionIdNew.getId());
                 registro.setInscripcionId(inscripcionIdNew);
             }
+            if (equipoIdNew != null) {
+                equipoIdNew = em.getReference(equipoIdNew.getClass(), equipoIdNew.getId());
+                registro.setEquipoId(equipoIdNew);
+            }
             registro = em.merge(registro);
             if (pruebaIdOld != null && !pruebaIdOld.equals(pruebaIdNew)) {
                 pruebaIdOld.getRegistroCollection().remove(registro);
@@ -121,14 +127,6 @@ public class RegistroJpa implements Serializable {
             if (pruebaIdNew != null && !pruebaIdNew.equals(pruebaIdOld)) {
                 pruebaIdNew.getRegistroCollection().add(registro);
                 pruebaIdNew = em.merge(pruebaIdNew);
-            }
-            if (personaIdOld != null && !personaIdOld.equals(personaIdNew)) {
-                personaIdOld.getRegistroCollection().remove(registro);
-                personaIdOld = em.merge(personaIdOld);
-            }
-            if (personaIdNew != null && !personaIdNew.equals(personaIdOld)) {
-                personaIdNew.getRegistroCollection().add(registro);
-                personaIdNew = em.merge(personaIdNew);
             }
             if (participanteIdOld != null && !participanteIdOld.equals(participanteIdNew)) {
                 participanteIdOld.getRegistroCollection().remove(registro);
@@ -145,6 +143,14 @@ public class RegistroJpa implements Serializable {
             if (inscripcionIdNew != null && !inscripcionIdNew.equals(inscripcionIdOld)) {
                 inscripcionIdNew.getRegistroCollection().add(registro);
                 inscripcionIdNew = em.merge(inscripcionIdNew);
+            }
+            if (equipoIdOld != null && !equipoIdOld.equals(equipoIdNew)) {
+                equipoIdOld.getRegistroCollection().remove(registro);
+                equipoIdOld = em.merge(equipoIdOld);
+            }
+            if (equipoIdNew != null && !equipoIdNew.equals(equipoIdOld)) {
+                equipoIdNew.getRegistroCollection().add(registro);
+                equipoIdNew = em.merge(equipoIdNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -180,11 +186,6 @@ public class RegistroJpa implements Serializable {
                 pruebaId.getRegistroCollection().remove(registro);
                 pruebaId = em.merge(pruebaId);
             }
-            Persona personaId = registro.getPersonaId();
-            if (personaId != null) {
-                personaId.getRegistroCollection().remove(registro);
-                personaId = em.merge(personaId);
-            }
             Participante participanteId = registro.getParticipanteId();
             if (participanteId != null) {
                 participanteId.getRegistroCollection().remove(registro);
@@ -194,6 +195,11 @@ public class RegistroJpa implements Serializable {
             if (inscripcionId != null) {
                 inscripcionId.getRegistroCollection().remove(registro);
                 inscripcionId = em.merge(inscripcionId);
+            }
+            Equipo equipoId = registro.getEquipoId();
+            if (equipoId != null) {
+                equipoId.getRegistroCollection().remove(registro);
+                equipoId = em.merge(equipoId);
             }
             em.remove(registro);
             em.getTransaction().commit();
@@ -249,6 +255,8 @@ public class RegistroJpa implements Serializable {
             em.close();
         }
     }
+    
+    // Creado por mi
     
     public List<Registro> findByInscripcion(Integer inscripcionid) {
         EntityManager em = getEntityManager();
@@ -585,5 +593,4 @@ public class RegistroJpa implements Serializable {
         }
         return res;
     }
-    
 }

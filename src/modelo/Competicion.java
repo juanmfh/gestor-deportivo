@@ -34,7 +34,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Competicion.findAll", query = "SELECT c FROM Competicion c"),
-    @NamedQuery(name = "Competicion.findAllNames", query = "SELECT c.nombre FROM Competicion c"),
     @NamedQuery(name = "Competicion.findById", query = "SELECT c FROM Competicion c WHERE c.id = :id"),
     @NamedQuery(name = "Competicion.findByNombre", query = "SELECT c FROM Competicion c WHERE c.nombre = :nombre"),
     @NamedQuery(name = "Competicion.findByCiudad", query = "SELECT c FROM Competicion c WHERE c.ciudad = :ciudad"),
@@ -42,7 +41,9 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Competicion.findByFechainicio", query = "SELECT c FROM Competicion c WHERE c.fechainicio = :fechainicio"),
     @NamedQuery(name = "Competicion.findByFechafin", query = "SELECT c FROM Competicion c WHERE c.fechafin = :fechafin"),
     @NamedQuery(name = "Competicion.findByOrganizador", query = "SELECT c FROM Competicion c WHERE c.organizador = :organizador"),
-    @NamedQuery(name = "Competicion.findByImagen", query = "SELECT c FROM Competicion c WHERE c.imagen = :imagen")})
+    @NamedQuery(name = "Competicion.findByImagen", query = "SELECT c FROM Competicion c WHERE c.imagen = :imagen"),
+    
+    @NamedQuery(name = "Competicion.findAllNames", query = "SELECT c.nombre FROM Competicion c")})
 public class Competicion implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -199,7 +200,7 @@ public class Competicion implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Competicion[ id=" + id + " ]";
+        return "entities.Competicion[ id=" + id + " ]";
     }
     
 }

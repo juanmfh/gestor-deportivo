@@ -15,17 +15,15 @@ import main.DataBaseHelper;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Grupo;
-import modelo.Miembro;
-import modelo.Persona;
 import modelo.Prueba;
 import modelo.Registro;
 import modelo.Usuario;
-import modelo.dao.EquipoJpa;
-import modelo.dao.GrupoJpa;
-import modelo.dao.MiembroJpa;
-import modelo.dao.PersonaJpa;
-import modelo.dao.PruebaJpa;
-import modelo.dao.RegistroJpa;
+import jpa.EquipoJpa;
+import jpa.GrupoJpa;
+import jpa.ParticipanteJpa;
+import jpa.PruebaJpa;
+import jpa.RegistroJpa;
+import modelo.Participante;
 import vista.PanelLogin;
 import vista.PanelPrincipal;
 import vista.ParticipantesTab;
@@ -253,31 +251,25 @@ public class Coordinador {
 
     /**
      * Carga en el formulario de participantes los datos del participante cuyo
-     * id es personaid
+     * id es participanteid
      *
-     * @param personaid Id del participante a cargar
+     * @param participanteid Id del participante a cargar
      */
-    public void cargarFormularioParticipante(Integer personaid) {
-        PersonaJpa personajpa = new PersonaJpa();
-        GrupoJpa grupojpa = new GrupoJpa();
-        MiembroJpa miembrojpa = new MiembroJpa();
+    public void cargarFormularioParticipante(Integer participanteid) {
 
-        Persona p = personajpa.findPersona(personaid);
-        Grupo g = grupojpa.findByPersonaCompeticion(
-                getControladorPrincipal().getSeleccionada().getId(), personaid);
-        Miembro m = miembrojpa.findByPersonaGrupo(personaid, g.getId());
-        if (p != null && g != null) {
+        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        Participante participante = participantejpa.findParticipante(participanteid);
+        if (participante != null) {
             ParticipantesTab pt = controladorPrincipal.getParticipantesTabPanel();
-            pt.setNombreParticipante(p.getNombre());
-            pt.setApellidosParticipante(p.getApellidos());
-            pt.setEdadParticipante(p.getEdad());
-            pt.setDorsalParticipante(p.getDorsal());
-            pt.setGrupoParticipante(g.getNombre());
-            pt.setEquipoParticipante(m != null
-                    ? m.getEquipoId().getNombre() : "Ninguno");
-            pt.setSexoParticipante(p.getSexo());
+            pt.setNombreParticipante(participante.getNombre());
+            pt.setApellidosParticipante(participante.getApellidos());
+            pt.setEdadParticipante(participante.getEdad());
+            pt.setDorsalParticipante(participante.getDorsal());
+            pt.setGrupoParticipante(participante.getGrupoId().getNombre());
+            pt.setEquipoParticipante(participante.getEquipoId() != null
+                    ? participante.getEquipoId().getNombre() : "Ninguno");
+            pt.setSexoParticipante(participante.getSexo());
         }
-
     }
 
     /**
@@ -384,7 +376,7 @@ public class Coordinador {
      * @param registroId Id del registro
      */
     public void cargarFormularioRegistro(Integer registroId) {
-
+        
         // Buscamos el registro a partir de su id
         RegistroJpa registrojpa = new RegistroJpa();
         Registro registro = registrojpa.findRegistro(registroId);
@@ -396,11 +388,11 @@ public class Coordinador {
 
             controladorPrincipal.getRegistrosTabPanel().setPrueba(registro.getPruebaId().getNombre());
             if (registro.getPruebaId().getTipo().equals(TipoPrueba.Individual.toString())) {
-                rt.setParticipante(registro.getParticipanteId().getPersonaId().getDorsal()
-                        + ": " + registro.getParticipanteId().getPersonaId().getApellidos()
-                        + ", " + registro.getParticipanteId().getPersonaId().getNombre());
+                rt.setParticipante(registro.getParticipanteId().getDorsal()
+                        + ": " + registro.getParticipanteId().getApellidos()
+                        + ", " + registro.getParticipanteId().getNombre());
             } else {
-                rt.setParticipante(registro.getParticipanteId().getEquipoId().getNombre());
+                rt.setParticipante(registro.getEquipoId().getNombre());
                 //rt.setParticipante("Equipo");
             }
 

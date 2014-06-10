@@ -1,19 +1,25 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Prueba;
 import modelo.Competicion;
 import modelo.Compuesta;
-import modelo.dao.exceptions.NonexistentEntityException;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -191,6 +197,7 @@ public class CompuestaJpa implements Serializable {
         }
     }
     
+    // Creados por mi
     
     // No utilizada
     public int countCompuestaByPrueba(Integer pruebaid) {
@@ -239,4 +246,5 @@ public class CompuestaJpa implements Serializable {
         }
         return res;
     }
+    
 }

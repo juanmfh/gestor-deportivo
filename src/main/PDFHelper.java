@@ -25,9 +25,9 @@ import modelo.Grupo;
 import modelo.Participante;
 import modelo.Prueba;
 import modelo.Registro;
-import modelo.dao.GrupoJpa;
-import modelo.dao.PruebaJpa;
-import modelo.dao.RegistroJpa;
+import jpa.GrupoJpa;
+import jpa.PruebaJpa;
+import jpa.RegistroJpa;
 
 /**
  *
@@ -140,7 +140,7 @@ public class PDFHelper {
             tabla.addCell(new Phrase("PUNTOS", normal));
             int puesto = 1;
 
-            for (Participante part : participantes) {
+            /*for (Participante part : participantes) {
 
                 Grupo g;
                 if (part.getPersonaId() == null) {
@@ -198,7 +198,7 @@ public class PDFHelper {
                 tabla.addCell(new Phrase(String.valueOf(participantes.size() -
                         (puesto - 1)), normal));
                 puesto++;
-            }
+            }*/
 
             documento.add(tabla);
 

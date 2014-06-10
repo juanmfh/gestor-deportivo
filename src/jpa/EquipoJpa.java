@@ -1,22 +1,28 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
+package jpa;
+
+import modelo.Equipo;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import modelo.Grupo;
 import modelo.Participante;
 import java.util.ArrayList;
 import java.util.Collection;
+import modelo.Registro;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Equipo;
-import modelo.Miembro;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -37,26 +43,35 @@ public class EquipoJpa implements Serializable {
         if (equipo.getParticipanteCollection() == null) {
             equipo.setParticipanteCollection(new ArrayList<Participante>());
         }
-        if (equipo.getMiembroCollection() == null) {
-            equipo.setMiembroCollection(new ArrayList<Miembro>());
+        if (equipo.getRegistroCollection() == null) {
+            equipo.setRegistroCollection(new ArrayList<Registro>());
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Grupo grupoId = equipo.getGrupoId();
+            if (grupoId != null) {
+                grupoId = em.getReference(grupoId.getClass(), grupoId.getId());
+                equipo.setGrupoId(grupoId);
+            }
             Collection<Participante> attachedParticipanteCollection = new ArrayList<Participante>();
             for (Participante participanteCollectionParticipanteToAttach : equipo.getParticipanteCollection()) {
                 participanteCollectionParticipanteToAttach = em.getReference(participanteCollectionParticipanteToAttach.getClass(), participanteCollectionParticipanteToAttach.getId());
                 attachedParticipanteCollection.add(participanteCollectionParticipanteToAttach);
             }
             equipo.setParticipanteCollection(attachedParticipanteCollection);
-            Collection<Miembro> attachedMiembroCollection = new ArrayList<Miembro>();
-            for (Miembro miembroCollectionMiembroToAttach : equipo.getMiembroCollection()) {
-                miembroCollectionMiembroToAttach = em.getReference(miembroCollectionMiembroToAttach.getClass(), miembroCollectionMiembroToAttach.getId());
-                attachedMiembroCollection.add(miembroCollectionMiembroToAttach);
+            Collection<Registro> attachedRegistroCollection = new ArrayList<Registro>();
+            for (Registro registroCollectionRegistroToAttach : equipo.getRegistroCollection()) {
+                registroCollectionRegistroToAttach = em.getReference(registroCollectionRegistroToAttach.getClass(), registroCollectionRegistroToAttach.getId());
+                attachedRegistroCollection.add(registroCollectionRegistroToAttach);
             }
-            equipo.setMiembroCollection(attachedMiembroCollection);
+            equipo.setRegistroCollection(attachedRegistroCollection);
             em.persist(equipo);
+            if (grupoId != null) {
+                grupoId.getEquipoCollection().add(equipo);
+                grupoId = em.merge(grupoId);
+            }
             for (Participante participanteCollectionParticipante : equipo.getParticipanteCollection()) {
                 Equipo oldEquipoIdOfParticipanteCollectionParticipante = participanteCollectionParticipante.getEquipoId();
                 participanteCollectionParticipante.setEquipoId(equipo);
@@ -66,13 +81,13 @@ public class EquipoJpa implements Serializable {
                     oldEquipoIdOfParticipanteCollectionParticipante = em.merge(oldEquipoIdOfParticipanteCollectionParticipante);
                 }
             }
-            for (Miembro miembroCollectionMiembro : equipo.getMiembroCollection()) {
-                Equipo oldEquipoIdOfMiembroCollectionMiembro = miembroCollectionMiembro.getEquipoId();
-                miembroCollectionMiembro.setEquipoId(equipo);
-                miembroCollectionMiembro = em.merge(miembroCollectionMiembro);
-                if (oldEquipoIdOfMiembroCollectionMiembro != null) {
-                    oldEquipoIdOfMiembroCollectionMiembro.getMiembroCollection().remove(miembroCollectionMiembro);
-                    oldEquipoIdOfMiembroCollectionMiembro = em.merge(oldEquipoIdOfMiembroCollectionMiembro);
+            for (Registro registroCollectionRegistro : equipo.getRegistroCollection()) {
+                Equipo oldEquipoIdOfRegistroCollectionRegistro = registroCollectionRegistro.getEquipoId();
+                registroCollectionRegistro.setEquipoId(equipo);
+                registroCollectionRegistro = em.merge(registroCollectionRegistro);
+                if (oldEquipoIdOfRegistroCollectionRegistro != null) {
+                    oldEquipoIdOfRegistroCollectionRegistro.getRegistroCollection().remove(registroCollectionRegistro);
+                    oldEquipoIdOfRegistroCollectionRegistro = em.merge(oldEquipoIdOfRegistroCollectionRegistro);
                 }
             }
             em.getTransaction().commit();
@@ -83,27 +98,21 @@ public class EquipoJpa implements Serializable {
         }
     }
 
-    public void edit(Equipo equipo) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Equipo equipo) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
             Equipo persistentEquipo = em.find(Equipo.class, equipo.getId());
+            Grupo grupoIdOld = persistentEquipo.getGrupoId();
+            Grupo grupoIdNew = equipo.getGrupoId();
             Collection<Participante> participanteCollectionOld = persistentEquipo.getParticipanteCollection();
             Collection<Participante> participanteCollectionNew = equipo.getParticipanteCollection();
-            Collection<Miembro> miembroCollectionOld = persistentEquipo.getMiembroCollection();
-            Collection<Miembro> miembroCollectionNew = equipo.getMiembroCollection();
-            List<String> illegalOrphanMessages = null;
-            for (Miembro miembroCollectionOldMiembro : miembroCollectionOld) {
-                if (!miembroCollectionNew.contains(miembroCollectionOldMiembro)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Miembro " + miembroCollectionOldMiembro + " since its equipoId field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
+            Collection<Registro> registroCollectionOld = persistentEquipo.getRegistroCollection();
+            Collection<Registro> registroCollectionNew = equipo.getRegistroCollection();
+            if (grupoIdNew != null) {
+                grupoIdNew = em.getReference(grupoIdNew.getClass(), grupoIdNew.getId());
+                equipo.setGrupoId(grupoIdNew);
             }
             Collection<Participante> attachedParticipanteCollectionNew = new ArrayList<Participante>();
             for (Participante participanteCollectionNewParticipanteToAttach : participanteCollectionNew) {
@@ -112,14 +121,22 @@ public class EquipoJpa implements Serializable {
             }
             participanteCollectionNew = attachedParticipanteCollectionNew;
             equipo.setParticipanteCollection(participanteCollectionNew);
-            Collection<Miembro> attachedMiembroCollectionNew = new ArrayList<Miembro>();
-            for (Miembro miembroCollectionNewMiembroToAttach : miembroCollectionNew) {
-                miembroCollectionNewMiembroToAttach = em.getReference(miembroCollectionNewMiembroToAttach.getClass(), miembroCollectionNewMiembroToAttach.getId());
-                attachedMiembroCollectionNew.add(miembroCollectionNewMiembroToAttach);
+            Collection<Registro> attachedRegistroCollectionNew = new ArrayList<Registro>();
+            for (Registro registroCollectionNewRegistroToAttach : registroCollectionNew) {
+                registroCollectionNewRegistroToAttach = em.getReference(registroCollectionNewRegistroToAttach.getClass(), registroCollectionNewRegistroToAttach.getId());
+                attachedRegistroCollectionNew.add(registroCollectionNewRegistroToAttach);
             }
-            miembroCollectionNew = attachedMiembroCollectionNew;
-            equipo.setMiembroCollection(miembroCollectionNew);
+            registroCollectionNew = attachedRegistroCollectionNew;
+            equipo.setRegistroCollection(registroCollectionNew);
             equipo = em.merge(equipo);
+            if (grupoIdOld != null && !grupoIdOld.equals(grupoIdNew)) {
+                grupoIdOld.getEquipoCollection().remove(equipo);
+                grupoIdOld = em.merge(grupoIdOld);
+            }
+            if (grupoIdNew != null && !grupoIdNew.equals(grupoIdOld)) {
+                grupoIdNew.getEquipoCollection().add(equipo);
+                grupoIdNew = em.merge(grupoIdNew);
+            }
             for (Participante participanteCollectionOldParticipante : participanteCollectionOld) {
                 if (!participanteCollectionNew.contains(participanteCollectionOldParticipante)) {
                     participanteCollectionOldParticipante.setEquipoId(null);
@@ -137,14 +154,20 @@ public class EquipoJpa implements Serializable {
                     }
                 }
             }
-            for (Miembro miembroCollectionNewMiembro : miembroCollectionNew) {
-                if (!miembroCollectionOld.contains(miembroCollectionNewMiembro)) {
-                    Equipo oldEquipoIdOfMiembroCollectionNewMiembro = miembroCollectionNewMiembro.getEquipoId();
-                    miembroCollectionNewMiembro.setEquipoId(equipo);
-                    miembroCollectionNewMiembro = em.merge(miembroCollectionNewMiembro);
-                    if (oldEquipoIdOfMiembroCollectionNewMiembro != null && !oldEquipoIdOfMiembroCollectionNewMiembro.equals(equipo)) {
-                        oldEquipoIdOfMiembroCollectionNewMiembro.getMiembroCollection().remove(miembroCollectionNewMiembro);
-                        oldEquipoIdOfMiembroCollectionNewMiembro = em.merge(oldEquipoIdOfMiembroCollectionNewMiembro);
+            for (Registro registroCollectionOldRegistro : registroCollectionOld) {
+                if (!registroCollectionNew.contains(registroCollectionOldRegistro)) {
+                    registroCollectionOldRegistro.setEquipoId(null);
+                    registroCollectionOldRegistro = em.merge(registroCollectionOldRegistro);
+                }
+            }
+            for (Registro registroCollectionNewRegistro : registroCollectionNew) {
+                if (!registroCollectionOld.contains(registroCollectionNewRegistro)) {
+                    Equipo oldEquipoIdOfRegistroCollectionNewRegistro = registroCollectionNewRegistro.getEquipoId();
+                    registroCollectionNewRegistro.setEquipoId(equipo);
+                    registroCollectionNewRegistro = em.merge(registroCollectionNewRegistro);
+                    if (oldEquipoIdOfRegistroCollectionNewRegistro != null && !oldEquipoIdOfRegistroCollectionNewRegistro.equals(equipo)) {
+                        oldEquipoIdOfRegistroCollectionNewRegistro.getRegistroCollection().remove(registroCollectionNewRegistro);
+                        oldEquipoIdOfRegistroCollectionNewRegistro = em.merge(oldEquipoIdOfRegistroCollectionNewRegistro);
                     }
                 }
             }
@@ -165,7 +188,7 @@ public class EquipoJpa implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -177,21 +200,20 @@ public class EquipoJpa implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The equipo with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            Collection<Miembro> miembroCollectionOrphanCheck = equipo.getMiembroCollection();
-            for (Miembro miembroCollectionOrphanCheckMiembro : miembroCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Equipo (" + equipo + ") cannot be destroyed since the Miembro " + miembroCollectionOrphanCheckMiembro + " in its miembroCollection field has a non-nullable equipoId field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
+            Grupo grupoId = equipo.getGrupoId();
+            if (grupoId != null) {
+                grupoId.getEquipoCollection().remove(equipo);
+                grupoId = em.merge(grupoId);
             }
             Collection<Participante> participanteCollection = equipo.getParticipanteCollection();
             for (Participante participanteCollectionParticipante : participanteCollection) {
                 participanteCollectionParticipante.setEquipoId(null);
                 participanteCollectionParticipante = em.merge(participanteCollectionParticipante);
+            }
+            Collection<Registro> registroCollection = equipo.getRegistroCollection();
+            for (Registro registroCollectionRegistro : registroCollection) {
+                registroCollectionRegistro.setEquipoId(null);
+                registroCollectionRegistro = em.merge(registroCollectionRegistro);
             }
             em.remove(equipo);
             em.getTransaction().commit();
@@ -248,6 +270,8 @@ public class EquipoJpa implements Serializable {
         }
     }
     
+    // Creados por mi
+    
     public Equipo findByNombreAndCompeticion(String nombre, Integer competicionid) {
         EntityManager em = getEntityManager();
         Equipo res;
@@ -293,4 +317,5 @@ public class EquipoJpa implements Serializable {
         }
         return res;
     }
+    
 }

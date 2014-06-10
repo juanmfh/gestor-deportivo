@@ -1,4 +1,10 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -8,16 +14,16 @@ import javax.persistence.criteria.Root;
 import modelo.Compuesta;
 import java.util.ArrayList;
 import java.util.Collection;
+import modelo.Inscripcion;
+import modelo.Administrado;
+import modelo.Competicion;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Inscripcion;
-import modelo.Administrado;
-import modelo.Competicion;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.IllegalOrphanException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -28,7 +34,6 @@ public class CompeticionJpa implements Serializable {
     public CompeticionJpa() {
         this.emf = Persistence.createEntityManagerFactory("JavaAppDesktopPU");
     }
-
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
@@ -306,7 +311,9 @@ public class CompeticionJpa implements Serializable {
             em.close();
         }
     }
-
+    
+    // Creados por mi
+    
     public List<String> findAllCompeticionNames() {
         EntityManager em = getEntityManager();
         List<String> res;
@@ -338,5 +345,5 @@ public class CompeticionJpa implements Serializable {
         }
         return res;
     }
-
+    
 }

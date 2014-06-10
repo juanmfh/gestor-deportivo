@@ -37,36 +37,50 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Registro.findByNum", query = "SELECT r FROM Registro r WHERE r.num = :num"),
     @NamedQuery(name = "Registro.findByNumIntento", query = "SELECT r FROM Registro r WHERE r.numIntento = :numIntento"),
     @NamedQuery(name = "Registro.findBySorteo", query = "SELECT r FROM Registro r WHERE r.sorteo = :sorteo"),
+    
+    // Ahora participante es una única persona, nunca un equipo
     @NamedQuery(name = "Registro.findByParticipante", query = "SELECT r FROM Registro r WHERE r.participanteId.id = :participanteid"),
+    // Añado uno para equipos
+    @NamedQuery(name = "Registro.findByEquipo", query = "SELECT r FROM Registro r WHERE r.equipoId.id = :equipoid"),    
     @NamedQuery(name = "Registro.findByInscripcion", query = "SELECT r FROM Registro r WHERE r.inscripcionId.id = :inscripcionid"),
     @NamedQuery(name = "Registro.findByPrueba", query = "SELECT r FROM Registro r WHERE r.pruebaId.id = :pruebaid"),
     
     @NamedQuery(name = "Registro.findByCompeticion", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid"),
-    @NamedQuery(name = "Registro.findByCompeticionIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.participanteId.equipoId IS NULL"),
-    @NamedQuery(name = "Registro.findByCompeticionEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.participanteId.personaId IS NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.equipoId IS NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.participanteId IS NULL"),
     
     @NamedQuery(name = "Registro.findByCompeticionPrueba", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid"),
-    @NamedQuery(name = "Registro.findByCompeticionPruebaIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid  AND r.participanteId.equipoId is NULL"),
-    @NamedQuery(name = "Registro.findByCompeticionPruebaEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.participanteId.personaId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionPruebaIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid  AND r.equipoId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionPruebaEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.participanteId is NULL"),
     
     @NamedQuery(name = "Registro.findByCompeticionGrupo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid"),
-    @NamedQuery(name = "Registro.findByCompeticionGrupoIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.participanteId.equipoId is NULL"),
-    @NamedQuery(name = "Registro.findByCompeticionGrupoEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.participanteId.personaId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionGrupoIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.equipoId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionGrupoEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.participanteId is NULL"),
     
     @NamedQuery(name = "Registro.findByCompeticionGrupoPrueba", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.pruebaId.id = :pruebaid"),
-    @NamedQuery(name = "Registro.findByCompeticionGrupoPruebaIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.pruebaId.id = :pruebaid AND r.participanteId.equipoId is NULL"),
-    @NamedQuery(name = "Registro.findByCompeticionGrupoPruebaEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.pruebaId.id = :pruebaid AND r.participanteId.personaId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionGrupoPruebaIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.pruebaId.id = :pruebaid AND r.equipoId is NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionGrupoPruebaEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.inscripcionId.grupoId.id = :grupoid AND r.pruebaId.id = :pruebaid AND r.participanteId is NULL"),
     
+    // Es el número de intento mayor. Cambiar de nombre
     @NamedQuery(name = "Registro.findMinNumIntentoByInscripcionPruebaParticipante", query = "SELECT MAX(r.numIntento) FROM Registro r WHERE r.inscripcionId.id = :inscripcionid AND r.participanteId.id = :participanteid AND r.pruebaId.id = :pruebaid"),
+    // Añado uno igual que el anterior pero para equipos
+    @NamedQuery(name = "Registro.findMinNumIntentoByInscripcionPruebaEquipo", query = "SELECT MAX(r.numIntento) FROM Registro r WHERE r.inscripcionId.id = :inscripcionid AND r.equipoId.id = :equipoid AND r.pruebaId.id = :pruebaid"),
+    
     
     @NamedQuery(name = "Registro.findParticipantesConRegistrosNum", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
+    @NamedQuery(name = "Registro.findEquiposConRegistrosNum", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
+    
     @NamedQuery(name = "Registro.findParticipantesConRegistrosTiempo", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
+    @NamedQuery(name = "Registro.findEquiposConRegistrosTiempo", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
     
     @NamedQuery(name = "Registro.findRegistroByParticipantePruebaCompeticionOrderByNumIntento", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.participanteId.id = :participanteid ORDER BY r.numIntento"),
+    @NamedQuery(name = "Registro.findRegistroByEquipoPruebaCompeticionOrderByNumIntento", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.equipoId.id = :equipoid ORDER BY r.numIntento"),
     
     @NamedQuery(name = "Registro.findMaxRegistroByParticipantePruebaCompeticion", query = "SELECT MAX(r.num) FROM Registro r WHERE r.participanteId.id = :participanteid AND r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid"),
+    @NamedQuery(name = "Registro.findMaxRegistroByEquipoPruebaCompeticion", query = "SELECT MAX(r.num) FROM Registro r WHERE r.equipoId.id = :equipoid AND r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid"),
+    
     @NamedQuery(name = "Registro.findMinRegistroByParticipantePruebaCompeticion", query = "SELECT MIN(r.tiempo) FROM Registro r WHERE r.participanteId.id = :participanteid AND r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid"),
-        
+    @NamedQuery(name = "Registro.findMinRegistroByEquipoPruebaCompeticion", query = "SELECT MIN(r.tiempo) FROM Registro r WHERE r.equipoId.id = :equipoid AND r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid")
 })
 public class Registro implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -90,15 +104,15 @@ public class Registro implements Serializable {
     @JoinColumn(name = "PRUEBA_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Prueba pruebaId;
-    @JoinColumn(name = "PERSONA_ID", referencedColumnName = "ID")
-    @ManyToOne
-    private Persona personaId;
     @JoinColumn(name = "PARTICIPANTE_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Participante participanteId;
     @JoinColumn(name = "INSCRIPCION_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Inscripcion inscripcionId;
+    @JoinColumn(name = "EQUIPO_ID", referencedColumnName = "ID")
+    @ManyToOne
+    private Equipo equipoId;
 
     public Registro() {
     }
@@ -161,14 +175,6 @@ public class Registro implements Serializable {
         this.pruebaId = pruebaId;
     }
 
-    public Persona getPersonaId() {
-        return personaId;
-    }
-
-    public void setPersonaId(Persona personaId) {
-        this.personaId = personaId;
-    }
-
     public Participante getParticipanteId() {
         return participanteId;
     }
@@ -183,6 +189,14 @@ public class Registro implements Serializable {
 
     public void setInscripcionId(Inscripcion inscripcionId) {
         this.inscripcionId = inscripcionId;
+    }
+
+    public Equipo getEquipoId() {
+        return equipoId;
+    }
+
+    public void setEquipoId(Equipo equipoId) {
+        this.equipoId = equipoId;
     }
 
     @Override
@@ -207,7 +221,7 @@ public class Registro implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Registro[ id=" + id + " ]";
+        return "entities.Registro[ id=" + id + " ]";
     }
     
 }

@@ -97,7 +97,7 @@ public class Acceso implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Acceso[ id=" + id + " ]";
+        return "entities.Acceso[ id=" + id + " ]";
     }
     
 }

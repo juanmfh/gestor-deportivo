@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import modelo.Usuario;
-import modelo.dao.UsuarioJpa;
+import jpa.UsuarioJpa;
 import vista.VistaLogin;
 
 /**

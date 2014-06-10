@@ -21,13 +21,11 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import modelo.Equipo;
-import modelo.Persona;
 import modelo.Prueba;
 import modelo.Registro;
-import modelo.dao.EquipoJpa;
-import modelo.dao.PersonaJpa;
-import modelo.dao.PruebaJpa;
-import modelo.dao.RegistroJpa;
+import jpa.EquipoJpa;
+import jpa.PruebaJpa;
+import jpa.RegistroJpa;
 
 /**
  *
@@ -86,7 +84,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                 if (p != null) {
                     columna = 0;
                     fila = 1;
-                    while (fila < numFilas) {
+                    /*while (fila < numFilas) {
                         // Si es una prueba individual
                         if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                             try {
@@ -183,7 +181,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                             }
 
                         }
-                    }
+                    }*/
                 }
             }
         } catch (IOException | BiffException ex) {

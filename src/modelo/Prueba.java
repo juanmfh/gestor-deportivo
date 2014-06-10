@@ -33,10 +33,13 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Prueba.findAll", query = "SELECT p FROM Prueba p"),
     @NamedQuery(name = "Prueba.findById", query = "SELECT p FROM Prueba p WHERE p.id = :id"),
     @NamedQuery(name = "Prueba.findByNombre", query = "SELECT p FROM Prueba p WHERE p.nombre = :nombre"),
-    @NamedQuery(name = "Prueba.findByNombreCompeticion", query = "SELECT p FROM Prueba p WHERE p.nombre = :nombre and p IN (SELECT c.pruebaId FROM Compuesta c WHERE c.competicionId.id = :competicionid)"),
     @NamedQuery(name = "Prueba.findByTipo", query = "SELECT p FROM Prueba p WHERE p.tipo = :tipo"),
+    @NamedQuery(name = "Prueba.findByTiporesultado", query = "SELECT p FROM Prueba p WHERE p.tiporesultado = :tiporesultado"),
+
+    @NamedQuery(name = "Prueba.findByNombreCompeticion", query = "SELECT p FROM Prueba p WHERE p.nombre = :nombre and p IN (SELECT c.pruebaId FROM Compuesta c WHERE c.competicionId.id = :competicionid)"),
     @NamedQuery(name = "Prueba.findByCompeticionId", query = "SELECT p FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id"),
-    @NamedQuery(name = "Prueba.findByNotCompeticionId", query = "SELECT p FROM Prueba p WHERE p NOT IN (SELECT p FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id)")})
+    @NamedQuery(name = "Prueba.findByNotCompeticionId", query = "SELECT p FROM Prueba p WHERE p NOT IN (SELECT p FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id)")
+})
 public class Prueba implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -55,10 +58,10 @@ public class Prueba implements Serializable {
     private String tiporesultado;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "pruebaId")
     private Collection<Compuesta> compuestaCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pruebaasignada")
+    private Collection<Participante> participanteCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "pruebaId")
     private Collection<Registro> registroCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pruebaId")
-    private Collection<Compite> compiteCollection;
 
     public Prueba() {
     }
@@ -67,10 +70,11 @@ public class Prueba implements Serializable {
         this.id = id;
     }
 
-    public Prueba(Integer id, String nombre, String tipo) {
+    public Prueba(Integer id, String nombre, String tipo, String tiporesultado) {
         this.id = id;
         this.nombre = nombre;
         this.tipo = tipo;
+        this.tiporesultado = tiporesultado;
     }
 
     public Integer getId() {
@@ -104,7 +108,7 @@ public class Prueba implements Serializable {
     public void setTiporesultado(String tiporesultado) {
         this.tiporesultado = tiporesultado;
     }
-    
+
     @XmlTransient
     public Collection<Compuesta> getCompuestaCollection() {
         return compuestaCollection;
@@ -115,21 +119,21 @@ public class Prueba implements Serializable {
     }
 
     @XmlTransient
+    public Collection<Participante> getParticipanteCollection() {
+        return participanteCollection;
+    }
+
+    public void setParticipanteCollection(Collection<Participante> participanteCollection) {
+        this.participanteCollection = participanteCollection;
+    }
+
+    @XmlTransient
     public Collection<Registro> getRegistroCollection() {
         return registroCollection;
     }
 
     public void setRegistroCollection(Collection<Registro> registroCollection) {
         this.registroCollection = registroCollection;
-    }
-
-    @XmlTransient
-    public Collection<Compite> getCompiteCollection() {
-        return compiteCollection;
-    }
-
-    public void setCompiteCollection(Collection<Compite> compiteCollection) {
-        this.compiteCollection = compiteCollection;
     }
 
     @Override
@@ -154,7 +158,7 @@ public class Prueba implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Prueba[ id=" + id + " ]";
+        return "entities.Prueba[ id=" + id + " ]";
     }
     
 }

@@ -1,13 +1,21 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import modelo.Persona;
+import modelo.Prueba;
+import modelo.Grupo;
 import modelo.Equipo;
-import modelo.Participa;
+import modelo.Participante;
+import modelo.Registro;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,10 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Participante;
-import modelo.Registro;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -36,9 +41,6 @@ public class ParticipanteJpa implements Serializable {
     }
 
     public void create(Participante participante) {
-        if (participante.getParticipaCollection() == null) {
-            participante.setParticipaCollection(new ArrayList<Participa>());
-        }
         if (participante.getRegistroCollection() == null) {
             participante.setRegistroCollection(new ArrayList<Registro>());
         }
@@ -46,22 +48,21 @@ public class ParticipanteJpa implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Persona personaId = participante.getPersonaId();
-            if (personaId != null) {
-                personaId = em.getReference(personaId.getClass(), personaId.getId());
-                participante.setPersonaId(personaId);
+            Prueba pruebaasignada = participante.getPruebaasignada();
+            if (pruebaasignada != null) {
+                pruebaasignada = em.getReference(pruebaasignada.getClass(), pruebaasignada.getId());
+                participante.setPruebaasignada(pruebaasignada);
+            }
+            Grupo grupoId = participante.getGrupoId();
+            if (grupoId != null) {
+                grupoId = em.getReference(grupoId.getClass(), grupoId.getId());
+                participante.setGrupoId(grupoId);
             }
             Equipo equipoId = participante.getEquipoId();
             if (equipoId != null) {
                 equipoId = em.getReference(equipoId.getClass(), equipoId.getId());
                 participante.setEquipoId(equipoId);
             }
-            Collection<Participa> attachedParticipaCollection = new ArrayList<Participa>();
-            for (Participa participaCollectionParticipaToAttach : participante.getParticipaCollection()) {
-                participaCollectionParticipaToAttach = em.getReference(participaCollectionParticipaToAttach.getClass(), participaCollectionParticipaToAttach.getId());
-                attachedParticipaCollection.add(participaCollectionParticipaToAttach);
-            }
-            participante.setParticipaCollection(attachedParticipaCollection);
             Collection<Registro> attachedRegistroCollection = new ArrayList<Registro>();
             for (Registro registroCollectionRegistroToAttach : participante.getRegistroCollection()) {
                 registroCollectionRegistroToAttach = em.getReference(registroCollectionRegistroToAttach.getClass(), registroCollectionRegistroToAttach.getId());
@@ -69,22 +70,17 @@ public class ParticipanteJpa implements Serializable {
             }
             participante.setRegistroCollection(attachedRegistroCollection);
             em.persist(participante);
-            if (personaId != null) {
-                personaId.getParticipanteCollection().add(participante);
-                personaId = em.merge(personaId);
+            if (pruebaasignada != null) {
+                pruebaasignada.getParticipanteCollection().add(participante);
+                pruebaasignada = em.merge(pruebaasignada);
+            }
+            if (grupoId != null) {
+                grupoId.getParticipanteCollection().add(participante);
+                grupoId = em.merge(grupoId);
             }
             if (equipoId != null) {
                 equipoId.getParticipanteCollection().add(participante);
                 equipoId = em.merge(equipoId);
-            }
-            for (Participa participaCollectionParticipa : participante.getParticipaCollection()) {
-                Participante oldParticipanteIdOfParticipaCollectionParticipa = participaCollectionParticipa.getParticipanteId();
-                participaCollectionParticipa.setParticipanteId(participante);
-                participaCollectionParticipa = em.merge(participaCollectionParticipa);
-                if (oldParticipanteIdOfParticipaCollectionParticipa != null) {
-                    oldParticipanteIdOfParticipaCollectionParticipa.getParticipaCollection().remove(participaCollectionParticipa);
-                    oldParticipanteIdOfParticipaCollectionParticipa = em.merge(oldParticipanteIdOfParticipaCollectionParticipa);
-                }
             }
             for (Registro registroCollectionRegistro : participante.getRegistroCollection()) {
                 Participante oldParticipanteIdOfRegistroCollectionRegistro = registroCollectionRegistro.getParticipanteId();
@@ -103,55 +99,32 @@ public class ParticipanteJpa implements Serializable {
         }
     }
 
-    public void edit(Participante participante) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Participante participante) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
             Participante persistentParticipante = em.find(Participante.class, participante.getId());
-            Persona personaIdOld = persistentParticipante.getPersonaId();
-            Persona personaIdNew = participante.getPersonaId();
+            Prueba pruebaasignadaOld = persistentParticipante.getPruebaasignada();
+            Prueba pruebaasignadaNew = participante.getPruebaasignada();
+            Grupo grupoIdOld = persistentParticipante.getGrupoId();
+            Grupo grupoIdNew = participante.getGrupoId();
             Equipo equipoIdOld = persistentParticipante.getEquipoId();
             Equipo equipoIdNew = participante.getEquipoId();
-            Collection<Participa> participaCollectionOld = persistentParticipante.getParticipaCollection();
-            Collection<Participa> participaCollectionNew = participante.getParticipaCollection();
             Collection<Registro> registroCollectionOld = persistentParticipante.getRegistroCollection();
             Collection<Registro> registroCollectionNew = participante.getRegistroCollection();
-            List<String> illegalOrphanMessages = null;
-            for (Participa participaCollectionOldParticipa : participaCollectionOld) {
-                if (!participaCollectionNew.contains(participaCollectionOldParticipa)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Participa " + participaCollectionOldParticipa + " since its participanteId field is not nullable.");
-                }
+            if (pruebaasignadaNew != null) {
+                pruebaasignadaNew = em.getReference(pruebaasignadaNew.getClass(), pruebaasignadaNew.getId());
+                participante.setPruebaasignada(pruebaasignadaNew);
             }
-            for (Registro registroCollectionOldRegistro : registroCollectionOld) {
-                if (!registroCollectionNew.contains(registroCollectionOldRegistro)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Registro " + registroCollectionOldRegistro + " since its participanteId field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            if (personaIdNew != null) {
-                personaIdNew = em.getReference(personaIdNew.getClass(), personaIdNew.getId());
-                participante.setPersonaId(personaIdNew);
+            if (grupoIdNew != null) {
+                grupoIdNew = em.getReference(grupoIdNew.getClass(), grupoIdNew.getId());
+                participante.setGrupoId(grupoIdNew);
             }
             if (equipoIdNew != null) {
                 equipoIdNew = em.getReference(equipoIdNew.getClass(), equipoIdNew.getId());
                 participante.setEquipoId(equipoIdNew);
             }
-            Collection<Participa> attachedParticipaCollectionNew = new ArrayList<Participa>();
-            for (Participa participaCollectionNewParticipaToAttach : participaCollectionNew) {
-                participaCollectionNewParticipaToAttach = em.getReference(participaCollectionNewParticipaToAttach.getClass(), participaCollectionNewParticipaToAttach.getId());
-                attachedParticipaCollectionNew.add(participaCollectionNewParticipaToAttach);
-            }
-            participaCollectionNew = attachedParticipaCollectionNew;
-            participante.setParticipaCollection(participaCollectionNew);
             Collection<Registro> attachedRegistroCollectionNew = new ArrayList<Registro>();
             for (Registro registroCollectionNewRegistroToAttach : registroCollectionNew) {
                 registroCollectionNewRegistroToAttach = em.getReference(registroCollectionNewRegistroToAttach.getClass(), registroCollectionNewRegistroToAttach.getId());
@@ -160,13 +133,21 @@ public class ParticipanteJpa implements Serializable {
             registroCollectionNew = attachedRegistroCollectionNew;
             participante.setRegistroCollection(registroCollectionNew);
             participante = em.merge(participante);
-            if (personaIdOld != null && !personaIdOld.equals(personaIdNew)) {
-                personaIdOld.getParticipanteCollection().remove(participante);
-                personaIdOld = em.merge(personaIdOld);
+            if (pruebaasignadaOld != null && !pruebaasignadaOld.equals(pruebaasignadaNew)) {
+                pruebaasignadaOld.getParticipanteCollection().remove(participante);
+                pruebaasignadaOld = em.merge(pruebaasignadaOld);
             }
-            if (personaIdNew != null && !personaIdNew.equals(personaIdOld)) {
-                personaIdNew.getParticipanteCollection().add(participante);
-                personaIdNew = em.merge(personaIdNew);
+            if (pruebaasignadaNew != null && !pruebaasignadaNew.equals(pruebaasignadaOld)) {
+                pruebaasignadaNew.getParticipanteCollection().add(participante);
+                pruebaasignadaNew = em.merge(pruebaasignadaNew);
+            }
+            if (grupoIdOld != null && !grupoIdOld.equals(grupoIdNew)) {
+                grupoIdOld.getParticipanteCollection().remove(participante);
+                grupoIdOld = em.merge(grupoIdOld);
+            }
+            if (grupoIdNew != null && !grupoIdNew.equals(grupoIdOld)) {
+                grupoIdNew.getParticipanteCollection().add(participante);
+                grupoIdNew = em.merge(grupoIdNew);
             }
             if (equipoIdOld != null && !equipoIdOld.equals(equipoIdNew)) {
                 equipoIdOld.getParticipanteCollection().remove(participante);
@@ -176,15 +157,10 @@ public class ParticipanteJpa implements Serializable {
                 equipoIdNew.getParticipanteCollection().add(participante);
                 equipoIdNew = em.merge(equipoIdNew);
             }
-            for (Participa participaCollectionNewParticipa : participaCollectionNew) {
-                if (!participaCollectionOld.contains(participaCollectionNewParticipa)) {
-                    Participante oldParticipanteIdOfParticipaCollectionNewParticipa = participaCollectionNewParticipa.getParticipanteId();
-                    participaCollectionNewParticipa.setParticipanteId(participante);
-                    participaCollectionNewParticipa = em.merge(participaCollectionNewParticipa);
-                    if (oldParticipanteIdOfParticipaCollectionNewParticipa != null && !oldParticipanteIdOfParticipaCollectionNewParticipa.equals(participante)) {
-                        oldParticipanteIdOfParticipaCollectionNewParticipa.getParticipaCollection().remove(participaCollectionNewParticipa);
-                        oldParticipanteIdOfParticipaCollectionNewParticipa = em.merge(oldParticipanteIdOfParticipaCollectionNewParticipa);
-                    }
+            for (Registro registroCollectionOldRegistro : registroCollectionOld) {
+                if (!registroCollectionNew.contains(registroCollectionOldRegistro)) {
+                    registroCollectionOldRegistro.setParticipanteId(null);
+                    registroCollectionOldRegistro = em.merge(registroCollectionOldRegistro);
                 }
             }
             for (Registro registroCollectionNewRegistro : registroCollectionNew) {
@@ -215,7 +191,7 @@ public class ParticipanteJpa implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -227,33 +203,25 @@ public class ParticipanteJpa implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The participante with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            Collection<Participa> participaCollectionOrphanCheck = participante.getParticipaCollection();
-            for (Participa participaCollectionOrphanCheckParticipa : participaCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Participante (" + participante + ") cannot be destroyed since the Participa " + participaCollectionOrphanCheckParticipa + " in its participaCollection field has a non-nullable participanteId field.");
+            Prueba pruebaasignada = participante.getPruebaasignada();
+            if (pruebaasignada != null) {
+                pruebaasignada.getParticipanteCollection().remove(participante);
+                pruebaasignada = em.merge(pruebaasignada);
             }
-            Collection<Registro> registroCollectionOrphanCheck = participante.getRegistroCollection();
-            for (Registro registroCollectionOrphanCheckRegistro : registroCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Participante (" + participante + ") cannot be destroyed since the Registro " + registroCollectionOrphanCheckRegistro + " in its registroCollection field has a non-nullable participanteId field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            Persona personaId = participante.getPersonaId();
-            if (personaId != null) {
-                personaId.getParticipanteCollection().remove(participante);
-                personaId = em.merge(personaId);
+            Grupo grupoId = participante.getGrupoId();
+            if (grupoId != null) {
+                grupoId.getParticipanteCollection().remove(participante);
+                grupoId = em.merge(grupoId);
             }
             Equipo equipoId = participante.getEquipoId();
             if (equipoId != null) {
                 equipoId.getParticipanteCollection().remove(participante);
                 equipoId = em.merge(equipoId);
+            }
+            Collection<Registro> registroCollection = participante.getRegistroCollection();
+            for (Registro registroCollectionRegistro : registroCollection) {
+                registroCollectionRegistro.setParticipanteId(null);
+                registroCollectionRegistro = em.merge(registroCollectionRegistro);
             }
             em.remove(participante);
             em.getTransaction().commit();
@@ -310,9 +278,13 @@ public class ParticipanteJpa implements Serializable {
         }
     }
     
-    public List<Persona> findPersonaByGrupo(Integer grupoid) {
+    // Creado por mi
+    
+
+    
+    public List<Participante> findPersonaByGrupo(Integer grupoid) {
         EntityManager em = getEntityManager();
-        List<Persona> res;
+        List<Participante> res;
         try {
             Query q = em.createNamedQuery("Participante.findPersonaByGrupo");
             q.setParameter("grupoid", grupoid);
@@ -325,14 +297,28 @@ public class ParticipanteJpa implements Serializable {
         return res;
     }
     
+    public List<Participante> findByEquipo(Integer equipoid) {
+        EntityManager em = getEntityManager();
+        List<Participante> res;
+        try {
+            Query q = em.createNamedQuery("Participante.findByEquipo");
+            q.setParameter("equipoid", equipoid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
     
-    
-    public Participante findByPersonaId(Integer id) {
+    public Participante findByDorsalAndCompeticion(Integer dorsal, Integer competicionid) {
         EntityManager em = getEntityManager();
         Participante res;
         try {
-            Query q = em.createNamedQuery("Participante.findByPersonaId");
-            q.setParameter("id", id);
+            Query q = em.createNamedQuery("Participante.findByDorsalAndCompeticion");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("dorsal", dorsal);
             res = (Participante)q.getSingleResult();
         } catch (NoResultException e) {
             return null;
@@ -342,20 +328,5 @@ public class ParticipanteJpa implements Serializable {
         return res;
     }
     
-    public Participante findByEquipoId(Integer id) {
-        EntityManager em = getEntityManager();
-        Participante res;
-        try {
-            Query q = em.createNamedQuery("Participante.findByEquipoId");
-            q.setParameter("id", id);
-            res = (Participante)q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally {
-            em.close();
-        }
-        return res;
-    }
     
-   
 }

@@ -9,12 +9,13 @@ package modelo;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -33,10 +34,11 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Equipo.findAll", query = "SELECT e FROM Equipo e"),
     @NamedQuery(name = "Equipo.findById", query = "SELECT e FROM Equipo e WHERE e.id = :id"),
     @NamedQuery(name = "Equipo.findByNombre", query = "SELECT e FROM Equipo e WHERE e.nombre = :nombre"),
-    @NamedQuery(name = "Equipo.findByGrupo", query = "SELECT e FROM Equipo e JOIN e.participanteCollection p WHERE p IN (SELECT par.participanteId FROM Participa par WHERE par.grupoId.id = :grupoid)"),
-    @NamedQuery(name = "Equipo.findByNombreAndCompeticion", query = "SELECT e FROM Equipo e JOIN e.participanteCollection p WHERE e.nombre = :nombreEquipo and p IN (SELECT par.participanteId FROM Participa par WHERE par.participanteId = p AND par.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid)) "),
-    @NamedQuery(name = "Equipo.findByCompeticion", query = "SELECT e FROM Equipo e JOIN e.participanteCollection p WHERE p IN (SELECT par.participanteId FROM Participa par WHERE par.participanteId = p AND par.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid)) ")
-    })
+    
+    @NamedQuery(name = "Equipo.findByGrupo", query = "SELECT e FROM Equipo e WHERE e.grupoId.id = :grupoid"),
+    @NamedQuery(name = "Equipo.findByNombreAndCompeticion", query = "SELECT e FROM Equipo e WHERE e.nombre = :nombreEquipo and e.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid)"),
+    @NamedQuery(name = "Equipo.findByCompeticion", query = "SELECT e FROM Equipo e WHERE e.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid)")
+})
 public class Equipo implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -47,10 +49,13 @@ public class Equipo implements Serializable {
     @Basic(optional = false)
     @Column(name = "NOMBRE")
     private String nombre;
+    @JoinColumn(name = "GRUPO_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Grupo grupoId;
     @OneToMany(mappedBy = "equipoId")
     private Collection<Participante> participanteCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "equipoId")
-    private Collection<Miembro> miembroCollection;
+    @OneToMany(mappedBy = "equipoId")
+    private Collection<Registro> registroCollection;
 
     public Equipo() {
     }
@@ -80,6 +85,14 @@ public class Equipo implements Serializable {
         this.nombre = nombre;
     }
 
+    public Grupo getGrupoId() {
+        return grupoId;
+    }
+
+    public void setGrupoId(Grupo grupoId) {
+        this.grupoId = grupoId;
+    }
+
     @XmlTransient
     public Collection<Participante> getParticipanteCollection() {
         return participanteCollection;
@@ -90,12 +103,12 @@ public class Equipo implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Miembro> getMiembroCollection() {
-        return miembroCollection;
+    public Collection<Registro> getRegistroCollection() {
+        return registroCollection;
     }
 
-    public void setMiembroCollection(Collection<Miembro> miembroCollection) {
-        this.miembroCollection = miembroCollection;
+    public void setRegistroCollection(Collection<Registro> registroCollection) {
+        this.registroCollection = registroCollection;
     }
 
     @Override
@@ -120,7 +133,7 @@ public class Equipo implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Equipo[ id=" + id + " ]";
+        return "entities.Equipo[ id=" + id + " ]";
     }
     
 }

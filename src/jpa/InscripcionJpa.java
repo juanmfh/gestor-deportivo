@@ -1,4 +1,10 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jpa;
 
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -7,6 +13,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Grupo;
 import modelo.Competicion;
+import modelo.Inscripcion;
 import modelo.Registro;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,10 +22,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Compite;
-import modelo.Inscripcion;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.IllegalOrphanException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -38,9 +43,6 @@ public class InscripcionJpa implements Serializable {
     public void create(Inscripcion inscripcion) {
         if (inscripcion.getRegistroCollection() == null) {
             inscripcion.setRegistroCollection(new ArrayList<Registro>());
-        }
-        if (inscripcion.getCompiteCollection() == null) {
-            inscripcion.setCompiteCollection(new ArrayList<Compite>());
         }
         EntityManager em = null;
         try {
@@ -62,12 +64,6 @@ public class InscripcionJpa implements Serializable {
                 attachedRegistroCollection.add(registroCollectionRegistroToAttach);
             }
             inscripcion.setRegistroCollection(attachedRegistroCollection);
-            Collection<Compite> attachedCompiteCollection = new ArrayList<Compite>();
-            for (Compite compiteCollectionCompiteToAttach : inscripcion.getCompiteCollection()) {
-                compiteCollectionCompiteToAttach = em.getReference(compiteCollectionCompiteToAttach.getClass(), compiteCollectionCompiteToAttach.getId());
-                attachedCompiteCollection.add(compiteCollectionCompiteToAttach);
-            }
-            inscripcion.setCompiteCollection(attachedCompiteCollection);
             em.persist(inscripcion);
             if (grupoId != null) {
                 grupoId.getInscripcionCollection().add(inscripcion);
@@ -84,15 +80,6 @@ public class InscripcionJpa implements Serializable {
                 if (oldInscripcionIdOfRegistroCollectionRegistro != null) {
                     oldInscripcionIdOfRegistroCollectionRegistro.getRegistroCollection().remove(registroCollectionRegistro);
                     oldInscripcionIdOfRegistroCollectionRegistro = em.merge(oldInscripcionIdOfRegistroCollectionRegistro);
-                }
-            }
-            for (Compite compiteCollectionCompite : inscripcion.getCompiteCollection()) {
-                Inscripcion oldInscripcionIdOfCompiteCollectionCompite = compiteCollectionCompite.getInscripcionId();
-                compiteCollectionCompite.setInscripcionId(inscripcion);
-                compiteCollectionCompite = em.merge(compiteCollectionCompite);
-                if (oldInscripcionIdOfCompiteCollectionCompite != null) {
-                    oldInscripcionIdOfCompiteCollectionCompite.getCompiteCollection().remove(compiteCollectionCompite);
-                    oldInscripcionIdOfCompiteCollectionCompite = em.merge(oldInscripcionIdOfCompiteCollectionCompite);
                 }
             }
             em.getTransaction().commit();
@@ -115,8 +102,6 @@ public class InscripcionJpa implements Serializable {
             Competicion competicionIdNew = inscripcion.getCompeticionId();
             Collection<Registro> registroCollectionOld = persistentInscripcion.getRegistroCollection();
             Collection<Registro> registroCollectionNew = inscripcion.getRegistroCollection();
-            Collection<Compite> compiteCollectionOld = persistentInscripcion.getCompiteCollection();
-            Collection<Compite> compiteCollectionNew = inscripcion.getCompiteCollection();
             List<String> illegalOrphanMessages = null;
             for (Registro registroCollectionOldRegistro : registroCollectionOld) {
                 if (!registroCollectionNew.contains(registroCollectionOldRegistro)) {
@@ -124,14 +109,6 @@ public class InscripcionJpa implements Serializable {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain Registro " + registroCollectionOldRegistro + " since its inscripcionId field is not nullable.");
-                }
-            }
-            for (Compite compiteCollectionOldCompite : compiteCollectionOld) {
-                if (!compiteCollectionNew.contains(compiteCollectionOldCompite)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Compite " + compiteCollectionOldCompite + " since its inscripcionId field is not nullable.");
                 }
             }
             if (illegalOrphanMessages != null) {
@@ -152,13 +129,6 @@ public class InscripcionJpa implements Serializable {
             }
             registroCollectionNew = attachedRegistroCollectionNew;
             inscripcion.setRegistroCollection(registroCollectionNew);
-            Collection<Compite> attachedCompiteCollectionNew = new ArrayList<Compite>();
-            for (Compite compiteCollectionNewCompiteToAttach : compiteCollectionNew) {
-                compiteCollectionNewCompiteToAttach = em.getReference(compiteCollectionNewCompiteToAttach.getClass(), compiteCollectionNewCompiteToAttach.getId());
-                attachedCompiteCollectionNew.add(compiteCollectionNewCompiteToAttach);
-            }
-            compiteCollectionNew = attachedCompiteCollectionNew;
-            inscripcion.setCompiteCollection(compiteCollectionNew);
             inscripcion = em.merge(inscripcion);
             if (grupoIdOld != null && !grupoIdOld.equals(grupoIdNew)) {
                 grupoIdOld.getInscripcionCollection().remove(inscripcion);
@@ -184,17 +154,6 @@ public class InscripcionJpa implements Serializable {
                     if (oldInscripcionIdOfRegistroCollectionNewRegistro != null && !oldInscripcionIdOfRegistroCollectionNewRegistro.equals(inscripcion)) {
                         oldInscripcionIdOfRegistroCollectionNewRegistro.getRegistroCollection().remove(registroCollectionNewRegistro);
                         oldInscripcionIdOfRegistroCollectionNewRegistro = em.merge(oldInscripcionIdOfRegistroCollectionNewRegistro);
-                    }
-                }
-            }
-            for (Compite compiteCollectionNewCompite : compiteCollectionNew) {
-                if (!compiteCollectionOld.contains(compiteCollectionNewCompite)) {
-                    Inscripcion oldInscripcionIdOfCompiteCollectionNewCompite = compiteCollectionNewCompite.getInscripcionId();
-                    compiteCollectionNewCompite.setInscripcionId(inscripcion);
-                    compiteCollectionNewCompite = em.merge(compiteCollectionNewCompite);
-                    if (oldInscripcionIdOfCompiteCollectionNewCompite != null && !oldInscripcionIdOfCompiteCollectionNewCompite.equals(inscripcion)) {
-                        oldInscripcionIdOfCompiteCollectionNewCompite.getCompiteCollection().remove(compiteCollectionNewCompite);
-                        oldInscripcionIdOfCompiteCollectionNewCompite = em.merge(oldInscripcionIdOfCompiteCollectionNewCompite);
                     }
                 }
             }
@@ -234,13 +193,6 @@ public class InscripcionJpa implements Serializable {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Inscripcion (" + inscripcion + ") cannot be destroyed since the Registro " + registroCollectionOrphanCheckRegistro + " in its registroCollection field has a non-nullable inscripcionId field.");
-            }
-            Collection<Compite> compiteCollectionOrphanCheck = inscripcion.getCompiteCollection();
-            for (Compite compiteCollectionOrphanCheckCompite : compiteCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Inscripcion (" + inscripcion + ") cannot be destroyed since the Compite " + compiteCollectionOrphanCheckCompite + " in its compiteCollection field has a non-nullable inscripcionId field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
@@ -310,6 +262,8 @@ public class InscripcionJpa implements Serializable {
         }
     }
     
+    // Creado por mi
+    
     public List<Inscripcion> findInscripcionByCompeticion(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Inscripcion> res;
@@ -356,5 +310,4 @@ public class InscripcionJpa implements Serializable {
         }
         return res;
     }
-    
 }

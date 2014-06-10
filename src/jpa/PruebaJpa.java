@@ -1,5 +1,12 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
+package jpa;
+
+import modelo.Competicion;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -8,17 +15,16 @@ import javax.persistence.criteria.Root;
 import modelo.Compuesta;
 import java.util.ArrayList;
 import java.util.Collection;
+import modelo.Participante;
+import modelo.Prueba;
+import modelo.Registro;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.Competicion;
-import modelo.Registro;
-import modelo.Compite;
-import modelo.Prueba;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.IllegalOrphanException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -39,11 +45,11 @@ public class PruebaJpa implements Serializable {
         if (prueba.getCompuestaCollection() == null) {
             prueba.setCompuestaCollection(new ArrayList<Compuesta>());
         }
+        if (prueba.getParticipanteCollection() == null) {
+            prueba.setParticipanteCollection(new ArrayList<Participante>());
+        }
         if (prueba.getRegistroCollection() == null) {
             prueba.setRegistroCollection(new ArrayList<Registro>());
-        }
-        if (prueba.getCompiteCollection() == null) {
-            prueba.setCompiteCollection(new ArrayList<Compite>());
         }
         EntityManager em = null;
         try {
@@ -55,18 +61,18 @@ public class PruebaJpa implements Serializable {
                 attachedCompuestaCollection.add(compuestaCollectionCompuestaToAttach);
             }
             prueba.setCompuestaCollection(attachedCompuestaCollection);
+            Collection<Participante> attachedParticipanteCollection = new ArrayList<Participante>();
+            for (Participante participanteCollectionParticipanteToAttach : prueba.getParticipanteCollection()) {
+                participanteCollectionParticipanteToAttach = em.getReference(participanteCollectionParticipanteToAttach.getClass(), participanteCollectionParticipanteToAttach.getId());
+                attachedParticipanteCollection.add(participanteCollectionParticipanteToAttach);
+            }
+            prueba.setParticipanteCollection(attachedParticipanteCollection);
             Collection<Registro> attachedRegistroCollection = new ArrayList<Registro>();
             for (Registro registroCollectionRegistroToAttach : prueba.getRegistroCollection()) {
                 registroCollectionRegistroToAttach = em.getReference(registroCollectionRegistroToAttach.getClass(), registroCollectionRegistroToAttach.getId());
                 attachedRegistroCollection.add(registroCollectionRegistroToAttach);
             }
             prueba.setRegistroCollection(attachedRegistroCollection);
-            Collection<Compite> attachedCompiteCollection = new ArrayList<Compite>();
-            for (Compite compiteCollectionCompiteToAttach : prueba.getCompiteCollection()) {
-                compiteCollectionCompiteToAttach = em.getReference(compiteCollectionCompiteToAttach.getClass(), compiteCollectionCompiteToAttach.getId());
-                attachedCompiteCollection.add(compiteCollectionCompiteToAttach);
-            }
-            prueba.setCompiteCollection(attachedCompiteCollection);
             em.persist(prueba);
             for (Compuesta compuestaCollectionCompuesta : prueba.getCompuestaCollection()) {
                 Prueba oldPruebaIdOfCompuestaCollectionCompuesta = compuestaCollectionCompuesta.getPruebaId();
@@ -77,6 +83,15 @@ public class PruebaJpa implements Serializable {
                     oldPruebaIdOfCompuestaCollectionCompuesta = em.merge(oldPruebaIdOfCompuestaCollectionCompuesta);
                 }
             }
+            for (Participante participanteCollectionParticipante : prueba.getParticipanteCollection()) {
+                Prueba oldPruebaasignadaOfParticipanteCollectionParticipante = participanteCollectionParticipante.getPruebaasignada();
+                participanteCollectionParticipante.setPruebaasignada(prueba);
+                participanteCollectionParticipante = em.merge(participanteCollectionParticipante);
+                if (oldPruebaasignadaOfParticipanteCollectionParticipante != null) {
+                    oldPruebaasignadaOfParticipanteCollectionParticipante.getParticipanteCollection().remove(participanteCollectionParticipante);
+                    oldPruebaasignadaOfParticipanteCollectionParticipante = em.merge(oldPruebaasignadaOfParticipanteCollectionParticipante);
+                }
+            }
             for (Registro registroCollectionRegistro : prueba.getRegistroCollection()) {
                 Prueba oldPruebaIdOfRegistroCollectionRegistro = registroCollectionRegistro.getPruebaId();
                 registroCollectionRegistro.setPruebaId(prueba);
@@ -84,15 +99,6 @@ public class PruebaJpa implements Serializable {
                 if (oldPruebaIdOfRegistroCollectionRegistro != null) {
                     oldPruebaIdOfRegistroCollectionRegistro.getRegistroCollection().remove(registroCollectionRegistro);
                     oldPruebaIdOfRegistroCollectionRegistro = em.merge(oldPruebaIdOfRegistroCollectionRegistro);
-                }
-            }
-            for (Compite compiteCollectionCompite : prueba.getCompiteCollection()) {
-                Prueba oldPruebaIdOfCompiteCollectionCompite = compiteCollectionCompite.getPruebaId();
-                compiteCollectionCompite.setPruebaId(prueba);
-                compiteCollectionCompite = em.merge(compiteCollectionCompite);
-                if (oldPruebaIdOfCompiteCollectionCompite != null) {
-                    oldPruebaIdOfCompiteCollectionCompite.getCompiteCollection().remove(compiteCollectionCompite);
-                    oldPruebaIdOfCompiteCollectionCompite = em.merge(oldPruebaIdOfCompiteCollectionCompite);
                 }
             }
             em.getTransaction().commit();
@@ -111,10 +117,10 @@ public class PruebaJpa implements Serializable {
             Prueba persistentPrueba = em.find(Prueba.class, prueba.getId());
             Collection<Compuesta> compuestaCollectionOld = persistentPrueba.getCompuestaCollection();
             Collection<Compuesta> compuestaCollectionNew = prueba.getCompuestaCollection();
+            Collection<Participante> participanteCollectionOld = persistentPrueba.getParticipanteCollection();
+            Collection<Participante> participanteCollectionNew = prueba.getParticipanteCollection();
             Collection<Registro> registroCollectionOld = persistentPrueba.getRegistroCollection();
             Collection<Registro> registroCollectionNew = prueba.getRegistroCollection();
-            Collection<Compite> compiteCollectionOld = persistentPrueba.getCompiteCollection();
-            Collection<Compite> compiteCollectionNew = prueba.getCompiteCollection();
             List<String> illegalOrphanMessages = null;
             for (Compuesta compuestaCollectionOldCompuesta : compuestaCollectionOld) {
                 if (!compuestaCollectionNew.contains(compuestaCollectionOldCompuesta)) {
@@ -124,20 +130,20 @@ public class PruebaJpa implements Serializable {
                     illegalOrphanMessages.add("You must retain Compuesta " + compuestaCollectionOldCompuesta + " since its pruebaId field is not nullable.");
                 }
             }
+            for (Participante participanteCollectionOldParticipante : participanteCollectionOld) {
+                if (!participanteCollectionNew.contains(participanteCollectionOldParticipante)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Participante " + participanteCollectionOldParticipante + " since its pruebaasignada field is not nullable.");
+                }
+            }
             for (Registro registroCollectionOldRegistro : registroCollectionOld) {
                 if (!registroCollectionNew.contains(registroCollectionOldRegistro)) {
                     if (illegalOrphanMessages == null) {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain Registro " + registroCollectionOldRegistro + " since its pruebaId field is not nullable.");
-                }
-            }
-            for (Compite compiteCollectionOldCompite : compiteCollectionOld) {
-                if (!compiteCollectionNew.contains(compiteCollectionOldCompite)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Compite " + compiteCollectionOldCompite + " since its pruebaId field is not nullable.");
                 }
             }
             if (illegalOrphanMessages != null) {
@@ -150,6 +156,13 @@ public class PruebaJpa implements Serializable {
             }
             compuestaCollectionNew = attachedCompuestaCollectionNew;
             prueba.setCompuestaCollection(compuestaCollectionNew);
+            Collection<Participante> attachedParticipanteCollectionNew = new ArrayList<Participante>();
+            for (Participante participanteCollectionNewParticipanteToAttach : participanteCollectionNew) {
+                participanteCollectionNewParticipanteToAttach = em.getReference(participanteCollectionNewParticipanteToAttach.getClass(), participanteCollectionNewParticipanteToAttach.getId());
+                attachedParticipanteCollectionNew.add(participanteCollectionNewParticipanteToAttach);
+            }
+            participanteCollectionNew = attachedParticipanteCollectionNew;
+            prueba.setParticipanteCollection(participanteCollectionNew);
             Collection<Registro> attachedRegistroCollectionNew = new ArrayList<Registro>();
             for (Registro registroCollectionNewRegistroToAttach : registroCollectionNew) {
                 registroCollectionNewRegistroToAttach = em.getReference(registroCollectionNewRegistroToAttach.getClass(), registroCollectionNewRegistroToAttach.getId());
@@ -157,13 +170,6 @@ public class PruebaJpa implements Serializable {
             }
             registroCollectionNew = attachedRegistroCollectionNew;
             prueba.setRegistroCollection(registroCollectionNew);
-            Collection<Compite> attachedCompiteCollectionNew = new ArrayList<Compite>();
-            for (Compite compiteCollectionNewCompiteToAttach : compiteCollectionNew) {
-                compiteCollectionNewCompiteToAttach = em.getReference(compiteCollectionNewCompiteToAttach.getClass(), compiteCollectionNewCompiteToAttach.getId());
-                attachedCompiteCollectionNew.add(compiteCollectionNewCompiteToAttach);
-            }
-            compiteCollectionNew = attachedCompiteCollectionNew;
-            prueba.setCompiteCollection(compiteCollectionNew);
             prueba = em.merge(prueba);
             for (Compuesta compuestaCollectionNewCompuesta : compuestaCollectionNew) {
                 if (!compuestaCollectionOld.contains(compuestaCollectionNewCompuesta)) {
@@ -176,6 +182,17 @@ public class PruebaJpa implements Serializable {
                     }
                 }
             }
+            for (Participante participanteCollectionNewParticipante : participanteCollectionNew) {
+                if (!participanteCollectionOld.contains(participanteCollectionNewParticipante)) {
+                    Prueba oldPruebaasignadaOfParticipanteCollectionNewParticipante = participanteCollectionNewParticipante.getPruebaasignada();
+                    participanteCollectionNewParticipante.setPruebaasignada(prueba);
+                    participanteCollectionNewParticipante = em.merge(participanteCollectionNewParticipante);
+                    if (oldPruebaasignadaOfParticipanteCollectionNewParticipante != null && !oldPruebaasignadaOfParticipanteCollectionNewParticipante.equals(prueba)) {
+                        oldPruebaasignadaOfParticipanteCollectionNewParticipante.getParticipanteCollection().remove(participanteCollectionNewParticipante);
+                        oldPruebaasignadaOfParticipanteCollectionNewParticipante = em.merge(oldPruebaasignadaOfParticipanteCollectionNewParticipante);
+                    }
+                }
+            }
             for (Registro registroCollectionNewRegistro : registroCollectionNew) {
                 if (!registroCollectionOld.contains(registroCollectionNewRegistro)) {
                     Prueba oldPruebaIdOfRegistroCollectionNewRegistro = registroCollectionNewRegistro.getPruebaId();
@@ -184,17 +201,6 @@ public class PruebaJpa implements Serializable {
                     if (oldPruebaIdOfRegistroCollectionNewRegistro != null && !oldPruebaIdOfRegistroCollectionNewRegistro.equals(prueba)) {
                         oldPruebaIdOfRegistroCollectionNewRegistro.getRegistroCollection().remove(registroCollectionNewRegistro);
                         oldPruebaIdOfRegistroCollectionNewRegistro = em.merge(oldPruebaIdOfRegistroCollectionNewRegistro);
-                    }
-                }
-            }
-            for (Compite compiteCollectionNewCompite : compiteCollectionNew) {
-                if (!compiteCollectionOld.contains(compiteCollectionNewCompite)) {
-                    Prueba oldPruebaIdOfCompiteCollectionNewCompite = compiteCollectionNewCompite.getPruebaId();
-                    compiteCollectionNewCompite.setPruebaId(prueba);
-                    compiteCollectionNewCompite = em.merge(compiteCollectionNewCompite);
-                    if (oldPruebaIdOfCompiteCollectionNewCompite != null && !oldPruebaIdOfCompiteCollectionNewCompite.equals(prueba)) {
-                        oldPruebaIdOfCompiteCollectionNewCompite.getCompiteCollection().remove(compiteCollectionNewCompite);
-                        oldPruebaIdOfCompiteCollectionNewCompite = em.merge(oldPruebaIdOfCompiteCollectionNewCompite);
                     }
                 }
             }
@@ -235,19 +241,19 @@ public class PruebaJpa implements Serializable {
                 }
                 illegalOrphanMessages.add("This Prueba (" + prueba + ") cannot be destroyed since the Compuesta " + compuestaCollectionOrphanCheckCompuesta + " in its compuestaCollection field has a non-nullable pruebaId field.");
             }
+            Collection<Participante> participanteCollectionOrphanCheck = prueba.getParticipanteCollection();
+            for (Participante participanteCollectionOrphanCheckParticipante : participanteCollectionOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Prueba (" + prueba + ") cannot be destroyed since the Participante " + participanteCollectionOrphanCheckParticipante + " in its participanteCollection field has a non-nullable pruebaasignada field.");
+            }
             Collection<Registro> registroCollectionOrphanCheck = prueba.getRegistroCollection();
             for (Registro registroCollectionOrphanCheckRegistro : registroCollectionOrphanCheck) {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Prueba (" + prueba + ") cannot be destroyed since the Registro " + registroCollectionOrphanCheckRegistro + " in its registroCollection field has a non-nullable pruebaId field.");
-            }
-            Collection<Compite> compiteCollectionOrphanCheck = prueba.getCompiteCollection();
-            for (Compite compiteCollectionOrphanCheckCompite : compiteCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Prueba (" + prueba + ") cannot be destroyed since the Compite " + compiteCollectionOrphanCheckCompite + " in its compiteCollection field has a non-nullable pruebaId field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
@@ -306,6 +312,8 @@ public class PruebaJpa implements Serializable {
             em.close();
         }
     }
+    
+    // Creado por mi
     
     public List<Prueba> findPruebasByCompeticon(Competicion c) {
         EntityManager em = getEntityManager();

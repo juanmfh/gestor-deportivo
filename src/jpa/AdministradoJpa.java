@@ -1,19 +1,25 @@
-package modelo.dao;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
+package jpa;
+
+import modelo.Administrado;
 import java.io.Serializable;
+import javax.persistence.Query;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import modelo.Usuario;
+import modelo.Competicion;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import modelo.Administrado;
-import modelo.Usuario;
-import modelo.Competicion;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -205,4 +211,5 @@ public class AdministradoJpa implements Serializable {
         }
         return res;
     }
+    
 }

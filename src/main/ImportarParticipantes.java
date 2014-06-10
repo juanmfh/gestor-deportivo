@@ -17,7 +17,7 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import modelo.Grupo;
-import modelo.dao.GrupoJpa;
+import jpa.GrupoJpa;
 
 /**
  *

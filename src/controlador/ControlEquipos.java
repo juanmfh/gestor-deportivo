@@ -3,20 +3,14 @@ package controlador;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import modelo.Equipo;
 import modelo.Grupo;
-import modelo.Miembro;
-import modelo.Participa;
-import modelo.Participante;
-import modelo.dao.EquipoJpa;
-import modelo.dao.GrupoJpa;
-import modelo.dao.MiembroJpa;
-import modelo.dao.ParticipaJpa;
-import modelo.dao.ParticipanteJpa;
-import modelo.dao.exceptions.IllegalOrphanException;
-import modelo.dao.exceptions.NonexistentEntityException;
+import jpa.EquipoJpa;
+import jpa.GrupoJpa;
+import jpa.exceptions.NonexistentEntityException;
 import vista.VistaEquipos;
 
 /**
@@ -40,12 +34,13 @@ public class ControlEquipos implements ActionListener {
                 Equipo equipo = crearEquipo(vista.getNombreEquipo(),
                         vista.getGrupo());
                 if (equipo != null) {
+                    
                     // Actualizamos la vista
                     vista.añadirEquipoATabla(new Object[]{
                         equipo.getId(),
                         equipo.getNombre(),
                         vista.getGruposComboBox().getSelectedItem().toString(),
-                        equipo.getMiembroCollection().size()});
+                        equipo.getParticipanteCollection().size()});
                     vista.limpiarFormularioEquipo();
                     Coordinador.getInstance().setEstadoLabel(
                             "Equipo creado correctamente", Color.BLUE);
@@ -96,39 +91,25 @@ public class ControlEquipos implements ActionListener {
      * Crea un equipo nuevo
      *
      * @param nombre Nombre del equipo
-     * @param grupo Nombre del grupo al que pertenece el equipo
-     * @retrun Equipo si se ha podido crear el equipo o null en otro caso
+     * @param nombreGrupo Nombre del grupo al que pertenece el equipo
+     * @return Equipo si se ha podido crear el equipo o null en otro caso
      */
-    public static Equipo crearEquipo(String nombre, String grupo) {
+    public static Equipo crearEquipo(String nombre, String nombreGrupo) {
         EquipoJpa equipojpa = new EquipoJpa();
         GrupoJpa grupojpa = new GrupoJpa();
 
         // Comprobamos que se ha seleccionado un grupo
         // y el nombre del equipo es único en la competición
-        if (grupo != null && nombre != null && nombre.length()>0
-                && equipojpa.findByNombreAndCompeticion(nombre,
-                        Coordinador.getInstance().getSeleccionada().getId()) == null) {
+        if (nombreGrupo != null && nombre != null && nombre.length()>0
+                && equipojpa.findByNombreAndCompeticion(nombre,Coordinador.getInstance().getSeleccionada().getId()) == null) {
 
-            ParticipanteJpa participantejpa = new ParticipanteJpa();
-            ParticipaJpa participajpa = new ParticipaJpa();
-
+            Grupo grupo = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, Coordinador.getInstance().getSeleccionada().getId());
+            
             // Creamos el equipo
             Equipo equipo = new Equipo();
             equipo.setNombre(nombre);
+            equipo.setGrupoId(grupo);
             equipojpa.create(equipo);
-
-            // Creamos un participante que representa al equipo
-            Participante participante = new Participante();
-            participante.setEquipoId(equipo);
-            participantejpa.create(participante);
-
-            // Relacionamos el participante con el grupo en el que participa
-            Participa participa = new Participa();
-            Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
-                    Coordinador.getInstance().getSeleccionada().getId());
-            participa.setGrupoId(g);
-            participa.setParticipanteId(participante);
-            participajpa.create(participa);
 
             return equipo;
         }
@@ -142,36 +123,19 @@ public class ControlEquipos implements ActionListener {
      * @return true si el equipo a sido eliminado correctamente
      */
     public boolean eliminarEquipo(Integer equipoid) {
-
-        // Comprobamos que se ha seleccionado un equipo en la vista
+        
+        // Comprobamos que se ha seleccionado un equipo 
         if (equipoid != -1) {
 
-            ParticipanteJpa participantejpa = new ParticipanteJpa();
-            MiembroJpa miembrojpa = new MiembroJpa();
             EquipoJpa equipojpa = new EquipoJpa();
-            ParticipaJpa participajpa = new ParticipaJpa();
-            try {
-                // Eliminamos el participante y participación en el grupo
-                Participa part = participajpa.findByEquipoCompeticion(
-                        Coordinador.getInstance().getSeleccionada().getId(),
-                        equipoid);
-                Integer participanteId = part.getParticipanteId().getId();
-                //Integer equipoId = part.getParticipanteId().getEquipoId().getId();
-                participajpa.destroy(part.getId());
-                participantejpa.destroy(participanteId);
-
-                // Eliminamos los miembros del equipo
-                List<Miembro> miembros = miembrojpa.findByEquipo(equipoid);
-                for (Miembro m : miembros) {
-                    miembrojpa.destroy(m.getId());
-                }
+            try {        
                 // Eliminamos el equipo
                 equipojpa.destroy(equipoid);
-
-                return true;
-            } catch (NonexistentEntityException | IllegalOrphanException ex) {
+            } catch (NonexistentEntityException ex) {
+                Logger.getLogger(ControlEquipos.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
+            return true;
         }
         return false;
     }
@@ -184,8 +148,8 @@ public class ControlEquipos implements ActionListener {
      * @return true si ha sido posible modificar el equipo
      */
     private boolean modificarEquipo(Integer equipoid) {
-
-        // Comprobamos que se ha seleccionado un equipo en la vista
+        
+        // Comprobamos que se ha seleccionado un equipo 
         if (equipoid != -1) {
 
             EquipoJpa equipojpa = new EquipoJpa();
@@ -193,6 +157,7 @@ public class ControlEquipos implements ActionListener {
             Equipo antiguo = equipojpa.findByNombreAndCompeticion(
                     vista.getNombreEquipo(),
                     Coordinador.getInstance().getSeleccionada().getId());
+            
             Equipo equipo = equipojpa.findEquipo(equipoid);
 
             // Comprobamos que el nombre del equipo no existe o es suyo
@@ -205,33 +170,25 @@ public class ControlEquipos implements ActionListener {
                             equipoid);
 
                     // Si el equipo no tiene miembros modificamos su grupo
-                    if (equipo.getMiembroCollection().isEmpty()) {
-                        ParticipanteJpa participantejpa = new ParticipanteJpa();
-                        ParticipaJpa participajpa = new ParticipaJpa();
+                    if (equipo.getParticipanteCollection().isEmpty()) {
 
-                        // Obtenemos el participante que representa al equipo
-                        Participante part = participantejpa.findByEquipoId(equipo.getId());
                         // Buscamos el grupo con el nombre obtenido en la vista
-                        g = grupojpa.findGrupoByNombre(
-                                vista.getGruposComboBox().getSelectedItem().toString());
+                        g = grupojpa.findGrupoByNombre(vista.getGruposComboBox().getSelectedItem().toString());
                         // Comprobamos que el grupo existe
                         if (g != null) {
                             // Cambiamos el grupo
-                            Participa participa = participajpa.findByCompeticionAndParticipante(
-                                    Coordinador.getInstance().getSeleccionada().getId(),
-                                    part.getId());
-                            participa.setGrupoId(g);
-                            participajpa.edit(participa);
+                            equipo.setGrupoId(g);
                         }
                     }
                     // Cargamos los cambios
                     equipojpa.edit(equipo);
+                    
                     // Actualizamos la vista
                     vista.añadirEquipoATabla(new Object[]{
                         equipo.getId(),
                         equipo.getNombre(),
                         g != null ? g.getNombre() : "",
-                        equipo.getMiembroCollection().size()});
+                        equipo.getParticipanteCollection().size()});
                     return true;
                 } catch (NonexistentEntityException ex) {
                     return false;

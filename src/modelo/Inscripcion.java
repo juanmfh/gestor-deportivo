@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Inscripcion.findAll", query = "SELECT i FROM Inscripcion i"),
     @NamedQuery(name = "Inscripcion.findById", query = "SELECT i FROM Inscripcion i WHERE i.id = :id"),
     @NamedQuery(name = "Inscripcion.findByFecha", query = "SELECT i FROM Inscripcion i WHERE i.fecha = :fecha"),
+    
     @NamedQuery(name = "Inscripcion.findByCompeticion", query = "SELECT i FROM Inscripcion i WHERE i.competicionId.id = :id"),
     @NamedQuery(name = "Inscripcion.findByCompeticionByGrupo", query = "SELECT i FROM Inscripcion i WHERE i.competicionId.id = :competicionid AND i.grupoId.id = :grupoid"),
     @NamedQuery(name = "Inscripcion.findByCompeticionByNombreGrupo", query = "SELECT i FROM Inscripcion i WHERE i.competicionId.id = :competicionid AND i.grupoId.nombre = :nombregrupo"),
@@ -60,8 +61,6 @@ public class Inscripcion implements Serializable {
     private Competicion competicionId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inscripcionId")
     private Collection<Registro> registroCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inscripcionId")
-    private Collection<Compite> compiteCollection;
 
     public Inscripcion() {
     }
@@ -111,15 +110,6 @@ public class Inscripcion implements Serializable {
         this.registroCollection = registroCollection;
     }
 
-    @XmlTransient
-    public Collection<Compite> getCompiteCollection() {
-        return compiteCollection;
-    }
-
-    public void setCompiteCollection(Collection<Compite> compiteCollection) {
-        this.compiteCollection = compiteCollection;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -142,7 +132,7 @@ public class Inscripcion implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Inscripcion[ id=" + id + " ]";
+        return "entities.Inscripcion[ id=" + id + " ]";
     }
     
 }

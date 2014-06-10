@@ -129,7 +129,7 @@ public class Usuario implements Serializable {
 
     @Override
     public String toString() {
-        return "pruebadatabase.model.Usuario[ id=" + id + " ]";
+        return "entities.Usuario[ id=" + id + " ]";
     }
     
 }
