@@ -542,11 +542,43 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    public List<Equipo> findEquiposConRegistrosNum(Integer competicionid, Integer pruebaid) {
+        EntityManager em = getEntityManager();
+        List<Equipo> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosNum");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
     public List<Participante> findParticipantesConRegistrosTiempo(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Participante> res;
         try {
             Query q = em.createNamedQuery("Registro.findParticipantesConRegistrosTiempo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    public List<Equipo> findEquiposConRegistrosTiempo(Integer competicionid, Integer pruebaid) {
+        EntityManager em = getEntityManager();
+        List<Equipo> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosTiempo");
             q.setParameter("competicionid", competicionid);
             q.setParameter("pruebaid", pruebaid);
             res = q.getResultList();

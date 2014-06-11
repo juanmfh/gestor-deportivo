@@ -124,13 +124,13 @@ public class ControlRegistros implements ActionListener {
                 fc.setDialogTitle("Abrir");
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
-                    
+
                     Coordinador.getInstance().setEstadoLabel("Importando registros ...", Color.BLACK);
                     Coordinador.getInstance().mostrarBarraProgreso(true);
-                    
+
                     ImportarRegistros imReg;
                     (imReg = new ImportarRegistros(fc.getSelectedFile().getPath())).execute();
-                    
+
                 }
                 break;
         }
@@ -154,14 +154,11 @@ public class ControlRegistros implements ActionListener {
             String nombrePrueba, String nombreEquipo, Boolean sorteo,
             Double segundos, Integer minutos, Integer horas) {
 
-        return null; 
-        /*
         Registro registro = null;
         RegistroJpa registrojpa = new RegistroJpa();
         InscripcionJpa inscripcionjpa = new InscripcionJpa();
         GrupoJpa grupojpa = new GrupoJpa();
         ParticipanteJpa participantejpa = new ParticipanteJpa();
-        PersonaJpa personajpa = new PersonaJpa();
         PruebaJpa pruebajpa = new PruebaJpa();
 
         // Obtenemos la prueba a partir del nombre
@@ -175,36 +172,32 @@ public class ControlRegistros implements ActionListener {
 
             Participante participante;
             Grupo g;
+            registro = new Registro();
+            Inscripcion i;
             // Si se ha seleccionado un participante individual
             if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                // Obtenemos el participante y la persona al que representa
-                Persona persona = personajpa.findByDorsalAndCompeticion(dorsal,
-                        Coordinador.getInstance().getSeleccionada().getId());
-                participante = participantejpa.findByPersonaId(persona.getId());
-                g = grupojpa.findByPersonaCompeticion(Coordinador.getInstance().getSeleccionada().getId(), persona.getId());
+                // Obtenemos el participante
+                participante = participantejpa.findByDorsalAndCompeticion(dorsal, Coordinador.getInstance().getSeleccionada().getId());
+                g = grupojpa.findByParticipanteCompeticion(Coordinador.getInstance().getSeleccionada().getId(), participante.getId());
+                registro.setParticipanteId(participante);
+                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
+                    Coordinador.getInstance().getSeleccionada().getId(), g.getId());
             } else {
-                // Obtenemos el participante y el equipo al que representa
+                // Obtenemosel equipo
                 EquipoJpa equipojpa = new EquipoJpa();
                 Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
                         Coordinador.getInstance().getSeleccionada().getId());
-                participante = participantejpa.findByEquipoId(equipo.getId());
                 g = grupojpa.findByEquipoCompeticion(Coordinador.getInstance().getSeleccionada().getId(), equipo.getId());
+                registro.setEquipoId(equipo);
+                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
+                    Coordinador.getInstance().getSeleccionada().getId(), g.getId());
             }
 
-            // Obtenemos los objetos de los datos que hemos recogido
-            //Grupo g = grupojpa.findGrupoByNombre(nombreGrupo);
-            Inscripcion i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                    Coordinador.getInstance().getSeleccionada().getId(), g.getId());
-
-            // Establecemos los datos del registro
-            registro = new Registro();
+            // Establecemos los datos del registro comunes
             registro.setInscripcionId(i);
-            registro.setNumIntento(registrojpa.findMaxNumIntento(i.getId(),
-                    prueba.getId(), participante.getId()) + 1);
-            registro.setParticipanteId(participante);
             registro.setPruebaId(prueba);
             registro.setSorteo(sorteo ? 1 : 0);
-            
+
             // Comprueba que la prueba no es de tipo tiempo
             if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
                     || prueba.getTiporesultado().equals(TipoResultado.Numerica.toString())) {
@@ -224,36 +217,34 @@ public class ControlRegistros implements ActionListener {
             // Creamos el registro en la base de datos
             registrojpa.create(registro);
         }
-        return registro;*/
+        return registro;
     }
 
     private void añadirRegistroAVista(Registro r) {
-        String part;
         String formatDate = "HH:mm:ss.S";
         SimpleDateFormat dt = new SimpleDateFormat(formatDate);
         // Si es un equipo 
         if (r.getPruebaId().getTipo().equals(TipoPrueba.Equipo.toString())) {
-            part = r.getParticipanteId().getEquipoId().getNombre() + " (E)";
-            vista.añadirRegistroATabla(new Object[]{r.getId(), "#",
-                part,
+            vista.añadirRegistroATabla(new Object[]{r.getId(), r.getEquipoId().getId(),
+                r.getEquipoId().getNombre() + " (E)",
                 r.getPruebaId().getNombre()
                 + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
                 r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
                 ? dt.format(r.getTiempo()) : r.getNum(),
                 r.getNumIntento()});
             // Si es un participante individual
-        } else {/*
-            part = r.getParticipanteId().getPersonaId().getApellidos()
-                    + ", " + r.getParticipanteId().getPersonaId().getNombre();
-            vista.añadirRegistroATabla(new Object[]{r.getId(),
-                r.getParticipanteId().getPersonaId().getDorsal(),
-                part,
-                r.getPruebaId().getNombre()
-                + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
-                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
-                ? dt.format(r.getTiempo())
-                : r.getNum(),
-                r.getNumIntento()});*/
+        } else {
+             vista.añadirRegistroATabla(new Object[]{r.getId(),
+             r.getParticipanteId().getDorsal(),
+             r.getParticipanteId().getApellidos()
+             + ", " + r.getParticipanteId().getNombre(),
+             r.getPruebaId().getNombre()
+             + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
+             r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
+             ? dt.format(r.getTiempo())
+             : r.getNum(),
+             r.getNumIntento()});
+
         }
     }
 
@@ -482,30 +473,27 @@ public class ControlRegistros implements ActionListener {
             }
 
             // Actualizamos la vista
-            String part;
             SimpleDateFormat dt = new SimpleDateFormat(formatDate);
-            if (registro.getParticipanteId().getEquipoId() != null) {
-                part = registro.getParticipanteId().getEquipoId().getNombre() + " (E)";
-                vista.añadirRegistroATabla(new Object[]{registro.getId(), "#",
-                    part,
+            if (registro.getEquipoId() != null) {
+                vista.añadirRegistroATabla(new Object[]{registro.getId(), registro.getEquipoId().getId(),
+                    registro.getEquipoId().getNombre() + " (E)",
                     registro.getPruebaId().getNombre()
                     + (registro.getSorteo() == 1
                     ? " (Sorteo)" : ""),
                     registro.getPruebaId().getTiporesultado().equals("Tiempo")
                     ? dt.format(registro.getTiempo())
                     : registro.getNum(), registro.getNumIntento()});
-            } else {/*
-                part = registro.getParticipanteId().getPersonaId().getApellidos()
-                        + ", " + registro.getParticipanteId().getPersonaId().getNombre();
-                vista.añadirRegistroATabla(new Object[]{registro.getId(),
-                    registro.getParticipanteId().getPersonaId().getDorsal(),
-                    part,
-                    registro.getPruebaId().getNombre()
-                    + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
-                    registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                    ? dt.format(registro.getTiempo())
-                    : registro.getNum(),
-                    registro.getNumIntento()});*/
+            } else {
+                 vista.añadirRegistroATabla(new Object[]{registro.getId(),
+                 registro.getParticipanteId().getDorsal(),
+                 registro.getParticipanteId().getApellidos()
+                 + ", " + registro.getParticipanteId().getNombre(),
+                 registro.getPruebaId().getNombre()
+                 + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
+                 registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                 ? dt.format(registro.getTiempo())
+                 : registro.getNum(),
+                 registro.getNumIntento()});
             }
             return true;
         }

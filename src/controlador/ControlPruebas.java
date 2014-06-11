@@ -150,8 +150,8 @@ public class ControlPruebas implements ActionListener {
 
     private boolean modificarPrueba(Integer pruebaid, Integer competicionid) {
         
-        // Comprobamos que se ha seleccionado una prueba y el nombre de la 
-        // prueba es no vacío
+        // Comprobamos que se ha seleccionado una prueba, el nombre de la 
+        // prueba es no vacío y la prueba seleccionada no tiene registros asociados
         if (pruebaid != -1 && vista.getNombrePrueba().length() > 0){
             PruebaJpa pruebajpa = new PruebaJpa();
 
@@ -166,8 +166,21 @@ public class ControlPruebas implements ActionListener {
                 
                 // Establecemos los atributos a partir de los datos de la vista
                 prueba.setNombre(vista.getNombrePrueba().toString());
-                prueba.setTiporesultado(vista.getTipoResultado());
-                prueba.setTipo(vista.getTipoPrueba());
+                
+                // Comprobamos que la prueba no tiene registros asocidados
+                // En caso de tener registros no se podrá modificar el tipo de prueba
+                // ni el tipo de resultado.
+                if(pruebajpa.countRegistrosByPrueba(pruebaid) <= 0){
+                    
+                    prueba.setTiporesultado(vista.getTipoResultado());
+                    prueba.setTipo(vista.getTipoPrueba());
+                    
+                }else{
+                    // No se puede modificar una prueba con registros asociados (salvo el nombre)
+                    return false;
+                }
+                
+                
                 try {
                     pruebajpa.edit(prueba);
                 } catch (NonexistentEntityException ex) {

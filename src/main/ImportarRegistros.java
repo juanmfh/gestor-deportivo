@@ -24,8 +24,10 @@ import modelo.Equipo;
 import modelo.Prueba;
 import modelo.Registro;
 import jpa.EquipoJpa;
+import jpa.ParticipanteJpa;
 import jpa.PruebaJpa;
 import jpa.RegistroJpa;
+import modelo.Participante;
 
 /**
  *
@@ -54,7 +56,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
         try {
             excel = Workbook.getWorkbook(new File(ruta));
             String data;
-            Prueba p = null;
+            Prueba prueba = null;
             for (int numHoja = 0; numHoja < excel.getNumberOfSheets(); numHoja++) {
 
                 Sheet hoja = excel.getSheet(numHoja);
@@ -71,41 +73,41 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                         TipoPrueba tipoPrueba = TipoPrueba.valueOf(hoja.getCell(columna + 1, fila).getContents().toString());
                         TipoResultado tipoResultado = TipoResultado.valueOf(hoja.getCell(columna + 2, fila).getContents().toString());
 
-                        p = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
-                        if (p == null) {
+                        prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
+                        if (prueba == null) {
                             PruebaJpa pruebajpa = new PruebaJpa();
-                            p = pruebajpa.findPruebaByNombreCompeticion(
+                            prueba = pruebajpa.findPruebaByNombreCompeticion(
                                     nombrePrueba,
                                     Coordinador.getInstance().getSeleccionada().getId());
                         }
                     } catch (IllegalArgumentException iae) {
                     }
                 }
-                if (p != null) {
+                if (prueba != null) {
                     columna = 0;
                     fila = 1;
-                    /*while (fila < numFilas) {
+                    while (fila < numFilas) {
                         // Si es una prueba individual
-                        if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
+                        if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                             try {
                                 // Leemos el dorsal
                                 data = hoja.getCell(columna, fila).getContents();
                                 Integer dorsal = Integer.parseInt(data.toString());
-                                PersonaJpa personaJpa = new PersonaJpa();
-                                Persona persona = personaJpa.findByDorsalAndCompeticion(dorsal,
+                                ParticipanteJpa participanteJpa = new ParticipanteJpa();
+                                Participante participante = participanteJpa.findByDorsalAndCompeticion(dorsal,
                                         Coordinador.getInstance().getSeleccionada().getId());
                                 // Si existe una persona con ese dorsal
-                                if (persona != null) {
+                                if (participante != null) {
                                     columna++;
                                     while (columna < numColumnas) {
                                         // Si la prueba es de tipo tiempo
                                         data = hoja.getCell(columna, fila).getContents();
                                         if (!data.isEmpty()) {
-                                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                            if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                 String tiempo = data.toString();
                                                 ControlRegistros.crearRegistro(
                                                         dorsal,
-                                                        p.getNombre(),
+                                                        prueba.getNombre(),
                                                         null,
                                                         false,
                                                         ControlRegistros.getSegundos(tiempo),
@@ -115,7 +117,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                 String marca = data.toString();
                                                 ControlRegistros.crearRegistro(
                                                         dorsal,
-                                                        p.getNombre(),
+                                                        prueba.getNombre(),
                                                         null,
                                                         false,
                                                         Double.valueOf(marca),
@@ -148,11 +150,11 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                         // Si la prueba es de tipo tiempo
                                         data = hoja.getCell(columna, fila).getContents();
                                         if (!data.isEmpty()) {
-                                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                            if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                 String tiempo = data.toString();
                                                 ControlRegistros.crearRegistro(
                                                         null,
-                                                        p.getNombre(),
+                                                        prueba.getNombre(),
                                                         nombreEquipo,
                                                         false,
                                                         ControlRegistros.getSegundos(tiempo),
@@ -162,7 +164,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                 String marca = data.toString();
                                                 ControlRegistros.crearRegistro(
                                                         null,
-                                                        p.getNombre(),
+                                                        prueba.getNombre(),
                                                         nombreEquipo,
                                                         false,
                                                         Double.valueOf(marca),
@@ -181,7 +183,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                             }
 
                         }
-                    }*/
+                    }
                 }
             }
         } catch (IOException | BiffException ex) {

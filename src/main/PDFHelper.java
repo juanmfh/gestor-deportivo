@@ -14,6 +14,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import controlador.Coordinador;
+import controlador.TipoPrueba;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import modelo.Registro;
 import jpa.GrupoJpa;
 import jpa.PruebaJpa;
 import jpa.RegistroJpa;
+import modelo.Equipo;
 
 /**
  *
@@ -56,8 +58,8 @@ public class PDFHelper {
 
     public static void crearPdf(String path, Competicion c) throws FileNotFoundException, DocumentException {
         //System.out.println(patch);
-        FileOutputStream archivo = new FileOutputStream(path +
-                "/" + c.getNombre() + "_resultados.pdf");
+        FileOutputStream archivo = new FileOutputStream(path
+                + "/" + c.getNombre() + "_resultados.pdf");
         Document documento = new Document(PageSize.LETTER, 80, 80, 75, 75);
         PdfWriter writer = PdfWriter.getInstance(documento, archivo);
 
@@ -66,16 +68,16 @@ public class PDFHelper {
 
         if (c.getImagen() != null && c.getImagen().length() > 0) {
             try {
-                Image logo = Image.getInstance(System.getProperty("user.dir") +
-                        "/src/img/" + c.getImagen());
+                Image logo = Image.getInstance(System.getProperty("user.dir")
+                        + "/src/img/" + c.getImagen());
                 logo.scaleAbsolute(100, 100);
                 documento.add(logo);
-            } catch (    BadElementException | IOException ex) {
+            } catch (BadElementException | IOException ex) {
             }
         }
 
-        Paragraph titulo = new Paragraph(c.getNombre().toUpperCase() +
-                " - RESULTADOS");
+        Paragraph titulo = new Paragraph(c.getNombre().toUpperCase()
+                + " - RESULTADOS");
         titulo.setAlignment(Paragraph.ALIGN_CENTER);
         documento.add(titulo);
 
@@ -86,18 +88,18 @@ public class PDFHelper {
 
         SimpleDateFormat fechas = new SimpleDateFormat("dd-MM-yyyy");
         if (c.getFechainicio() != null) {
-            Paragraph fechaInicio = new Paragraph("Fecha de Inicio: " + 
-                    fechas.format(c.getFechainicio()));
+            Paragraph fechaInicio = new Paragraph("Fecha de Inicio: "
+                    + fechas.format(c.getFechainicio()));
             documento.add(fechaInicio);
         }
         if (c.getFechafin() != null) {
-            Paragraph fechaFin = new Paragraph("Fecha de Fin: " + 
-                    fechas.format(c.getFechafin()));
+            Paragraph fechaFin = new Paragraph("Fecha de Fin: "
+                    + fechas.format(c.getFechafin()));
             documento.add(fechaFin);
         }
         if (c.getOrganizador() != null && c.getOrganizador().length() > 0) {
-            Paragraph organizador = new Paragraph("Organizador: " + 
-                    c.getOrganizador());
+            Paragraph organizador = new Paragraph("Organizador: "
+                    + c.getOrganizador());
             documento.add(organizador);
         }
 
@@ -107,11 +109,21 @@ public class PDFHelper {
         GrupoJpa grupojpa = new GrupoJpa();
         SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
         for (Prueba p : pruebas) {
-            List<Participante> participantes;
+            List<Participante> participantes = null;
+            List<Equipo> equipos = null;
             if (p.getTiporesultado().equals("Tiempo")) {
-                participantes = registrojpa.findParticipantesConRegistrosTiempo(c.getId(), p.getId());
+                if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
+                    participantes = registrojpa.findParticipantesConRegistrosTiempo(c.getId(), p.getId());
+                } else {
+                    equipos = registrojpa.findEquiposConRegistrosTiempo(c.getId(), p.getId());
+                }
             } else {
-                participantes = registrojpa.findParticipantesConRegistrosNum(c.getId(), p.getId());
+                if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
+                    participantes = registrojpa.findParticipantesConRegistrosNum(c.getId(), p.getId());
+                } else {
+                    equipos = registrojpa.findEquiposConRegistrosNum(c.getId(), p.getId());
+                }
+
             }
 
             List<Registro> registros;
@@ -140,65 +152,115 @@ public class PDFHelper {
             tabla.addCell(new Phrase("PUNTOS", normal));
             int puesto = 1;
 
-            /*for (Participante part : participantes) {
+            if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
 
-                Grupo g;
-                if (part.getPersonaId() == null) {
-                    g = grupojpa.findByEquipoCompeticion(c.getId(), part.getEquipoId().getId());
+                for (Participante part : participantes) {
+
+                    Grupo g;
+                    g = grupojpa.findByParticipanteCompeticion(c.getId(), part.getId());
+                    tabla.addCell(new Phrase(String.valueOf(part.getDorsal()), normal));
+                    tabla.addCell(new Phrase(part.getApellidos() + ", " + part.getNombre(), normal));
+
+                    tabla.addCell(new Paragraph(g.getNombre(), normal));
+
+                    registros = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), part.getId());
+                    if (registros != null) {
+                        if (p.getTiporesultado().equals("Tiempo")) {
+                            tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(0).getTiempo())), normal));
+                        } else {
+                            tabla.addCell(new Phrase(String.valueOf(registros.get(0).getNum()), normal));
+                        }
+                    } else {
+                        tabla.addCell("");
+                    }
+                    if (registros != null && registros.size() == 2) {
+                        if (p.getTiporesultado().equals("Tiempo")) {
+
+                            tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(1).getTiempo())), normal));
+                        } else {
+                            tabla.addCell(new Phrase(String.valueOf(registros.get(1).getNum()), normal));
+                        }
+                    } else {
+                        tabla.addCell("");
+                    }
+
+                    if (p.getTiporesultado().equals("Tiempo")) {
+                        tabla.addCell(new Phrase(String.valueOf(dt.format(
+                                registrojpa.findMinRegistroByParticipantePruebaCompeticion(
+                                        part.getId(),
+                                        c.getId(),
+                                        p.getId()))),
+                                normal));
+                    } else {
+                        tabla.addCell(new Phrase(
+                                String.valueOf(
+                                        registrojpa.findMaxRegistroByParticipantePruebaCompeticion(
+                                                part.getId(),
+                                                c.getId(),
+                                                p.getId())),
+                                normal));
+                    }
+                    tabla.addCell(new Phrase(String.valueOf(participantes.size()
+                            - (participantes.size() - puesto)), normal));
+                    tabla.addCell(new Phrase(String.valueOf(participantes.size()
+                            - (puesto - 1)), normal));
+                    puesto++;
+                }
+            } else {
+                for (Equipo equipo : equipos) {
+
+                    Grupo g;
+
+                    g = grupojpa.findByEquipoCompeticion(c.getId(), equipo.getId());
                     tabla.addCell(new Phrase("#", normal));
-                    tabla.addCell(new Phrase(part.getEquipoId().getNombre(), normal));
+                    tabla.addCell(new Phrase(equipo.getNombre(), normal));
 
-                } else {
-                    g = grupojpa.findByPersonaCompeticion(c.getId(), part.getPersonaId().getId());
-                    tabla.addCell(new Phrase(String.valueOf(part.getPersonaId().getDorsal()), normal));
-                    tabla.addCell(new Phrase(part.getPersonaId().getApellidos() + ", " + part.getPersonaId().getNombre(), normal));
-                }
+                    tabla.addCell(new Paragraph(g.getNombre(), normal));
 
-                tabla.addCell(new Paragraph(g.getNombre(), normal));
-
-                registros = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), part.getId());
-                if (registros != null) {
-                    if (p.getTiporesultado().equals("Tiempo")) {
-                        tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(0).getTiempo())), normal));
+                    registros = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), equipo.getId());
+                    if (registros != null) {
+                        if (p.getTiporesultado().equals("Tiempo")) {
+                            tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(0).getTiempo())), normal));
+                        } else {
+                            tabla.addCell(new Phrase(String.valueOf(registros.get(0).getNum()), normal));
+                        }
                     } else {
-                        tabla.addCell(new Phrase(String.valueOf(registros.get(0).getNum()), normal));
+                        tabla.addCell("");
                     }
-                } else {
-                    tabla.addCell("");
-                }
-                if (registros != null && registros.size() == 2) {
-                    if (p.getTiporesultado().equals("Tiempo")) {
+                    if (registros != null && registros.size() == 2) {
+                        if (p.getTiporesultado().equals("Tiempo")) {
 
-                        tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(1).getTiempo())), normal));
+                            tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(1).getTiempo())), normal));
+                        } else {
+                            tabla.addCell(new Phrase(String.valueOf(registros.get(1).getNum()), normal));
+                        }
                     } else {
-                        tabla.addCell(new Phrase(String.valueOf(registros.get(1).getNum()), normal));
+                        tabla.addCell("");
                     }
-                } else {
-                    tabla.addCell("");
-                }
 
-                if (p.getTiporesultado().equals("Tiempo")) {
-                    tabla.addCell(new Phrase(String.valueOf(dt.format(
-                            registrojpa.findMinRegistroByParticipantePruebaCompeticion(
-                                    part.getId(),
-                                    c.getId(),
-                                    p.getId()))),
-                            normal));
-                } else {
-                    tabla.addCell(new Phrase(
-                            String.valueOf(
-                                    registrojpa.findMaxRegistroByParticipantePruebaCompeticion(
-                                            part.getId(),
-                                            c.getId(),
-                                            p.getId())),
-                            normal));
+                    if (p.getTiporesultado().equals("Tiempo")) {
+                        tabla.addCell(new Phrase(String.valueOf(dt.format(
+                                registrojpa.findMinRegistroByParticipantePruebaCompeticion(
+                                        equipo.getId(),
+                                        c.getId(),
+                                        p.getId()))),
+                                normal));
+                    } else {
+                        tabla.addCell(new Phrase(
+                                String.valueOf(
+                                        registrojpa.findMaxRegistroByParticipantePruebaCompeticion(
+                                                equipo.getId(),
+                                                c.getId(),
+                                                p.getId())),
+                                normal));
+                    }
+                    tabla.addCell(new Phrase(String.valueOf(equipos.size()
+                            - (equipos.size() - puesto)), normal));
+                    tabla.addCell(new Phrase(String.valueOf(equipos.size()
+                            - (puesto - 1)), normal));
+                    puesto++;
                 }
-                tabla.addCell(new Phrase(String.valueOf(participantes.size() -
-                        (participantes.size() - puesto)), normal));
-                tabla.addCell(new Phrase(String.valueOf(participantes.size() -
-                        (puesto - 1)), normal));
-                puesto++;
-            }*/
+            }
 
             documento.add(tabla);
 

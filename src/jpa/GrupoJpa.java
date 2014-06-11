@@ -514,13 +514,13 @@ public class GrupoJpa implements Serializable {
         return res;
     }
 
-    public Grupo findByPersonaCompeticion(Integer competicionid, Integer personaid) {
+    public Grupo findByParticipanteCompeticion(Integer competicionid, Integer participanteid) {
         EntityManager em = getEntityManager();
         Grupo res;
         try {
-            Query q = em.createNamedQuery("Grupo.findByPersonaCompeticion");
+            Query q = em.createNamedQuery("Grupo.findByParticipanteCompeticion");
             q.setParameter("competicionid", competicionid);
-            q.setParameter("personaid", personaid);
+            q.setParameter("participanteid", participanteid);
             res = (Grupo) q.getSingleResult();
         } catch (NoResultException e) {
             return null;

@@ -138,7 +138,6 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
             if (excel != null) {
                 excel.close();
             }
-
         }
         return null;
     }

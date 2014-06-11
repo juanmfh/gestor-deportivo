@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Grupo.findByCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :id"),   
     @NamedQuery(name = "Grupo.findByGrupoId", query = "SELECT g FROM Grupo g WHERE g.grupoId.id = :id"),
     @NamedQuery(name = "Grupo.findByNombreAndCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE g.nombre = :nombre and i.competicionId.id = :competicionid "),
-    @NamedQuery(name = "Grupo.findByPersonaCompeticion", query = "SELECT g FROM Grupo g JOIN g.participanteCollection p WHERE p IN (SELECT p2 FROM Participante p2 WHERE p2.id = :personaid) AND g IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid )"),
+    @NamedQuery(name = "Grupo.findByParticipanteCompeticion", query = "SELECT g FROM Grupo g JOIN g.participanteCollection p WHERE p IN (SELECT p2 FROM Participante p2 WHERE p2.id = :participanteid) AND g IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid )"),
     @NamedQuery(name = "Grupo.findByEquipoCompeticion", query = "SELECT g FROM Grupo g JOIN g.equipoCollection p WHERE p IN (SELECT p2 FROM Equipo p2 WHERE p2.id = :equipoid) AND g IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid )")
     
 })

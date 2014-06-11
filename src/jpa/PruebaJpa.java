@@ -369,4 +369,19 @@ public class PruebaJpa implements Serializable {
         return res;
     }
     
+    public int countRegistrosByPrueba(Integer pruebaid){
+        EntityManager em = getEntityManager();
+        int res;
+        try {
+            Query q = em.createNamedQuery("Prueba.countRegistrosByPrueba");
+            q.setParameter("pruebaid", pruebaid);
+            res =  ((Number)q.getSingleResult()).intValue();
+        } catch (NoResultException e) {
+            return 0;
+        } finally{
+            em.close();
+        }
+        return res;
+    }
+    
 }
