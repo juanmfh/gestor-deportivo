@@ -63,6 +63,10 @@ public class ControlPrincipal implements ActionListener {
     private ControlRegistros controlRegistros;
     private final ControlPruebas controlPruebas;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlPrincipal(PanelPrincipal vista) {
         this.vista = vista;
         controlPruebas = new ControlPruebas(vista.getGeneralTabPanel());
@@ -274,7 +278,7 @@ public class ControlPrincipal implements ActionListener {
 
         // Elimina los equipos
         eliminarEquiposGrupo(g);
-        List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
+        List<Participante> participantes = participantejpa.findParticipantesByGrupo(g.getId());
         try {
             for (Participante participante : participantes) {
                 // Eliminamos el participante
@@ -511,7 +515,8 @@ public class ControlPrincipal implements ActionListener {
         GrupoJpa grupojpa = new GrupoJpa();
 
         // Obtenemos el grupo por el nombre
-        Grupo g = grupojpa.findGrupoByNombre(grupo);
+        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo, 
+                Coordinador.getInstance().getSeleccionada().getId());
         if (g != null) {
             // Obtenemos la lista de equipos del grupo anterior
             List<Equipo> equipos = equipojpa.findByGrupo(g.getId());
@@ -547,7 +552,7 @@ public class ControlPrincipal implements ActionListener {
             // Si la prueba es individual
             if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                 // Obtenemos todas las personas de este grupo
-                List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
+                List<Participante> participantes = participantejpa.findParticipantesByGrupo(g.getId());
                 // Limpiamos el combobox
                 registrosTabPanel.getParticipantesComboBox().removeAllItems();
                 // Añadimos cada participante 
@@ -593,7 +598,7 @@ public class ControlPrincipal implements ActionListener {
         // Añadimos una fila por cada participante con sus datos
         if (grupos != null) {
             for (Grupo g : grupos) {
-                List<Participante> participantes = participantejpa.findPersonaByGrupo(g.getId());
+                List<Participante> participantes = participantejpa.findParticipantesByGrupo(g.getId());
                 for (Participante p : participantes) {
                     participantesTabPanel.getModeloParticipantesTable().addRow(
                             new Object[]{p.getId(),

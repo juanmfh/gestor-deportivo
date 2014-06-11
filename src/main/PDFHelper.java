@@ -240,7 +240,7 @@ public class PDFHelper {
 
                     if (p.getTiporesultado().equals("Tiempo")) {
                         tabla.addCell(new Phrase(String.valueOf(dt.format(
-                                registrojpa.findMinRegistroByParticipantePruebaCompeticion(
+                                registrojpa.findMinRegistroByEquipoPruebaCompeticion(
                                         equipo.getId(),
                                         c.getId(),
                                         p.getId()))),
@@ -248,7 +248,7 @@ public class PDFHelper {
                     } else {
                         tabla.addCell(new Phrase(
                                 String.valueOf(
-                                        registrojpa.findMaxRegistroByParticipantePruebaCompeticion(
+                                        registrojpa.findMaxRegistroByEquipoPruebaCompeticion(
                                                 equipo.getId(),
                                                 c.getId(),
                                                 p.getId())),

@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -256,8 +250,13 @@ public class RegistroJpa implements Serializable {
         }
     }
     
-    // Creado por mi
+    // author: Juan María Frías Hidalgo
     
+    /** Retorna la lista de registros a partir de una inscripción
+     * 
+     * @param inscripcionid     Identificador de la inscripción.
+     * @return List<Registro>
+     */
     public List<Registro> findByInscripcion(Integer inscripcionid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -273,6 +272,11 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista completa de registros de una competición.
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticion(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -288,6 +292,12 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de pruebas de tipo individual
+     * de una competición.
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionIndividual(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -303,6 +313,12 @@ public class RegistroJpa implements Serializable {
         return res;
     }
      
+    /**Devuelve la lista de registros de pruebas de tipo equipo
+     * de una competición.
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @return List<Registro>
+     */
      public List<Registro> findByCompeticionEquipo(Integer competicionid) {
          EntityManager em = getEntityManager();
         List<Registro> res;
@@ -318,6 +334,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+     /**Devuelve el último número de intento de un participante en una 
+      * prueba determinada de una competición.
+      * 
+      * @param inscripcionid    Identificador de la inscripción.
+      * @param pruebaid         Identificador del grupo.
+      * @param participanteid   Identificador del participante
+      * @return int
+      */
     public int findMaxNumIntento(Integer inscripcionid, Integer pruebaid, Integer participanteid){
         EntityManager em = getEntityManager();
         int res;
@@ -330,6 +354,11 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de un participante (de todas las pruebas)
+     * 
+     * @param participanteid    Identificador del participante
+     * @return List<Registro>
+     */
     public List<Registro> findByParticipante(Integer participanteid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -345,6 +374,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos filtrada por competición,
+     * grupo y prueba.
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @param pruebaid          Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupoPruebaEquipo(Integer competicionid, Integer grupoid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -362,6 +399,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+     /**Devuelve la lista de registros de participantes individuales filtrada 
+      * por competición, grupo y prueba.
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @param pruebaid          Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupoPruebaIndividual(Integer competicionid, Integer grupoid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -379,6 +424,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos y participantes filtrada por competición,
+     * grupo y prueba.
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @param pruebaid          Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupoPrueba(Integer competicionid, Integer grupoid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -396,6 +449,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos y participantes filtrada por competición y
+     * grupo
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupo(Integer competicionid, Integer grupoid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -412,6 +472,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de participantes filtrada por competición y
+     * grupo
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupoIndividual(Integer competicionid, Integer grupoid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -428,6 +495,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos filtrada por competición y
+     * grupo
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionGrupoEquipo(Integer competicionid, Integer grupoid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -444,6 +518,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos y participantes filtrada por competición y
+     * prueba
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid           Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionPrueba(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -460,6 +541,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de participantes filtrada por competición y
+     * prueba
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid           Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionPruebaIndividual(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -476,6 +564,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de equipos filtrada por competición y
+     * prueba
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid           Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByCompeticionPruebaEquipo(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -492,6 +587,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de un participante filtrada por competición y
+     * prueba ordenada por número de intento
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param participanteid    Identificador del participante
+     * @return List<Registro>
+     */
     public List<Registro> findRegistroByParticipantePruebaCompeticionOrderByNumIntento(Integer competicionid, Integer pruebaid, Integer participanteid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -510,6 +613,11 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista completa de registros de una prueba
+     * 
+     * @param pruebaid  Identificador de la prueba
+     * @return List<Registro>
+     */
     public List<Registro> findByPrueba(Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Registro> res;
@@ -525,7 +633,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
       
-    
+    /**Devuelve una lista de participantes que tienen registros en una prueba determinada
+     * de una competición ordenada por marca (de mayor a menor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @return List<Participante>
+     */
     public List<Participante> findParticipantesConRegistrosNum(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Participante> res;
@@ -542,6 +656,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de equipos que tienen registros en una prueba determinada
+     * de una competición ordenada por marca (de mayor a menor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @return List<Participante>
+     */
     public List<Equipo> findEquiposConRegistrosNum(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Equipo> res;
@@ -558,6 +679,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de participantes que tienen registros en una prueba determinada
+     * de una competición ordenada por tiempo (de menor a mayor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @return List<Participante>
+     */
     public List<Participante> findParticipantesConRegistrosTiempo(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Participante> res;
@@ -574,6 +702,13 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+     /**Devuelve una lista de equipos que tienen registros en una prueba determinada
+     * de una competición ordenada por tiempo (de menor a mayor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @return List<Participante>
+     */
     public List<Equipo> findEquiposConRegistrosTiempo(Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         List<Equipo> res;
@@ -590,6 +725,14 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la mejor marca de un participante en una prueba determinada de 
+     * una competición.
+     * 
+     * @param participanteid    Identificador del participante
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @return Double
+     */
     public Double findMaxRegistroByParticipantePruebaCompeticion(Integer participanteid,Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         Double res;
@@ -608,6 +751,40 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la mejor marca de un equipo en una prueba determinada de 
+     * una competición.
+     * 
+     * @param equipoid          Identificador del equipo
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @return Double
+     */
+    public Double findMaxRegistroByEquipoPruebaCompeticion(Integer equipoid,Integer competicionid, Integer pruebaid) {
+        EntityManager em = getEntityManager();
+        Double res;
+        try {
+            Query q = em.createNamedQuery("Registro.findMaxRegistroByEquipoPruebaCompeticion");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("equipoid", equipoid);
+            res = (Double)q.getSingleResult();
+            
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve el mejor tiempo de un participante en una prueba determinada de 
+     * una competición.
+     * 
+     * @param participanteid    Identificador del participante
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @return Double
+     */
     public Date findMinRegistroByParticipantePruebaCompeticion(Integer participanteid,Integer competicionid, Integer pruebaid) {
         EntityManager em = getEntityManager();
         Date res;
@@ -616,6 +793,32 @@ public class RegistroJpa implements Serializable {
             q.setParameter("competicionid", competicionid);
             q.setParameter("pruebaid", pruebaid);
             q.setParameter("participanteid", participanteid);
+            res = (Date)q.getSingleResult();
+            
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve el mejor tiempo de un equipo en una prueba determinada de 
+     * una competición.
+     * 
+     * @param equipoid          Identificador del equipo
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @return Double
+     */
+    public Date findMinRegistroByEquipoPruebaCompeticion(Integer equipoid,Integer competicionid, Integer pruebaid) {
+        EntityManager em = getEntityManager();
+        Date res;
+        try {
+            Query q = em.createNamedQuery("Registro.findMinRegistroByEquipoPruebaCompeticion");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("equipoid", equipoid);
             res = (Date)q.getSingleResult();
             
         } catch (NoResultException e) {

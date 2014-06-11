@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -197,25 +191,15 @@ public class CompuestaJpa implements Serializable {
         }
     }
     
-    // Creados por mi
-    
-    // No utilizada
-    public int countCompuestaByPrueba(Integer pruebaid) {
-        EntityManager em = getEntityManager();
-        int res;
-        try {
-            Query q = em.createNamedQuery("Compuesta.countByPrueba");
-            q.setParameter("pruebaid", pruebaid);
-            res =  ((Number)q.getSingleResult()).intValue();
-            
-        } catch (NoResultException e) {
-            return 0;
-        } finally{
-            em.close();
-        }
-        return res;
-    }
-    
+    // author: Juan María Frías Hidalgo
+
+    /** Devuelve un objeto compuesta a partir del identificador de la prueba y
+     * de la competición
+     * 
+     * @param pruebaid          Identificador de la prueba
+     * @param competicionid     Identificador de la competición
+     * @return Compuesta
+     */
     public Compuesta findCompuestaByPrueba_Competicion(Integer pruebaid, Integer competicionid) {
         EntityManager em = getEntityManager();
         Compuesta res;
@@ -232,6 +216,11 @@ public class CompuestaJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de objetos Compuesta a partir de una competición.
+     * 
+     * @param competicionid     Identificador de la competición
+     * @return List<Compuesta>
+     */
     public List<Compuesta> findCompuestaByCompeticion(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Compuesta> res;

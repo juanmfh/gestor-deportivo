@@ -17,6 +17,10 @@ public class ControlModificarCompeticion implements ActionListener {
 
     private final VistaCrearCompeticion vista;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlModificarCompeticion(VistaCrearCompeticion vista) {
         this.vista = vista;
     }

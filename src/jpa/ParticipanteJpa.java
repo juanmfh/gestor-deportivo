@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -278,11 +272,15 @@ public class ParticipanteJpa implements Serializable {
         }
     }
     
-    // Creado por mi
+    // author: Juan María Frías Hidalgo
     
 
-    
-    public List<Participante> findPersonaByGrupo(Integer grupoid) {
+    /**Devuelve la lista de participantes de un grupo determinado
+     * 
+     * @param grupoid       Identificador del grupo
+     * @return List<Participante>
+     */
+    public List<Participante> findParticipantesByGrupo(Integer grupoid) {
         EntityManager em = getEntityManager();
         List<Participante> res;
         try {
@@ -297,6 +295,11 @@ public class ParticipanteJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de participantes miembros de un equipo
+     * 
+     * @param equipoid  Identificador del equipo
+     * @return List<Participante>
+     */
     public List<Participante> findByEquipo(Integer equipoid) {
         EntityManager em = getEntityManager();
         List<Participante> res;
@@ -312,6 +315,13 @@ public class ParticipanteJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve al participante a partir de un dorsal y una competición, null
+     * en caso de que no se encuentre.
+     * 
+     * @param dorsal            Dorsal del participante
+     * @param competicionid     Identificador de la competición
+     * @return Participante
+     */
     public Participante findByDorsalAndCompeticion(Integer dorsal, Integer competicionid) {
         EntityManager em = getEntityManager();
         Participante res;

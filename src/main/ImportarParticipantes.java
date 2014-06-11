@@ -63,7 +63,8 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             Grupo g = ControlGrupos.crearGrupo(data.toString(), null);
                             if (g == null) {
                                 GrupoJpa grupojpa = new GrupoJpa();
-                                g = grupojpa.findGrupoByNombre(data.toString());
+                                g = grupojpa.findGrupoByNombreAndCompeticion(data.toString(),
+                                Coordinador.getInstance().getSeleccionada().getId());
                             }
                             if (g != null) {
                                 grupoActual = g.getNombre();
@@ -77,7 +78,8 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             Grupo g = ControlGrupos.crearGrupo(nombreSubGrupo, data.toString());
                             if (g == null) {
                                 GrupoJpa grupojpa = new GrupoJpa();
-                                g = grupojpa.findGrupoByNombre(nombreSubGrupo);
+                                g = grupojpa.findGrupoByNombreAndCompeticion(nombreSubGrupo,
+                                Coordinador.getInstance().getSeleccionada().getId());
                             }
                             if (g != null) {
                                 grupoActual = g.getNombre();

@@ -34,6 +34,10 @@ public class ControlRegistros implements ActionListener {
 
     VistaRegistros vista;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlRegistros(VistaRegistros vista) {
         this.vista = vista;
     }
@@ -542,7 +546,8 @@ public class ControlRegistros implements ActionListener {
                 }
             }
         } else {
-            Grupo g = grupojpa.findGrupoByNombre(grupo);
+            Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
+                      Coordinador.getInstance().getSeleccionada().getId());
             if (prueba.equals("Todas")) {
                 if (participante.equals("Equipos")) {
                     registros = registrojpa.findByCompeticionGrupoEquipo(competicionSeleccionada, g.getId());

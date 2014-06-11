@@ -16,6 +16,10 @@ public class ControlLogin implements ActionListener {
     
     VistaLogin vista;
 	
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlLogin(VistaLogin vista){
         this.vista = vista;
     }

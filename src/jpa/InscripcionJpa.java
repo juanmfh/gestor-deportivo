@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -262,8 +256,14 @@ public class InscripcionJpa implements Serializable {
         }
     }
     
-    // Creado por mi
+    // author: Juan María Frías Hidalgo
     
+    
+    /**Devuelve la lista de inscripciones de una competición
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @return List<Inscripciones>
+     */
     public List<Inscripcion> findInscripcionByCompeticion(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Inscripcion> res;
@@ -279,6 +279,12 @@ public class InscripcionJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la inscripción de un grupo determinado en una competición
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param grupoid           Identificador del grupo
+     * @return Inscripcion
+     */
     public Inscripcion findInscripcionByCompeticionByGrupo(Integer competicionid, Integer grupoid) {
         EntityManager em = getEntityManager();
         Inscripcion res;
@@ -295,6 +301,12 @@ public class InscripcionJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una inscripción de un grupo en una competición.
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param nombregrupo       Nombre del grupo.
+     * @return  Inscripcion
+     */
     public Inscripcion findInscripcionByCompeticionByNombreGrupo(Integer competicionid, String nombregrupo) {
         EntityManager em = getEntityManager();
         Inscripcion res;

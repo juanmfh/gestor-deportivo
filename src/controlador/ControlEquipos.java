@@ -21,7 +21,10 @@ public class ControlEquipos implements ActionListener {
 
     private VistaEquipos vista;
 
-    // Constructor
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlEquipos(VistaEquipos vista) {
         this.vista = vista;
     }
@@ -173,7 +176,8 @@ public class ControlEquipos implements ActionListener {
                     if (equipo.getParticipanteCollection().isEmpty()) {
 
                         // Buscamos el grupo con el nombre obtenido en la vista
-                        g = grupojpa.findGrupoByNombre(vista.getGruposComboBox().getSelectedItem().toString());
+                        g = grupojpa.findGrupoByNombreAndCompeticion(vista.getGruposComboBox().getSelectedItem().toString(),
+                                Coordinador.getInstance().getSeleccionada().getId());
                         // Comprobamos que el grupo existe
                         if (g != null) {
                             // Cambiamos el grupo

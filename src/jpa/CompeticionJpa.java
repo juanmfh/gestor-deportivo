@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -312,8 +306,12 @@ public class CompeticionJpa implements Serializable {
         }
     }
     
-    // Creados por mi
+    // author : Juan María Frías Hidalgo
     
+    /**Devuele una lista con los nombre de todas las competiciones
+     * 
+     * @return List<String>
+     */
     public List<String> findAllCompeticionNames() {
         EntityManager em = getEntityManager();
         List<String> res;
@@ -330,6 +328,12 @@ public class CompeticionJpa implements Serializable {
         return res;
     }
 
+    /**Devuelve un objeto Competición a partir del nombre de la competición,
+     * null en otro caso
+     * 
+     * @param nombre Nombre de la competicion
+     * @return Competicion
+     */
     public Competicion findCompeticionByName(String nombre) {
         EntityManager em = getEntityManager();
         Competicion res;

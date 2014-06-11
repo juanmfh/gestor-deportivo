@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import modelo.Equipo;
@@ -270,8 +264,15 @@ public class EquipoJpa implements Serializable {
         }
     }
     
-    // Creados por mi
+    // author: Juan María Frías Hidalgo
     
+    /** Devuelve un objeto Equipo a partir del nombre de este, y de la 
+     *  competición en la que se encuentra.
+     * 
+     * @param nombre            Nombre del equipo
+     * @param competicionid     Identificador de la competición
+     * @return Equipo
+     */
     public Equipo findByNombreAndCompeticion(String nombre, Integer competicionid) {
         EntityManager em = getEntityManager();
         Equipo res;
@@ -288,6 +289,11 @@ public class EquipoJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de Equipos que tiene una competición
+     * 
+     * @param competicionid     Identificador de la competición
+     * @return List<Equipo>
+     */
     public List<Equipo> findByCompeticion(Integer competicionid) {
         EntityManager em = getEntityManager();
         List<Equipo> res;
@@ -303,6 +309,13 @@ public class EquipoJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de Equipos que hay en un grupo determinado.
+     * Como es el identificador del grupo el que se pasa como parámetro no hace 
+     * falta indicar la competición ya que es único.
+     * 
+     * @param grupoid   Identificador del grupo
+     * @return List<Equipo>
+     */
     public List<Equipo> findByGrupo(Integer grupoid) {
         EntityManager em = getEntityManager();
         List<Equipo> res;

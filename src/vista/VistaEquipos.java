@@ -1,13 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package vista;
 
 import java.awt.event.ActionListener;
-import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,23 +18,55 @@ public interface VistaEquipos {
     
     String LIMPIAR = "limpiar";
     
+    /**Asocia un listener controlador a elementos de la vista
+     * 
+     * @param al ActionListener 
+     */
     public void controlador(ActionListener al);
     
+    /**Devuelve un string con el nombre del equipo
+     * 
+     * @return String
+     */
     public String getNombreEquipo();
     
+    /**Añade a la tabla de equipos una nueva fila
+     * 
+     * @param o Fila nueva
+     */
     public void añadirEquipoATabla(Object[] o);
     
+    /**Devuelve el modelo de la tabla de equipos
+     * 
+     * @return DefaultTableModel
+     */
     public DefaultTableModel getModeloEquiposTable();
     
+    /**Devuelve el identificador del equipo seleccionado
+     * 
+     * @return Integer
+     */
     public Integer getEquipoSelected();
-    
-    public ComboBoxModel getGruposModel();
 
+    /**Devuelve el ComboBox de grupos 
+     * 
+     * @return JComboBox
+     */
     public JComboBox getGruposComboBox();
     
+    /**Devuelve una cadena con el nombre del grupo seleccionado
+     * 
+     * @return String
+     */
     public String getGrupo();
     
+    /**
+     * Elimina de la tabla de equipos la fila seleccionada
+     */
     public void eliminarEquipoSeleccionado();
     
+    /**
+     * Limpia el formulario
+     */
     public void limpiarFormularioEquipo();
 }

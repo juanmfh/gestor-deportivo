@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import modelo.Competicion;
@@ -313,8 +307,13 @@ public class PruebaJpa implements Serializable {
         }
     }
     
-    // Creado por mi
+    // author: Juan María Frías Hidalgo
     
+    /**Obtiene la lista de pruebas de una competición
+     * 
+     * @param c Objeto Competición
+     * @return List<Prueba>
+     */
     public List<Prueba> findPruebasByCompeticon(Competicion c) {
         EntityManager em = getEntityManager();
         List<Prueba> res;
@@ -334,6 +333,11 @@ public class PruebaJpa implements Serializable {
         }
     }
     
+    /**Obtiene la lista de pruebas existentes que no hay en una competición.
+     * 
+     * @param c     Objeto Competición
+     * @return      List<Prueba>
+     */
     public List<Prueba> findPruebasByNotCompeticon(Competicion c) {
         EntityManager em = getEntityManager();
         List<Prueba> res;
@@ -353,6 +357,12 @@ public class PruebaJpa implements Serializable {
         }
     }
     
+    /**Obtiene un objeto Prueba a partir del nombre de esta y de la competición
+     * 
+     * @param nombre            Nombre de la prueba
+     * @param competicionid     Identificador de la competición
+     * @return Prueba
+     */
     public Prueba findPruebaByNombreCompeticion(String nombre, Integer competicionid) {
         EntityManager em = getEntityManager();
         Prueba res;
@@ -369,6 +379,11 @@ public class PruebaJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve el número de registros que hay asociados a una prueba.
+     * 
+     * @param pruebaid      Identificador de la prueba.
+     * @return int
+     */
     public int countRegistrosByPrueba(Integer pruebaid){
         EntityManager em = getEntityManager();
         int res;

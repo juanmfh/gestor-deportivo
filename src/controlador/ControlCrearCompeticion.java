@@ -83,7 +83,7 @@ public class ControlCrearCompeticion implements ActionListener {
 
     
     /**
-     * Crea una competición con los datos pasados como parámetro
+     * Crea una competición con los datos pasados como parámetros
      *
      * @param nombre        nombre de la competición
      * @param lugar         lugar de la competición.

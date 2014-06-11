@@ -18,8 +18,12 @@ import vista.VistaGrupos;
  */
 public class ControlGrupos implements ActionListener {
 
-    private GruposTab vista;
+    private final VistaGrupos vista;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlGrupos(GruposTab vista) {
         this.vista = vista;
     }

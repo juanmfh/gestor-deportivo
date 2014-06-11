@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package modelo;
 
@@ -32,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Compuesta.findById", query = "SELECT c FROM Compuesta c WHERE c.id = :id"),
     @NamedQuery(name = "Compuesta.findByOrden", query = "SELECT c FROM Compuesta c WHERE c.orden = :orden"),
     
-    @NamedQuery(name = "Compuesta.countByPrueba", query = "SELECT COUNT(c) FROM Compuesta c WHERE c.pruebaId.id = :pruebaid"),
     @NamedQuery(name = "Compuesta.findByCompeticion", query = "SELECT c FROM Compuesta c WHERE c.competicionId.id = :competicionid"),
     @NamedQuery(name = "Compuesta.findByPrueba_Competicion", query = "SELECT c FROM Compuesta c WHERE c.pruebaId.id = :pruebaid and c.competicionId.id = :competicionid")})
 public class Compuesta implements Serializable {

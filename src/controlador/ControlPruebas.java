@@ -24,6 +24,10 @@ public class ControlPruebas implements ActionListener {
 
     private GeneralTab vista;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlPruebas(GeneralTab vista) {
         this.vista = vista;
     }

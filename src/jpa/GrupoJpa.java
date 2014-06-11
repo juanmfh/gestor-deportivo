@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import java.io.Serializable;
@@ -444,6 +438,13 @@ public class GrupoJpa implements Serializable {
         }
     }
     
+    // author: Juan María Frías Hidalgo
+    
+    /** Devuelve una lista con los grupos que hay en una competición c.
+     * 
+     * @param c Objeto Competicion
+     * @return List<Grupo>
+     */
     public List<Grupo> findGruposByCompeticon(Competicion c) {
         EntityManager em = getEntityManager();
         List<Grupo> res;
@@ -463,6 +464,14 @@ public class GrupoJpa implements Serializable {
         }
     }
 
+    /**Devuelve un objeto Grupo a partir del nombre de este y la competición 
+     * donde se encuentra (ya que puede haber grupos con igual nombre en distintas
+     * competiciones)
+     * 
+     * @param nombre            Nombre del grupo
+     * @param competicionid     Identificador de la competición
+     * @return 
+     */
     public Grupo findGrupoByNombreAndCompeticion(String nombre, Integer competicionid) {
         EntityManager em = getEntityManager();
         Grupo res;
@@ -483,7 +492,12 @@ public class GrupoJpa implements Serializable {
         }
     }
 
-    // Subgrupos
+    /**Obtiene una lista de grupos que son subGrupos del grupo pasado como
+     * parámetro
+     * 
+     * @param id    Identificador del Grupo padre
+     * @return List<Grupo>
+     */
     public List<Grupo> findGrupoByGrupoId(Integer id) {
         EntityManager em = getEntityManager();
         List<Grupo> res;
@@ -499,21 +513,13 @@ public class GrupoJpa implements Serializable {
         return res;
     }
 
-    public Grupo findGrupoByNombre(String nombre) {
-        EntityManager em = getEntityManager();
-        Grupo res;
-        try {
-            Query q = em.createNamedQuery("Grupo.findByNombre");
-            q.setParameter("nombre", nombre);
-            res = (Grupo) q.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally {
-            em.close();
-        }
-        return res;
-    }
 
+    /**Obtiene el grupo donde está un participante de una competición.
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param participanteid    Identificador del participante
+     * @return Grupo
+     */
     public Grupo findByParticipanteCompeticion(Integer competicionid, Integer participanteid) {
         EntityManager em = getEntityManager();
         Grupo res;
@@ -530,6 +536,12 @@ public class GrupoJpa implements Serializable {
         return res;
     }
 
+    /**Obtiene el grupo donde está un equipo de una competición
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param equipoid          Identificador del equipo.
+     * @return Grupo
+     */
     public Grupo findByEquipoCompeticion(Integer competicionid, Integer equipoid) {
         EntityManager em = getEntityManager();
         Grupo res;

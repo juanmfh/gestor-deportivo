@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package jpa;
 
 import modelo.Administrado;
@@ -197,6 +191,11 @@ public class AdministradoJpa implements Serializable {
         }
     }
     
+    /** Devuelve la lista de objetos Administrado de una competición
+     * 
+     * @param comp Competicion
+     * @return List<Administrado>
+     */
     public List<Administrado> findAdministradoByCompeticion(Competicion comp) {
         EntityManager em = getEntityManager();
         List<Administrado> res;

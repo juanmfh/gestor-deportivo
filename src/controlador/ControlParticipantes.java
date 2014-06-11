@@ -29,6 +29,10 @@ public class ControlParticipantes implements ActionListener {
 
     private VistaParticipantes vista;
 
+    /**Constructor que asocia la vista al controlador
+     * 
+     * @param vista Vista del controlador (Interfaz)
+     */
     public ControlParticipantes(VistaParticipantes vista) {
         this.vista = vista;
     }
@@ -140,7 +144,8 @@ public class ControlParticipantes implements ActionListener {
             Participante participante = new Participante();
             
             // Buscamos el grupo por el nombre
-            Grupo g = grupojpa.findGrupoByNombre(nombreGrupo);
+            Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
+                          Coordinador.getInstance().getSeleccionada().getId());
             
             participante.setNombre(nombre);
             participante.setApellidos(apellidos);
@@ -226,7 +231,8 @@ public class ControlParticipantes implements ActionListener {
                 participantejpa.edit(participante);
 
                 // Cambia el grupo al que pertenece el participante
-                Grupo g = grupojpa.findGrupoByNombre(vista.getGrupoParticipante());
+                Grupo g = grupojpa.findGrupoByNombreAndCompeticion(vista.getGrupoParticipante(),
+                                Coordinador.getInstance().getSeleccionada().getId());
                 participante.setGrupoId(g);
 
                 // Si se ha seleccionado un equipo
@@ -263,7 +269,7 @@ public class ControlParticipantes implements ActionListener {
     }
 
     /**
-     * Elimina los registros del participante "participante"
+     * Elimina los registros de un participante
      *
      * @param participante Participante asociado a esos registros
      */
