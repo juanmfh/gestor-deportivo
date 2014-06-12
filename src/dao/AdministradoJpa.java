@@ -1,4 +1,4 @@
-package jpa;
+package dao;
 
 import modelo.Administrado;
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import jpa.exceptions.NonexistentEntityException;
+import dao.exceptions.NonexistentEntityException;
 
 /**
  *

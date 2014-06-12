@@ -26,9 +26,9 @@ import modelo.Grupo;
 import modelo.Participante;
 import modelo.Prueba;
 import modelo.Registro;
-import jpa.GrupoJpa;
-import jpa.PruebaJpa;
-import jpa.RegistroJpa;
+import dao.GrupoJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
 import modelo.Equipo;
 
 /**

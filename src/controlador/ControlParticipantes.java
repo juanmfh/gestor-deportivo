@@ -14,11 +14,13 @@ import modelo.Equipo;
 import modelo.Grupo;
 import modelo.Participante;
 import modelo.Registro;
-import jpa.EquipoJpa;
-import jpa.GrupoJpa;
-import jpa.ParticipanteJpa;
-import jpa.RegistroJpa;
-import jpa.exceptions.NonexistentEntityException;
+import dao.EquipoJpa;
+import dao.GrupoJpa;
+import dao.ParticipanteJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
+import dao.exceptions.NonexistentEntityException;
+import modelo.Prueba;
 import vista.VistaParticipantes;
 
 /**
@@ -49,7 +51,8 @@ public class ControlParticipantes implements ActionListener {
                         vista.getGrupoParticipante(),
                         vista.getEdadParticipante(),
                         vista.getSexoParticipante(),
-                        vista.getEquipoParticipante());
+                        vista.getEquipoParticipante(),
+                        vista.getPruebaAsignadaParticipante());
                 if (p != null) {
                     // Actualizamos la vista
                     vista.añadirParticipanteATabla(new Object[]{
@@ -122,12 +125,13 @@ public class ControlParticipantes implements ActionListener {
      * @param edad Edad del participante
      * @param sexo Sexo del participante (1 == Hombre, 0 == Mujer)
      * @param nombreEquipo Nombre del equipo del que es miembro o "Ninguno"
+     * @param pruebaAsignada Nombre de la prueba asignada o "Ninguno"
      * @return Participante si ha sido correctamente creado correctamente, null
      * en otro caso
      */
     public static Participante crearParticipante(String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
-            String nombreEquipo) {
+            String nombreEquipo, String pruebaAsignada) {
         
 
         // Comprobamos que el nombre, apellidos, dorsal y grupo del participante
@@ -154,6 +158,13 @@ public class ControlParticipantes implements ActionListener {
             participante.setSexo(sexo);
             participante.setGrupoId(g);
             
+            // Si se ha seleccionado alguna prueba
+            if (!pruebaAsignada.equals("Ninguna")){
+                PruebaJpa pruebajpa = new PruebaJpa();
+                
+                participante.setPruebaasignada(pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada, 
+                        Coordinador.getInstance().getSeleccionada().getId()));
+            }
 
             // Si se ha seleccionado un equipo
             if (!nombreEquipo.equals("Ninguno")) {
@@ -234,6 +245,18 @@ public class ControlParticipantes implements ActionListener {
                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(vista.getGrupoParticipante(),
                                 Coordinador.getInstance().getSeleccionada().getId());
                 participante.setGrupoId(g);
+                
+                // Si se ha seleccionado una prueba
+                if(!vista.getPruebaAsignadaParticipante().equals("Ninguna")){
+                    PruebaJpa pruebajpa = new PruebaJpa();
+                    Prueba p = pruebajpa.findPruebaByNombreCompeticion(vista.getPruebaAsignadaParticipante(),
+                            Coordinador.getInstance().getSeleccionada().getId());
+                    if(p!=null){
+                        participante.setPruebaasignada(p);
+                    }
+                }else{
+                    participante.setPruebaasignada(null);
+                }
 
                 // Si se ha seleccionado un equipo
                 if (!vista.getEquipoParticipante().equals("Ninguno")) {

@@ -1,6 +1,7 @@
 package vista;
 
 import java.awt.event.ActionListener;
+import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -136,4 +137,28 @@ public interface VistaParticipantes {
      * @param sexo 0 si es masculino, 1 si es femenino.
      */
     public void setSexoParticipante(Integer sexo);
+    
+    /**Devuelve el combobox de equipos 
+     * 
+     * @return JComboBox
+     */
+    public JComboBox getEquipoComboBox();
+    
+    /**Devuelve el combobox de prueba asignada
+     * 
+     * @return JComboBox
+     */
+    public JComboBox getPruebaComboBox();
+    
+    /**Devuelve la prueba seleccionada 
+     * 
+     * @return String
+     */
+    public String getPruebaAsignadaParticipante();
+    
+    /**Establece la prueba seleccionada en el combobox
+     * 
+     * @param prueba Nombre de la prueba 
+     */
+    public void setPruebaAsignadaParticipante(String prueba);
 }

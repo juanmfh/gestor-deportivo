@@ -258,6 +258,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                     Coordinador.getInstance().getControladorPrincipal().getParticipantesTabPanel().clearSelectionParticipante();
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
+                    Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnParticipantes();
                 } else if (sele == tabbedPane.indexOfTab("Grupos")) {
                     //System.out.println("Pestaña grupos seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();

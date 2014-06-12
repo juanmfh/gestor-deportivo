@@ -17,20 +17,20 @@ import modelo.Competicion;
 import modelo.Compuesta;
 import modelo.Equipo;
 import modelo.Prueba;
-import jpa.AdministradoJpa;
-import jpa.CompeticionJpa;
-import jpa.CompuestaJpa;
-import jpa.PruebaJpa;
+import dao.AdministradoJpa;
+import dao.CompeticionJpa;
+import dao.CompuestaJpa;
+import dao.PruebaJpa;
 import modelo.Grupo;
 import modelo.Inscripcion;
 import modelo.Registro;
-import jpa.EquipoJpa;
-import jpa.GrupoJpa;
-import jpa.InscripcionJpa;
-import jpa.ParticipanteJpa;
-import jpa.RegistroJpa;
-import jpa.exceptions.IllegalOrphanException;
-import jpa.exceptions.NonexistentEntityException;
+import dao.EquipoJpa;
+import dao.GrupoJpa;
+import dao.InscripcionJpa;
+import dao.ParticipanteJpa;
+import dao.RegistroJpa;
+import dao.exceptions.IllegalOrphanException;
+import dao.exceptions.NonexistentEntityException;
 import modelo.Participante;
 import vista.DialogoCrearCompeticion;
 import vista.EquiposTab;
@@ -63,8 +63,9 @@ public class ControlPrincipal implements ActionListener {
     private ControlRegistros controlRegistros;
     private final ControlPruebas controlPruebas;
 
-    /**Constructor que asocia la vista al controlador
-     * 
+    /**
+     * Constructor que asocia la vista al controlador
+     *
      * @param vista Vista del controlador (Interfaz)
      */
     public ControlPrincipal(PanelPrincipal vista) {
@@ -187,12 +188,9 @@ public class ControlPrincipal implements ActionListener {
         List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(seleccionada.getId());
 
         try {
-
-            // Eliminamos todos los permisos de administración
             for (Administrado temp : administra) {
                 admjpa.destroy(temp.getId());
             }
-            // Eliminamos todas las inscripciones de la competición
             for (Inscripcion insc : inscripciones) {
                 gruposIds.add(insc.getGrupoId().getId());
                 List<Registro> registros = registrosjpa.findByInscripcion(insc.getId());
@@ -204,12 +202,10 @@ public class ControlPrincipal implements ActionListener {
                 }
                 inscripcionjpa.destroy(insc.getId());
             }
-            // Eliminamos todas las pruebas
             for (Compuesta comp : compuesta) {
                 compuestajpa.destroy(comp.getId());
                 pruebajpa.destroy(comp.getPruebaId().getId());
             }
-            // Eliminamos todos los grupos y sus participantes
             for (Integer g : gruposIds) {
                 Grupo grupo = grupojpa.findGrupo(g);
                 if (grupo != null) {
@@ -219,13 +215,10 @@ public class ControlPrincipal implements ActionListener {
                     }
                 }
             }
-            // Eliminamos la competición
             competicionjpa.destroy(c.getId());
-        } catch (jpa.exceptions.NonexistentEntityException |
-                jpa.exceptions.IllegalOrphanException ex) {
-            return false;
-        }
+        } catch (dao.exceptions.IllegalOrphanException | dao.exceptions.NonexistentEntityException e) {
 
+        }
         return true;
     }
 
@@ -515,7 +508,7 @@ public class ControlPrincipal implements ActionListener {
         GrupoJpa grupojpa = new GrupoJpa();
 
         // Obtenemos el grupo por el nombre
-        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo, 
+        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
                 Coordinador.getInstance().getSeleccionada().getId());
         if (g != null) {
             // Obtenemos la lista de equipos del grupo anterior
@@ -528,6 +521,26 @@ public class ControlPrincipal implements ActionListener {
                 for (Equipo e : equipos) {
                     participantesTabPanel.getEquipoComboBox().addItem(e.getNombre());
                 }
+            }
+        }
+    }
+
+    /**
+     * Carga en el Tab de Participantes el comboBox de Pruebas
+     */
+    public void cargarPruebasEnParticipantes() {
+
+        PruebaJpa pruebajpa = new PruebaJpa();
+        
+        // Obtenemos la lista de pruebas de la competición
+        List<Prueba> pruebas = pruebajpa.findPruebasByCompeticon(seleccionada);
+        // Limpiamos el comboBox
+        participantesTabPanel.getPruebaComboBox().removeAllItems();
+        // Añadimos el nombre de cada prueba y un componente "Ninguno"
+        if (pruebas != null) {
+            participantesTabPanel.getPruebaComboBox().addItem("Ninguna");
+            for (Prueba p : pruebas) {
+                participantesTabPanel.getPruebaComboBox().addItem(p.getNombre());
             }
         }
     }

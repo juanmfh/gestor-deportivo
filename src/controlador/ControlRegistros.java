@@ -17,13 +17,13 @@ import modelo.Inscripcion;
 import modelo.Participante;
 import modelo.Prueba;
 import modelo.Registro;
-import jpa.EquipoJpa;
-import jpa.GrupoJpa;
-import jpa.InscripcionJpa;
-import jpa.ParticipanteJpa;
-import jpa.PruebaJpa;
-import jpa.RegistroJpa;
-import jpa.exceptions.NonexistentEntityException;
+import dao.EquipoJpa;
+import dao.GrupoJpa;
+import dao.InscripcionJpa;
+import dao.ParticipanteJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
+import dao.exceptions.NonexistentEntityException;
 import vista.VistaRegistros;
 
 /**

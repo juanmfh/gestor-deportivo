@@ -9,10 +9,10 @@ import modelo.Competicion;
 import modelo.Compuesta;
 import modelo.Prueba;
 import modelo.Registro;
-import jpa.CompuestaJpa;
-import jpa.PruebaJpa;
-import jpa.RegistroJpa;
-import jpa.exceptions.NonexistentEntityException;
+import dao.CompuestaJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
+import dao.exceptions.NonexistentEntityException;
 import vista.GeneralTab;
 import vista.VistaPrincipal;
 
@@ -232,9 +232,9 @@ public class ControlPruebas implements ActionListener {
                 }
                 // Eliminamos la prueba
                 pruebajpa.destroy(pruebaid);
-            } catch (jpa.exceptions.NonexistentEntityException ex) {
+            } catch (    dao.exceptions.NonexistentEntityException ex) {
                 return false;
-            } catch (jpa.exceptions.IllegalOrphanException ex) {
+            } catch (    dao.exceptions.IllegalOrphanException ex) {
                 return false;
             }
             return true;

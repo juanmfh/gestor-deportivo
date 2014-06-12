@@ -59,10 +59,12 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     private final DefaultTableModel modeloParticipantesTable;
     private final JScrollPane participantesScrollPane;
     private final JButton limpiarButton;
-    //private JLabel fechaNacimiento;
     private final JPanel formularioParticipantePanel;
     private final JLabel listaParticipantesLabel;
     private JButton importarButton;
+    private final JLabel pruebaAsignadaLabel;
+    private final JComboBox pruebaAsignadaComboBox;
+    private final DefaultComboBoxModel pruebaAsignadaModel;
 
     public ParticipantesTab() {
         initComponents();
@@ -213,8 +215,8 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         formularioParticipantePanel.add(equipoComboBox, constraints);
 
         dorsalLabel = new JLabel("* Dorsal:");
-        constraints.gridx = 2;
-        constraints.gridy = 4;
+        constraints.gridx = 1;
+        constraints.gridy = 6;
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
@@ -223,14 +225,36 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         formularioParticipantePanel.add(dorsalLabel, constraints);
 
         dorsalTextField = new JTextField(20);
-        constraints.gridx = 2;
-        constraints.gridy = 5;
+        constraints.gridx = 1;
+        constraints.gridy = 7;
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(5, 5, 5, 5);
         formularioParticipantePanel.add(dorsalTextField, constraints);
+        
+        pruebaAsignadaLabel = new JLabel("Prueba asignada: ");
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0, 5, 0, 0);
+        formularioParticipantePanel.add(pruebaAsignadaLabel, constraints);
+        
+        pruebaAsignadaComboBox = new JComboBox();
+        pruebaAsignadaModel = new DefaultComboBoxModel();
+        pruebaAsignadaComboBox.setModel(pruebaAsignadaModel);
+        constraints.gridx = 0;
+        constraints.gridy = 7;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(5, 5, 5, 5);
+        formularioParticipantePanel.add(pruebaAsignadaComboBox, constraints);
 
         constraints.gridx = 0;
         constraints.gridy = 1;
@@ -362,8 +386,14 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         return grupoComboBox;
     }
 
+    @Override
     public JComboBox getEquipoComboBox() {
         return equipoComboBox;
+    }
+    
+    @Override
+    public JComboBox getPruebaComboBox(){
+        return pruebaAsignadaComboBox;
     }
 
     public void controlador(ActionListener al) {
@@ -423,6 +453,15 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
             return null;
         }
     }
+    
+    @Override
+    public String getPruebaAsignadaParticipante() {
+        try {
+            return pruebaAsignadaComboBox.getSelectedItem().toString();
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
 
     @Override
     public Integer getDorsalParticipante() {
@@ -468,6 +507,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         modeloParticipantesTable.removeRow(participantesTable.convertRowIndexToModel(participantesTable.getSelectedRow()));
     }
 
+    @Override
     public void limpiarFormularioParticipante() {
         this.nombreTextField.setText("");
         this.apellidosTextField.setText("");
@@ -476,6 +516,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         sexoButtonGroup.clearSelection();
         this.equipoComboBox.setSelectedIndex(0);
         participantesTable.clearSelection();
+        pruebaAsignadaComboBox.setSelectedIndex(0);
     }
 
     @Override
@@ -510,6 +551,11 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     @Override
     public void setEquipoParticipante(String equipo) {
         this.equipoComboBox.setSelectedItem(equipo);
+    }
+        
+    @Override
+    public void setPruebaAsignadaParticipante(String prueba){
+        this.pruebaAsignadaComboBox.setSelectedItem(prueba);
     }
 
     @Override

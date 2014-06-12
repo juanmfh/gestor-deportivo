@@ -6,9 +6,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import modelo.Grupo;
 import modelo.Inscripcion;
-import jpa.GrupoJpa;
-import jpa.InscripcionJpa;
-import jpa.exceptions.NonexistentEntityException;
+import dao.GrupoJpa;
+import dao.InscripcionJpa;
+import dao.exceptions.NonexistentEntityException;
 import vista.GruposTab;
 import vista.VistaGrupos;
 

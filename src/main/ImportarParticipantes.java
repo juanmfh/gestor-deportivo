@@ -17,7 +17,7 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import modelo.Grupo;
-import jpa.GrupoJpa;
+import dao.GrupoJpa;
 
 /**
  *
@@ -122,7 +122,8 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                     edad,
                                     sexo,
                                     // Equipo
-                                    nombreEquipo.length() == 0 ? "Ninguno" : nombreEquipo);
+                                    nombreEquipo.length() == 0 ? "Ninguno" : nombreEquipo,
+                                    "Ninguna");
                             //System.out.println("Crear participante, Dorsal:["+ data + "]");
                         }
                     } catch (NumberFormatException e) {

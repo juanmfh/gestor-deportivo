@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import modelo.Equipo;
 import modelo.Grupo;
-import jpa.EquipoJpa;
-import jpa.GrupoJpa;
-import jpa.exceptions.NonexistentEntityException;
+import dao.EquipoJpa;
+import dao.GrupoJpa;
+import dao.exceptions.NonexistentEntityException;
 import vista.VistaEquipos;
 
 /**

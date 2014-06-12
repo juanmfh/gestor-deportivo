@@ -8,8 +8,8 @@ import main.IOFile;
 import modelo.Administrado;
 import modelo.Competicion;
 import modelo.Usuario;
-import jpa.AdministradoJpa;
-import jpa.CompeticionJpa;
+import dao.AdministradoJpa;
+import dao.CompeticionJpa;
 import vista.VistaCrearCompeticion;
 
 /**

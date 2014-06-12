@@ -18,11 +18,11 @@ import modelo.Grupo;
 import modelo.Prueba;
 import modelo.Registro;
 import modelo.Usuario;
-import jpa.EquipoJpa;
-import jpa.GrupoJpa;
-import jpa.ParticipanteJpa;
-import jpa.PruebaJpa;
-import jpa.RegistroJpa;
+import dao.EquipoJpa;
+import dao.GrupoJpa;
+import dao.ParticipanteJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
 import modelo.Participante;
 import vista.PanelLogin;
 import vista.PanelPrincipal;
@@ -269,6 +269,8 @@ public class Coordinador {
             pt.setEquipoParticipante(participante.getEquipoId() != null
                     ? participante.getEquipoId().getNombre() : "Ninguno");
             pt.setSexoParticipante(participante.getSexo());
+            pt.setPruebaAsignadaParticipante(participante.getPruebaasignada() != null?
+                    participante.getPruebaasignada().getNombre():"Ninguna");
         }
     }
 

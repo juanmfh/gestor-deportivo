@@ -23,10 +23,10 @@ import jxl.read.biff.BiffException;
 import modelo.Equipo;
 import modelo.Prueba;
 import modelo.Registro;
-import jpa.EquipoJpa;
-import jpa.ParticipanteJpa;
-import jpa.PruebaJpa;
-import jpa.RegistroJpa;
+import dao.EquipoJpa;
+import dao.ParticipanteJpa;
+import dao.PruebaJpa;
+import dao.RegistroJpa;
 import modelo.Participante;
 
 /**
