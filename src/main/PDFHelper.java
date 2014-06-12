@@ -69,7 +69,7 @@ public class PDFHelper {
         if (c.getImagen() != null && c.getImagen().length() > 0) {
             try {
                 Image logo = Image.getInstance(System.getProperty("user.dir")
-                        + "/src/img/" + c.getImagen());
+                        + "/resources/img/" + c.getImagen());
                 logo.scaleAbsolute(100, 100);
                 documento.add(logo);
             } catch (BadElementException | IOException ex) {

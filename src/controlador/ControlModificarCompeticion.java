@@ -111,7 +111,7 @@ public class ControlModificarCompeticion implements ActionListener {
             if (!competicion.getImagen().equals(vista.getRutaImagen())) {
                 competicion.setImagen(nombreImagen);
                 IOFile.copiarFichero(vista.getRutaImagen(),
-                        System.getProperty("user.dir") + "/src/img/");
+                        System.getProperty("user.dir") + "/resources/img/");
             }
             try {
                 // Cargamos la modificación en la base de datos

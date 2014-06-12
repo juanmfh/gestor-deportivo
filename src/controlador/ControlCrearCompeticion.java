@@ -73,7 +73,7 @@ public class ControlCrearCompeticion implements ActionListener {
         if (competicion != null) {
             // Copia local de la imagen logo
             IOFile.copiarFichero(vista.getRutaImagen(),
-                    System.getProperty("user.dir") + "/src/img/");
+                    System.getProperty("user.dir") + "/resources/img/");
 
             // crea permisos al usuario en la competicion
             crearAdministrado(competicion, Coordinador.getInstance().getUsuario());

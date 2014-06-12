@@ -183,7 +183,7 @@ public class GeneralTab extends javax.swing.JPanel {
 
         BufferedImage wPic;
         try {
-            wPic = ImageIO.read(this.getClass().getResource("/img/image_not_found.jpg"));
+            wPic = ImageIO.read(new File(System.getProperty("user.dir") + "/resources/icons/image_not_found.jpg"));
 
             wPic = Thumbnails.of(wPic).size(200, 200).asBufferedImage();
 
