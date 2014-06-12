@@ -425,21 +425,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         listaCompeticiones.clearSelection();
         listaCompeticiones.setSelectedIndex(i);
     }
-
-    /*@Override
-     public String getNamePrueba() {
-     return generalTabPanel.getNombrePruebaTextField().getText().toString();
-     }
-
-     @Override
-     public String getTipoPrueba() {
-     return generalTabPanel.getTipoPruebaComboBox().getSelectedItem().toString();
-     }*/
-
-    /*@Override
-     public boolean getElegidaPrueba() {
-     return generalTabPanel.getPruebaElegidaCheckBox().isSelected();
-     }*/
+     
     public GeneralTab getGeneralTabPanel() {
         return generalTabPanel;
     }
