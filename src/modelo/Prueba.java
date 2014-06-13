@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
     @NamedQuery(name = "Prueba.findByNombreCompeticion", query = "SELECT p FROM Prueba p WHERE p.nombre = :nombre and p IN (SELECT c.pruebaId FROM Compuesta c WHERE c.competicionId.id = :competicionid)"),
     @NamedQuery(name = "Prueba.findByCompeticionId", query = "SELECT p FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id"),
+    @NamedQuery(name = "Prueba.findNombresByCompeticionId", query = "SELECT p.nombre FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id"),
     @NamedQuery(name = "Prueba.findByNotCompeticionId", query = "SELECT p FROM Prueba p WHERE p NOT IN (SELECT p FROM Prueba p JOIN p.compuestaCollection c WHERE c.competicionId.id = :id)"),
     @NamedQuery(name = "Prueba.countRegistrosByPrueba", query = "SELECT COUNT(r) FROM Registro r WHERE r.pruebaId.id = :pruebaid"),
 })

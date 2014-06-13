@@ -31,8 +31,10 @@ import dao.ParticipanteJpa;
 import dao.RegistroJpa;
 import dao.exceptions.IllegalOrphanException;
 import dao.exceptions.NonexistentEntityException;
+import java.awt.Frame;
 import modelo.Participante;
 import vista.DialogoCrearCompeticion;
+import vista.DialogoImprimirResultados;
 import vista.EquiposTab;
 import vista.GruposTab;
 import vista.PanelPrincipal;
@@ -183,7 +185,7 @@ public class ControlPrincipal implements ActionListener {
         Competicion c = competicionjpa.findCompeticionByName(nombreCompeticion);
         List<Compuesta> compuesta = compuestajpa.findCompuestaByCompeticion(c.getId());
         List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
-        List<Grupo> grupos = grupojpa.findGruposByCompeticon(c);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticion(c);
         List<Integer> gruposIds = new ArrayList<>();
         List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(seleccionada.getId());
 
@@ -311,7 +313,7 @@ public class ControlPrincipal implements ActionListener {
      */
     public List<Grupo> gruposByCompeticion(Competicion c) {
         GrupoJpa grupojpa = new GrupoJpa();
-        List<Grupo> grupos = grupojpa.findGruposByCompeticon(c);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticion(c);
         return grupos;
     }
 
@@ -459,7 +461,7 @@ public class ControlPrincipal implements ActionListener {
 
         // Obtenemos la lista de grupos de la competición seleccionada
         GrupoJpa grupojpa = new GrupoJpa();
-        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticion(seleccionada);
 
         //Limpia la tabla
         int count = gruposTabPanel.getModeloGruposTable().getRowCount();
@@ -486,7 +488,7 @@ public class ControlPrincipal implements ActionListener {
 
         // Obtenemos la lista de grupos de la competición seleccionada
         GrupoJpa grupojpa = new GrupoJpa();
-        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticion(seleccionada);
 
         // Limpiamos el combobox
         participantesTabPanel.getGrupoComboBox().removeAllItems();
@@ -601,7 +603,7 @@ public class ControlPrincipal implements ActionListener {
         GrupoJpa grupojpa = new GrupoJpa();
 
         // Obtenemos una lista de grupos de la competición seleccionada
-        List<Grupo> grupos = grupojpa.findGruposByCompeticon(seleccionada);
+        List<Grupo> grupos = grupojpa.findGruposByCompeticion(seleccionada);
 
         // Limpiamos la tabla
         int count = participantesTabPanel.getModeloParticipantesTable().getRowCount();
@@ -774,13 +776,27 @@ public class ControlPrincipal implements ActionListener {
                 }
                 break;
             case VistaPrincipal.IMPRIMIRPDF:
-                if (PDFHelper.imprimirResultadosPDF()) {
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Resultados imprimidos correctamente", Color.BLUE);
-                } else {
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Impresión cancelada", Color.RED);
-                }
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        DialogoImprimirResultados dialog
+                                = new DialogoImprimirResultados(new Frame(), true);
+                        dialog.setMinimumSize(new Dimension(420, 300));
+                        Dimension dimension
+                                = Toolkit.getDefaultToolkit().getScreenSize();
+                        dialog.setLocation(dimension.width / 2
+                                - dialog.getSize().width / 2, dimension.height / 2 - dialog.getSize().height / 2);
+                        ActionListener controladorDialog = new ControlImprimirResultados(dialog);
+                        dialog.controlador(controladorDialog);
+                        PruebaJpa pruebajpa = new PruebaJpa();
+                        GrupoJpa grupojpa = new GrupoJpa();
+                        List<String> pruebas = pruebajpa.findNombresPruebasByCompeticon(seleccionada);
+                        List<String> grupos = grupojpa.findNombresGruposByCompeticion(seleccionada);
+                        dialog.asignarListaPruebas(pruebas);
+                        dialog.asignarListaGrupos(grupos);
+                        dialog.setVisible(true);
+                    }
+                });
                 break;
         }
     }

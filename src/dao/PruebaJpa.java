@@ -399,4 +399,27 @@ public class PruebaJpa implements Serializable {
         return res;
     }
     
+    /**Obtiene una lista con los nombres de las pruebas de una competición
+     * 
+     * @param c Objeto Competición
+     * @return List<String>
+     */
+    public List<String> findNombresPruebasByCompeticon(Competicion c) {
+        EntityManager em = getEntityManager();
+        List<String> res;
+        if(c == null){
+            return null;
+        } else{
+        try {
+            Query q = em.createNamedQuery("Prueba.findNombresByCompeticionId");
+            q.setParameter("id", c.getId());
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+        }
+    }
 }

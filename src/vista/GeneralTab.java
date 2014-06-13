@@ -425,7 +425,7 @@ public class GeneralTab extends javax.swing.JPanel {
         lugar.setText("");
         fechaFin.setText("");
         fechaInicio.setText("");
-        setImagen(getClass().getResource("/img/image_not_found.jpg"));
+        setImagen(System.getProperty("user.dir")+"/resources/icons/image_not_found.jpg");
     }
 
     public void eliminarPrueba() {
@@ -450,7 +450,7 @@ public class GeneralTab extends javax.swing.JPanel {
             imagePanel.removeAll();
             imagePanel.add(wIcon);
         } catch (IOException ex) {
-            setImagen(getClass().getResource("/img/image_not_found.jpg"));
+            setImagen(System.getProperty("user.dir")+"/resources/icons/image_not_found.jpg");
         }
     }
 
