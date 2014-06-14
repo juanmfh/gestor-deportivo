@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     
     // Ahora participante es una única persona, nunca un equipo
     @NamedQuery(name = "Registro.findByParticipante", query = "SELECT r FROM Registro r WHERE r.participanteId.id = :participanteid"),
-    // Añado uno para equipos
     @NamedQuery(name = "Registro.findByEquipo", query = "SELECT r FROM Registro r WHERE r.equipoId.id = :equipoid"),    
     @NamedQuery(name = "Registro.findByInscripcion", query = "SELECT r FROM Registro r WHERE r.inscripcionId.id = :inscripcionid"),
     @NamedQuery(name = "Registro.findByPrueba", query = "SELECT r FROM Registro r WHERE r.pruebaId.id = :pruebaid"),
@@ -58,15 +57,20 @@ import javax.xml.bind.annotation.XmlRootElement;
     
     // Es el número de intento mayor. Cambiar de nombre
     @NamedQuery(name = "Registro.findMinNumIntentoByInscripcionPruebaParticipante", query = "SELECT MAX(r.numIntento) FROM Registro r WHERE r.inscripcionId.id = :inscripcionid AND r.participanteId.id = :participanteid AND r.pruebaId.id = :pruebaid"),
-    // Añado uno igual que el anterior pero para equipos
     @NamedQuery(name = "Registro.findMinNumIntentoByInscripcionPruebaEquipo", query = "SELECT MAX(r.numIntento) FROM Registro r WHERE r.inscripcionId.id = :inscripcionid AND r.equipoId.id = :equipoid AND r.pruebaId.id = :pruebaid"),
     
     
     @NamedQuery(name = "Registro.findParticipantesConRegistrosNum", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
+    @NamedQuery(name = "Registro.findParticipantesConRegistrosNumByGrupo", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.inscripcionId.grupoId.nombre IN :grupos AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
+    
     @NamedQuery(name = "Registro.findEquiposConRegistrosNum", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
+    @NamedQuery(name = "Registro.findEquiposConRegistrosNumByGrupo", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.num = (SELECT MAX(r2.num) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.inscripcionId.grupoId.nombre IN :grupos AND r2.pruebaId = r.pruebaId) ORDER BY r.num DESC  ") ,
     
     @NamedQuery(name = "Registro.findParticipantesConRegistrosTiempo", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
+    @NamedQuery(name = "Registro.findParticipantesConRegistrosTiempoByGrupo", query = "SELECT DISTINCT r.participanteId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.participanteId = r.participanteId AND r2.inscripcionId = r.inscripcionId AND r2.inscripcionId.grupoId.nombre IN :grupos AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
+    
     @NamedQuery(name = "Registro.findEquiposConRegistrosTiempo", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
+    @NamedQuery(name = "Registro.findEquiposConRegistrosTiempoByGrupo", query = "SELECT DISTINCT r.equipoId FROM Registro r WHERE r.inscripcionId.competicionId.id =:competicionid AND r.pruebaId.id = :pruebaid AND r.tiempo = (SELECT MIN(r2.tiempo) FROM Registro r2 WHERE r2.equipoId = r.equipoId AND r2.inscripcionId = r.inscripcionId AND r2.inscripcionId.grupoId.nombre IN :grupos AND r2.pruebaId = r.pruebaId) ORDER BY r.tiempo "),
     
     @NamedQuery(name = "Registro.findRegistroByParticipantePruebaCompeticionOrderByNumIntento", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.participanteId.id = :participanteid ORDER BY r.numIntento"),
     @NamedQuery(name = "Registro.findRegistroByEquipoPruebaCompeticionOrderByNumIntento", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid AND r.equipoId.id = :equipoid ORDER BY r.numIntento"),

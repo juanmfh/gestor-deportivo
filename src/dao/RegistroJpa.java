@@ -342,13 +342,33 @@ public class RegistroJpa implements Serializable {
       * @param participanteid   Identificador del participante
       * @return int
       */
-    public int findMaxNumIntento(Integer inscripcionid, Integer pruebaid, Integer participanteid){
+    public int findMaxNumIntentoParticipante(Integer inscripcionid, Integer pruebaid, Integer participanteid){
         EntityManager em = getEntityManager();
         int res;
         Query q = em.createNamedQuery("Registro.findMinNumIntentoByInscripcionPruebaParticipante");
         q.setParameter("inscripcionid", inscripcionid);
         q.setParameter("pruebaid", pruebaid);
         q.setParameter("participanteid", participanteid);
+        res = (Integer)q.getSingleResult();
+        em.close();
+        return res;
+    }
+    
+    /**Devuelve el último número de intento de un equipo en una 
+      * prueba determinada de una competición.
+      * 
+      * @param inscripcionid    Identificador de la inscripción.
+      * @param pruebaid         Identificador del grupo.
+      * @param equipoid   Identificador del equipo
+      * @return int
+      */
+    public int findMaxNumIntentoEquipo(Integer inscripcionid, Integer pruebaid, Integer equipoid){
+        EntityManager em = getEntityManager();
+        int res;
+        Query q = em.createNamedQuery("Registro.findMinNumIntentoByInscripcionPruebaEquipo");
+        q.setParameter("inscripcionid", inscripcionid);
+        q.setParameter("pruebaid", pruebaid);
+        q.setParameter("equipoid", equipoid);
         res = (Integer)q.getSingleResult();
         em.close();
         return res;
@@ -613,6 +633,32 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de un equipo filtrada por competición y
+     * prueba ordenada por número de intento
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param equipoid    Identificador del participante
+     * @return List<Registro>
+     */
+    public List<Registro> findRegistroByEquipoPruebaCompeticionOrderByNumIntento(Integer competicionid, Integer pruebaid, Integer equipoid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findRegistroByEquipoPruebaCompeticionOrderByNumIntento");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("equipoid", equipoid);
+            q.setMaxResults(2);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
     /**Devuelve la lista completa de registros de una prueba
      * 
      * @param pruebaid  Identificador de la prueba
@@ -656,6 +702,31 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de participantes que pertenecen a alguno de los grupos pasados y que tienen registros en una prueba determinada
+     * de una competición ordenada por marca (de mayor a menor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @param nombreGrupos      Lista con los nombre de los grupos
+     * @return List<Participante>
+     */
+    public List<Participante> findParticipantesConRegistrosNumByGrupo(Integer competicionid, Integer pruebaid, List<String> nombreGrupos) {
+        EntityManager em = getEntityManager();
+        List<Participante> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findParticipantesConRegistrosNumByGrupo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("grupos", nombreGrupos);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
     /**Devuelve una lista de equipos que tienen registros en una prueba determinada
      * de una competición ordenada por marca (de mayor a menor).
      * 
@@ -670,6 +741,31 @@ public class RegistroJpa implements Serializable {
             Query q = em.createNamedQuery("Registro.findEquiposConRegistrosNum");
             q.setParameter("competicionid", competicionid);
             q.setParameter("pruebaid", pruebaid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve una lista de equipos que pertenecen a alguno de los grupos y que tienen registros en una prueba determinada
+     * de una competición ordenada por marca (de mayor a menor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @param nombreGrupos      Lista con los nombres de los grupos
+     * @return List<Participante>
+     */
+    public List<Equipo> findEquiposConRegistrosNumByGrupo(Integer competicionid, Integer pruebaid,List<String> nombreGrupos) {
+        EntityManager em = getEntityManager();
+        List<Equipo> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosNumByGrupo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("grupos", nombreGrupos);
             res = q.getResultList();
         } catch (NoResultException e) {
             return null;
@@ -702,6 +798,31 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve una lista de participantes que pertenecen a alguno de los grupos que tienen registros en una prueba determinada
+     * de una competición ordenada por tiempo (de menor a mayor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @param nombreGrupos      Lista de nombres de los grupos
+     * @return List<Participante>
+     */
+    public List<Participante> findParticipantesConRegistrosTiempoByGrupos(Integer competicionid, Integer pruebaid, List<String> nombreGrupos) {
+        EntityManager em = getEntityManager();
+        List<Participante> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findParticipantesConRegistrosTiempoByGrupo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("grupos", nombreGrupos);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
      /**Devuelve una lista de equipos que tienen registros en una prueba determinada
      * de una competición ordenada por tiempo (de menor a mayor).
      * 
@@ -716,6 +837,31 @@ public class RegistroJpa implements Serializable {
             Query q = em.createNamedQuery("Registro.findEquiposConRegistrosTiempo");
             q.setParameter("competicionid", competicionid);
             q.setParameter("pruebaid", pruebaid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve una lista de equipos que pertenecen a alguno de los grupos y que tienen registros en una prueba determinada
+     * de una competición ordenada por tiempo (de menor a mayor).
+     * 
+     * @param competicionid     Identificador de la competición.
+     * @param pruebaid          Identificador de la prueba.
+     * @param nombreGrupos      Lista con los nombres de los grupos
+     * @return List<Participante>
+     */
+    public List<Equipo> findEquiposConRegistrosTiempoByGrupo(Integer competicionid, Integer pruebaid,List<String> nombreGrupos) {
+        EntityManager em = getEntityManager();
+        List<Equipo> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosTiempo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("grupos",nombreGrupos);
             res = q.getResultList();
         } catch (NoResultException e) {
             return null;

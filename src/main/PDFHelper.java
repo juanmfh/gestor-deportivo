@@ -29,6 +29,7 @@ import modelo.Registro;
 import dao.GrupoJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
+import java.util.ArrayList;
 import modelo.Equipo;
 
 /**
@@ -37,7 +38,7 @@ import modelo.Equipo;
  */
 public class PDFHelper {
 
-    public static boolean imprimirResultadosPDF() {
+    public static boolean imprimirResultadosPDF(List<String> nombrePruebas, List<String> nombreGrupos) {
         Competicion c = Coordinador.getInstance().getControladorPrincipal().getSeleccionada();
         if (c != null) {
             JFileChooser fc = new JFileChooser();
@@ -46,7 +47,7 @@ public class PDFHelper {
             int res = fc.showSaveDialog(null);
             if (res == JFileChooser.APPROVE_OPTION) {
                 try {
-                    PDFHelper.crearPdf(fc.getSelectedFile().getPath(), c);
+                    PDFHelper.crearPdf(fc.getSelectedFile().getPath(), c,nombrePruebas,nombreGrupos);
                 } catch (FileNotFoundException | DocumentException ex) {
                     return false;
                 }
@@ -56,8 +57,10 @@ public class PDFHelper {
         return false;
     }
 
-    public static void crearPdf(String path, Competicion c) throws FileNotFoundException, DocumentException {
-        //System.out.println(patch);
+    
+    public static void crearPdf(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos) throws FileNotFoundException, DocumentException {
+        
+        
         FileOutputStream archivo = new FileOutputStream(path
                 + "/" + c.getNombre() + "_resultados.pdf");
         Document documento = new Document(PageSize.LETTER, 80, 80, 75, 75);
@@ -103,25 +106,58 @@ public class PDFHelper {
             documento.add(organizador);
         }
 
+        
         PruebaJpa pruebajpa = new PruebaJpa();
-        List<Prueba> pruebas = pruebajpa.findPruebasByCompeticon(c);
         RegistroJpa registrojpa = new RegistroJpa();
         GrupoJpa grupojpa = new GrupoJpa();
+        
+        
+        List<Prueba> pruebas;
+        if(nombrePruebas == null){
+             pruebas = pruebajpa.findPruebasByCompeticon(c);
+        }else{
+            pruebas = new ArrayList();
+            for(String nombrePrueba: nombrePruebas){
+                pruebas.add(pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, c.getId()));
+            }
+        }
+        
+        
         SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
+        
+        
         for (Prueba p : pruebas) {
             List<Participante> participantes = null;
             List<Equipo> equipos = null;
+            
             if (p.getTiporesultado().equals("Tiempo")) {
                 if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
-                    participantes = registrojpa.findParticipantesConRegistrosTiempo(c.getId(), p.getId());
+                    if(nombreGrupos==null){
+                        participantes = registrojpa.findParticipantesConRegistrosTiempo(c.getId(), p.getId());
+                    }else{
+                        participantes = registrojpa.findParticipantesConRegistrosTiempoByGrupos(c.getId(), p.getId(), nombreGrupos);
+                    }
                 } else {
-                    equipos = registrojpa.findEquiposConRegistrosTiempo(c.getId(), p.getId());
+                    if(nombreGrupos==null){
+                        equipos = registrojpa.findEquiposConRegistrosTiempo(c.getId(), p.getId());
+                    }else{
+                        equipos = registrojpa.findEquiposConRegistrosTiempoByGrupo(c.getId(), p.getId(), nombreGrupos);
+                    }
                 }
             } else {
                 if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
-                    participantes = registrojpa.findParticipantesConRegistrosNum(c.getId(), p.getId());
+                    if(nombreGrupos==null){
+                        participantes = registrojpa.findParticipantesConRegistrosNum(c.getId(), p.getId());
+                    }else{
+                        participantes = registrojpa.findParticipantesConRegistrosNumByGrupo(c.getId(), p.getId(),nombreGrupos);
+                    }
                 } else {
-                    equipos = registrojpa.findEquiposConRegistrosNum(c.getId(), p.getId());
+                    if(nombreGrupos==null){
+                        equipos = registrojpa.findEquiposConRegistrosNum(c.getId(), p.getId());
+                    }else{
+                        equipos = registrojpa.findEquiposConRegistrosNumByGrupo(c.getId(), p.getId(),nombreGrupos);
+                    }
+                    
                 }
 
             }
@@ -217,7 +253,7 @@ public class PDFHelper {
 
                     tabla.addCell(new Paragraph(g.getNombre(), normal));
 
-                    registros = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), equipo.getId());
+                    registros = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), equipo.getId());
                     if (registros != null) {
                         if (p.getTiporesultado().equals("Tiempo")) {
                             tabla.addCell(new Phrase(String.valueOf(dt.format(registros.get(0).getTiempo())), normal));

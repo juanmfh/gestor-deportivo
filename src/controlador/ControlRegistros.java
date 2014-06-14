@@ -186,6 +186,8 @@ public class ControlRegistros implements ActionListener {
                 registro.setParticipanteId(participante);
                 i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
                     Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
+                    prueba.getId(), participante.getId()) + 1);
             } else {
                 // Obtenemosel equipo
                 EquipoJpa equipojpa = new EquipoJpa();
@@ -195,12 +197,15 @@ public class ControlRegistros implements ActionListener {
                 registro.setEquipoId(equipo);
                 i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
                     Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
+                    prueba.getId(), equipo.getId()) + 1);
             }
 
             // Establecemos los datos del registro comunes
             registro.setInscripcionId(i);
             registro.setPruebaId(prueba);
             registro.setSorteo(sorteo ? 1 : 0);
+            
 
             // Comprueba que la prueba no es de tipo tiempo
             if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())

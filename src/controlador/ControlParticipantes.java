@@ -16,10 +16,12 @@ import modelo.Participante;
 import modelo.Registro;
 import dao.EquipoJpa;
 import dao.GrupoJpa;
+import dao.InscripcionJpa;
 import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
+import modelo.Inscripcion;
 import modelo.Prueba;
 import vista.VistaParticipantes;
 
@@ -245,6 +247,18 @@ public class ControlParticipantes implements ActionListener {
                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(vista.getGrupoParticipante(),
                                 Coordinador.getInstance().getSeleccionada().getId());
                 participante.setGrupoId(g);
+                // Si el participante tiene registros, se cambia la inscripción del registro
+                RegistroJpa registrojpa = new RegistroJpa();
+                List<Registro> registros = registrojpa.findByParticipante(participanteid);
+                if(registros!=null){
+                    InscripcionJpa inscripcionjpa = new InscripcionJpa();
+                    Inscripcion inscripcion = inscripcionjpa.findInscripcionByCompeticionByGrupo(Coordinador.getInstance().getSeleccionada().getId(),
+                            g.getId());
+                    for(Registro r : registros){
+                        r.setInscripcionId(inscripcion);
+                        registrojpa.edit(r);
+                    }
+                }
                 
                 // Si se ha seleccionado una prueba
                 if(!vista.getPruebaAsignadaParticipante().equals("Ninguna")){
