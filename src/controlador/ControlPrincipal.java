@@ -204,10 +204,7 @@ public class ControlPrincipal implements ActionListener {
                 }
                 inscripcionjpa.destroy(insc.getId());
             }
-            for (Compuesta comp : compuesta) {
-                compuestajpa.destroy(comp.getId());
-                pruebajpa.destroy(comp.getPruebaId().getId());
-            }
+            
             for (Integer g : gruposIds) {
                 Grupo grupo = grupojpa.findGrupo(g);
                 if (grupo != null) {
@@ -217,9 +214,15 @@ public class ControlPrincipal implements ActionListener {
                     }
                 }
             }
+            
+            for (Compuesta comp : compuesta) {
+                compuestajpa.destroy(comp.getId());
+                pruebajpa.destroy(comp.getPruebaId().getId());
+            }
+            
             competicionjpa.destroy(c.getId());
         } catch (dao.exceptions.IllegalOrphanException | dao.exceptions.NonexistentEntityException e) {
-
+                Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, e);
         }
         return true;
     }
