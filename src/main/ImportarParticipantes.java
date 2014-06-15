@@ -61,7 +61,6 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                 int numFilas = hoja.getRows();
                 int numColumnas = hoja.getColumns();
 
-                //System.out.println("Num de filas: " + numFilas + ", Num de colm: " + numColumnas);
                 int fila = 2;
                 int columna = 5;
 
@@ -94,155 +93,66 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                         System.out.println("APELLIDOS: " + data);
                         participante.setApellidos(data);
                         columna++;
-                        // Leemos el nombre
-                        data = hoja.getCell(columna, fila).getContents();
-                        System.out.println("NOMBRE: " + data);
-                        // QUITAR ESTO
-                        if (data == null) {
-                            data = " ";
-                        }
-                        participante.setNombre(data);
-                        columna++;
-                        // Leemos el nombre del grupo
-                        GrupoJpa grupojpa = new GrupoJpa();
-                        Grupo grupo;
-                        data = hoja.getCell(columna, fila).getContents();
-                        System.out.println("GRUPO: " + data);
-                        grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                        if (grupo == null) {
-                            grupo = ControlGrupos.crearGrupo(data, null);
-                        }
-                        participante.setGrupoId(grupo);
-                        columna++;
-                        // Leeemos el nombre del equipo
-                        EquipoJpa equipojpa = new EquipoJpa();
-                        Equipo equipo;
-                        data = hoja.getCell(columna, fila).getContents();
-                        System.out.println("EQUIPO: " + data);
-                        if (!data.equals("")) {
-                            equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                            if (equipo == null) {
-                                equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
+                        if (data.length() == 0) {
+                            // Leemos el nombre
+                            data = hoja.getCell(columna, fila).getContents();
+                            System.out.println("NOMBRE: " + data);
+                            // QUITAR ESTO
+                            if (data == null) {
+                                data = " ";
                             }
-                            participante.setEquipoId(equipo);
-                        }
-                        columna++;
-                        // Leemos la prueba asignada al participante
-                        data = hoja.getCell(columna, fila).getContents();
-                        System.out.println("PRUEBAASIGNADA: [" + data + "]");
-                        boolean pruebaAsignada = false;
-                        while (!pruebaAsignada && columna <= nombresPruebas.size()+5) {
+                            participante.setNombre(data);
+                            columna++;
+                            // Leemos el nombre del grupo
+                            GrupoJpa grupojpa = new GrupoJpa();
+                            Grupo grupo;
+                            data = hoja.getCell(columna, fila).getContents();
+                            System.out.println("GRUPO: " + data);
+                            grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
+                            if (grupo == null) {
+                                grupo = ControlGrupos.crearGrupo(data, null);
+                            }
+                            participante.setGrupoId(grupo);
+                            columna++;
+                            // Leeemos el nombre del equipo
+                            EquipoJpa equipojpa = new EquipoJpa();
+                            Equipo equipo;
+                            data = hoja.getCell(columna, fila).getContents();
+                            System.out.println("EQUIPO: " + data);
                             if (!data.equals("")) {
-                                Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - 5),
-                                        Coordinador.getInstance().getSeleccionada().getId());
-                                System.out.println("PRUEBA: " + pr.getNombre());
-                                participante.setPruebaasignada(pr);
-                                pruebaAsignada = true;
+                                equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
+                                if (equipo == null) {
+                                    equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
+                                }
+                                participante.setEquipoId(equipo);
                             }
                             columna++;
-                            data = hoja.getCell(columna, fila).getContents();
-                        }
-                        participante.setDorsal(dorsal++);
-                        participantejpa.create(participante);
+                            // Leemos la prueba asignada al participante
+                            boolean pruebaAsignada = false;
+                            while (!pruebaAsignada && columna <= nombresPruebas.size() + 5) {
+                                data = hoja.getCell(columna, fila).getContents();
+                                System.out.println("PRUEBAASIGNADA: [" + data + "]");
+                                if (!data.equals("")) {
+                                    Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - 5),
+                                            Coordinador.getInstance().getSeleccionada().getId());
+                                    System.out.println("PRUEBA: " + pr.getNombre());
+                                    participante.setPruebaasignada(pr);
+                                    pruebaAsignada = true;
+                                }
+                                columna++;
 
+                            }
+                            participante.setDorsal(dorsal++);
+                            participantejpa.create(participante);
+                        }
                     } catch (RuntimeException ex) {
-                        //Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
                     } finally {
                         columna = 1;
                         fila++;
                     }
 
                 }
-
-                //System.out.println("LISTAAA: "+nombresPruebas.toString());
-                /*                while (fila < numFilas) {
-                 try {
-                 data = hoja.getCell(columna, fila).getContents();
-                 if (data.equals("Grupo")) {
-                 // Crear grupo
-                 data = hoja.getCell(columna + 1, fila).getContents();
-                 Grupo g = ControlGrupos.crearGrupo(data.toString(), null);
-                 if (g == null) {
-                 GrupoJpa grupojpa = new GrupoJpa();
-                 g = grupojpa.findGrupoByNombreAndCompeticion(data.toString(),
-                 Coordinador.getInstance().getSeleccionada().getId());
-                 }
-                 if (g != null) {
-                 grupoActual = g.getNombre();
-                 }
-                 //System.out.println("Crear grupo " + data.toString());
-                 } else if (data.equals("SubGrupo")) {
-                 // Crear subgrupo
-                 data = hoja.getCell(columna + 1, fila).getContents();
-                 nombreSubGrupo = data;
-                 data = hoja.getCell(columna + 2, fila).getContents();
-                 Grupo g = ControlGrupos.crearGrupo(nombreSubGrupo, data.toString());
-                 if (g == null) {
-                 GrupoJpa grupojpa = new GrupoJpa();
-                 g = grupojpa.findGrupoByNombreAndCompeticion(nombreSubGrupo,
-                 Coordinador.getInstance().getSeleccionada().getId());
-                 }
-                 if (g != null) {
-                 grupoActual = g.getNombre();
-                 }
-                 //System.out.println("Crear subgrupo " + nombreSubGrupo);
-
-                 } else {
-                 // Crear participante
-                 String nombreEquipo = "";
-                 Integer edad = null;
-                 Integer sexo = null;
-                 if (numColumnas > 3) {
-                 nombreEquipo = hoja.getCell(columna + 3, fila).getContents().toString();
-                 // Si el equipo no existe se crea
-                 ControlEquipos.crearEquipo(nombreEquipo, grupoActual);
-                 if (numColumnas > 4) {
-                 try {
-                 edad = Integer.parseInt(hoja.getCell(columna + 4, fila).getContents().toString());
-                 } catch (NumberFormatException ex) {
-
-                 }
-                 if (numColumnas > 5) {
-                 try {
-                 sexo = hoja.getCell(columna + 5, fila).getContents().toString().equals("H") ? 0 : 1;
-                 } catch (NumberFormatException ex) {
-
-                 }
-                 }
-                 }
-                 }
-
-                 ControlParticipantes.crearParticipante(
-                 // Nombre
-                 hoja.getCell(columna + 1, fila).getContents().toString(),
-                 // Apellidos
-                 hoja.getCell(columna + 2, fila).getContents().toString(),
-                 // Dorsal
-                 Integer.parseInt(hoja.getCell(columna, fila).getContents().toString()),
-                 grupoActual,
-                 edad,
-                 sexo,
-                 // Equipo
-                 nombreEquipo.length() == 0 ? "Ninguno" : nombreEquipo,
-                 "Ninguna");
-                 //System.out.println("Crear participante, Dorsal:["+ data + "]");
-                 }
-                 } catch (NumberFormatException e) {
-                 //Logger.getLogger(IOFile.class.getName()).log(Level.SEVERE, null, e);
-                 } finally {
-                 fila++;
-                 }
-                 //columna = 0;
-                 }
-                 }
-        
-                 } catch (IOException | BiffException ex) {
-                 System.out.println("Error de lectura fichero excel");
-                 } finally {
-                 if (excel != null) {
-                 excel.close();
-                 }
-                 }*/
             }
 
         } catch (IOException | BiffException ex) {
