@@ -341,7 +341,7 @@ public class ControlPrincipal implements ActionListener {
         List<Grupo> grupos = gruposByCompeticion(seleccionada);
         registrosTabPanel.getGruposComboBox().removeAllItems();
         registrosTabPanel.getFiltroGrupoComboBox().removeAllItems();
-        registrosTabPanel.getFiltroGrupoComboBox().addItem("Todos");
+        //registrosTabPanel.getFiltroGrupoComboBox().addItem("Todos");
         if (grupos != null) {
             for (Grupo g : grupos) {
                 registrosTabPanel.getFiltroGrupoComboBox().addItem(g.getNombre());
@@ -358,7 +358,7 @@ public class ControlPrincipal implements ActionListener {
         List<Prueba> pruebas = pruebajpa.findPruebasByCompeticon(seleccionada);
         registrosTabPanel.getPruebasComboBox().removeAllItems();
         registrosTabPanel.getFiltroPruebasComboBox().removeAllItems();
-        registrosTabPanel.getFiltroPruebasComboBox().addItem("Todas");
+        //registrosTabPanel.getFiltroPruebasComboBox().addItem("Todas");
         if (pruebas != null) {
             for (Prueba p : pruebas) {
                 registrosTabPanel.getPruebasComboBox().addItem(p.getNombre());

@@ -24,6 +24,7 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
+import java.util.ArrayList;
 import vista.VistaRegistros;
 
 /**
@@ -524,102 +525,53 @@ public class ControlRegistros implements ActionListener {
         // Obtenemos los diferentes filtros de la vista
         String grupo = vista.getFiltroGrupoComboBox().getSelectedItem().toString();
         String prueba = vista.getFiltroPruebasComboBox().getSelectedItem().toString();
-        String participante = vista.getFiltroParticipante();
+        //String participante = vista.getFiltroParticipante();
 
         // Obtenemos la competición seleccionada
         Integer competicionSeleccionada = Coordinador.getInstance().getSeleccionada().getId();
 
-        // Aplicamos los filtros según lo seleccionado
-        if (grupo.equals("Todos")) {
-            if (prueba.equals("Todas")) {
-                if (participante.equals("Equipos")) {
-                    registros = registrojpa.findByCompeticionEquipo(competicionSeleccionada,vista.mejoresMarcasCheckBoxIsSelected());
-                } else if (participante.equals("Individuales")) {
+        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
+                Coordinador.getInstance().getSeleccionada().getId());
+        if (g != null) {
+            Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
+                    Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
+            if (p != null) {
+                if (p.getTipo().equals(TipoPrueba.Equipo.toString())) {
                     if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionIndividual(competicionSeleccionada);
-                    }
+                        List<String> grupos = new ArrayList();
+                        grupos.add(g.getNombre());
+                        registros = new ArrayList();
+                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempoByGrupo(competicionSeleccionada, p.getId(), grupos);
+                            for (Equipo e : equipos) {
+                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
+                        }else{
+                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosNumByGrupo(competicionSeleccionada, p.getId(), grupos);
+                            for (Equipo e : equipos) {
+                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
+                        }
 
-                } else {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        //COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticion(competicionSeleccionada);
-                    }
-
-                }
-            } else {
-                Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
-                        Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
-                if (participante.equals("Equipos")) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
-                    }
-                } else if (participante.equals("Individuales")) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
-                    }
-                } else {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionPrueba(competicionSeleccionada, p.getId());
-                    }
-                }
-            }
-        } else {
-            Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
-                    Coordinador.getInstance().getSeleccionada().getId());
-            if (prueba.equals("Todas")) {
-                if (participante.equals("Equipos")) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupoEquipo(competicionSeleccionada, g.getId());
-                    }
-                } else if (participante.equals("Individuales")) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupoIndividual(competicionSeleccionada, g.getId());
-                    }
-                } else {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupo(competicionSeleccionada, g.getId());
-                    }
-                }
-            } else {
-                Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
-                        Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
-                if (participante.equals("Equipos")) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
                     } else {
                         registros = registrojpa.findByCompeticionGrupoPruebaEquipo(competicionSeleccionada, g.getId(), p.getId());
                     }
-                } else if (participante.equals("Individuales")) {
+                } else if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                     if (vista.mejoresMarcasCheckBoxIsSelected()) {
                         // COMPLETAR
                     } else {
                         registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
                     }
-                } else {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupoPrueba(competicionSeleccionada, g.getId(), p.getId());
-                    }
                 }
             }
-        }
 
+        }
         // Actualizamos la vista
         Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
     }
