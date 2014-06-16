@@ -184,4 +184,17 @@ public interface VistaRegistros {
      * @return String
      */
     public String getFiltroParticipante();
+    
+    
+    /**Devuelve true si el checkbox está seleccionado y false en otro caso
+     * 
+     * @return boolean 
+     */
+    public boolean participantesAsignadosCheckBoxIsSelected();
+    
+    /**Devuelve true si el checkbox está seleccionado y false en otro caso
+     * 
+     * @return boolean
+     */
+    public boolean mejoresMarcasCheckBoxIsSelected();
 }

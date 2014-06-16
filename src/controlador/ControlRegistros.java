@@ -34,8 +34,9 @@ public class ControlRegistros implements ActionListener {
 
     VistaRegistros vista;
 
-    /**Constructor que asocia la vista al controlador
-     * 
+    /**
+     * Constructor que asocia la vista al controlador
+     *
      * @param vista Vista del controlador (Interfaz)
      */
     public ControlRegistros(VistaRegistros vista) {
@@ -185,9 +186,9 @@ public class ControlRegistros implements ActionListener {
                 g = grupojpa.findByParticipanteCompeticion(Coordinador.getInstance().getSeleccionada().getId(), participante.getId());
                 registro.setParticipanteId(participante);
                 i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                    Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                        Coordinador.getInstance().getSeleccionada().getId(), g.getId());
                 registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
-                    prueba.getId(), participante.getId()) + 1);
+                        prueba.getId(), participante.getId()) + 1);
             } else {
                 // Obtenemosel equipo
                 EquipoJpa equipojpa = new EquipoJpa();
@@ -196,16 +197,15 @@ public class ControlRegistros implements ActionListener {
                 g = grupojpa.findByEquipoCompeticion(Coordinador.getInstance().getSeleccionada().getId(), equipo.getId());
                 registro.setEquipoId(equipo);
                 i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                    Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                        Coordinador.getInstance().getSeleccionada().getId(), g.getId());
                 registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
-                    prueba.getId(), equipo.getId()) + 1);
+                        prueba.getId(), equipo.getId()) + 1);
             }
 
             // Establecemos los datos del registro comunes
             registro.setInscripcionId(i);
             registro.setPruebaId(prueba);
             registro.setSorteo(sorteo ? 1 : 0);
-            
 
             // Comprueba que la prueba no es de tipo tiempo
             if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
@@ -243,16 +243,16 @@ public class ControlRegistros implements ActionListener {
                 r.getNumIntento()});
             // Si es un participante individual
         } else {
-             vista.añadirRegistroATabla(new Object[]{r.getId(),
-             r.getParticipanteId().getDorsal(),
-             r.getParticipanteId().getApellidos()
-             + ", " + r.getParticipanteId().getNombre(),
-             r.getPruebaId().getNombre()
-             + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
-             r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
-             ? dt.format(r.getTiempo())
-             : r.getNum(),
-             r.getNumIntento()});
+            vista.añadirRegistroATabla(new Object[]{r.getId(),
+                r.getParticipanteId().getDorsal(),
+                r.getParticipanteId().getApellidos()
+                + ", " + r.getParticipanteId().getNombre(),
+                r.getPruebaId().getNombre()
+                + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
+                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
+                ? dt.format(r.getTiempo())
+                : r.getNum(),
+                r.getNumIntento()});
 
         }
     }
@@ -493,16 +493,16 @@ public class ControlRegistros implements ActionListener {
                     ? dt.format(registro.getTiempo())
                     : registro.getNum(), registro.getNumIntento()});
             } else {
-                 vista.añadirRegistroATabla(new Object[]{registro.getId(),
-                 registro.getParticipanteId().getDorsal(),
-                 registro.getParticipanteId().getApellidos()
-                 + ", " + registro.getParticipanteId().getNombre(),
-                 registro.getPruebaId().getNombre()
-                 + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
-                 registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                 ? dt.format(registro.getTiempo())
-                 : registro.getNum(),
-                 registro.getNumIntento()});
+                vista.añadirRegistroATabla(new Object[]{registro.getId(),
+                    registro.getParticipanteId().getDorsal(),
+                    registro.getParticipanteId().getApellidos()
+                    + ", " + registro.getParticipanteId().getNombre(),
+                    registro.getPruebaId().getNombre()
+                    + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
+                    registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                    ? dt.format(registro.getTiempo())
+                    : registro.getNum(),
+                    registro.getNumIntento()});
             }
             return true;
         }
@@ -519,7 +519,7 @@ public class ControlRegistros implements ActionListener {
         RegistroJpa registrojpa = new RegistroJpa();
         PruebaJpa pruebajpa = new PruebaJpa();
         GrupoJpa grupojpa = new GrupoJpa();
-        List<Registro> registros;
+        List<Registro> registros = null;
 
         // Obtenemos los diferentes filtros de la vista
         String grupo = vista.getFiltroGrupoComboBox().getSelectedItem().toString();
@@ -533,43 +533,89 @@ public class ControlRegistros implements ActionListener {
         if (grupo.equals("Todos")) {
             if (prueba.equals("Todas")) {
                 if (participante.equals("Equipos")) {
-                    registros = registrojpa.findByCompeticionEquipo(competicionSeleccionada);
+                    registros = registrojpa.findByCompeticionEquipo(competicionSeleccionada,vista.mejoresMarcasCheckBoxIsSelected());
                 } else if (participante.equals("Individuales")) {
-                    registros = registrojpa.findByCompeticionIndividual(competicionSeleccionada);
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionIndividual(competicionSeleccionada);
+                    }
+
                 } else {
-                    registros = registrojpa.findByCompeticion(competicionSeleccionada);
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        //COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticion(competicionSeleccionada);
+                    }
+
                 }
             } else {
                 Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
                         Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
                 if (participante.equals("Equipos")) {
-                    registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
+                    }
                 } else if (participante.equals("Individuales")) {
-                    registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
+                    }
                 } else {
-                    registros = registrojpa.findByCompeticionPrueba(competicionSeleccionada, p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionPrueba(competicionSeleccionada, p.getId());
+                    }
                 }
             }
         } else {
             Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
-                      Coordinador.getInstance().getSeleccionada().getId());
+                    Coordinador.getInstance().getSeleccionada().getId());
             if (prueba.equals("Todas")) {
                 if (participante.equals("Equipos")) {
-                    registros = registrojpa.findByCompeticionGrupoEquipo(competicionSeleccionada, g.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupoEquipo(competicionSeleccionada, g.getId());
+                    }
                 } else if (participante.equals("Individuales")) {
-                    registros = registrojpa.findByCompeticionGrupoIndividual(competicionSeleccionada, g.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupoIndividual(competicionSeleccionada, g.getId());
+                    }
                 } else {
-                    registros = registrojpa.findByCompeticionGrupo(competicionSeleccionada, g.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupo(competicionSeleccionada, g.getId());
+                    }
                 }
             } else {
                 Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
                         Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
                 if (participante.equals("Equipos")) {
-                    registros = registrojpa.findByCompeticionGrupoPruebaEquipo(competicionSeleccionada, g.getId(), p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupoPruebaEquipo(competicionSeleccionada, g.getId(), p.getId());
+                    }
                 } else if (participante.equals("Individuales")) {
-                    registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
+                    }
                 } else {
-                    registros = registrojpa.findByCompeticionGrupoPrueba(competicionSeleccionada, g.getId(), p.getId());
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        // COMPLETAR
+                    } else {
+                        registros = registrojpa.findByCompeticionGrupoPrueba(competicionSeleccionada, g.getId(), p.getId());
+                    }
                 }
             }
         }

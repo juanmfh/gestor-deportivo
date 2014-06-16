@@ -93,7 +93,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                         System.out.println("APELLIDOS: " + data);
                         participante.setApellidos(data);
                         columna++;
-                        if (data.length() == 0) {
+                        if (data.length() > 0) {
                             // Leemos el nombre
                             data = hoja.getCell(columna, fila).getContents();
                             System.out.println("NOMBRE: " + data);
@@ -119,7 +119,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             Equipo equipo;
                             data = hoja.getCell(columna, fila).getContents();
                             System.out.println("EQUIPO: " + data);
-                            if (!data.equals("")) {
+                            if (data.length() > 0) {
                                 equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                 if (equipo == null) {
                                     equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
@@ -142,10 +142,14 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                 columna++;
 
                             }
-                            participante.setDorsal(dorsal++);
+                            //participante.setDorsal(dorsal++);
                             participantejpa.create(participante);
+                            participante.setDorsal(participante.getId());
+                            participantejpa.edit(participante);
                         }
                     } catch (RuntimeException ex) {
+                        Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (Exception ex) {
                         Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
                     } finally {
                         columna = 1;

@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -67,6 +68,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JLabel segundosLabel;
     private JTextField segundosTextField;
     private JButton importarRegistrosButton; 
+    private JCheckBox soloParticipantesAsignadosCheckBox;
 
     private JPanel filtrosPanel;
     private JLabel filtrarLabel;
@@ -81,6 +83,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JComboBox filtroParticipanteComboBox;
     private JButton aplicarFiltroButton;
     private JLabel listaRegistrosLabel;
+    private JCheckBox soloMejoresMarcasCheckBox;
 
     public RegistrosTab() {
         initComponents();
@@ -234,12 +237,21 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         constraintsFormulario.fill = GridBagConstraints.HORIZONTAL;
         constraintsFormulario.anchor = GridBagConstraints.WEST;
         formularioRegistroPanel.add(marcaTiempoPanel, constraintsFormulario);
+        
+        soloParticipantesAsignadosCheckBox = new JCheckBox("Solo participantes asignados");
+        constraintsFormulario.gridx = 0;
+        constraintsFormulario.gridy = 4;
+        constraintsFormulario.gridwidth = 1;
+        constraintsFormulario.gridheight = 1;
+        constraintsFormulario.fill = GridBagConstraints.NONE;
+        constraintsFormulario.anchor = GridBagConstraints.WEST;
+        formularioRegistroPanel.add(soloParticipantesAsignadosCheckBox, constraintsFormulario);
 
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.gridwidth = 4;
         constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(10, 20, 0, 20);
         this.add(formularioRegistroPanel, constraints);
@@ -315,6 +327,8 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         modeloFiltroParticipantes = new DefaultComboBoxModel(new String[]{"Todos", "Equipos", "Individuales"});
         filtroParticipanteComboBox = new JComboBox(modeloFiltroParticipantes);
         filtrosPanel.add(filtroParticipanteComboBox);
+        soloMejoresMarcasCheckBox = new JCheckBox("Solo mejores marcas por participante");
+        filtrosPanel.add(soloMejoresMarcasCheckBox);
         aplicarFiltroButton = new JButton("Aplicar");
         filtrosPanel.add(aplicarFiltroButton);
         constraints.gridx = 0;
@@ -323,8 +337,11 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         constraints.gridheight = 1;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(10, 20, 0, 0);
         this.add(filtrosPanel, constraints);
+        
 
         registrosScrollPane = new JScrollPane();
         modeloRegistrosTable = new DefaultTableModel() {
@@ -366,7 +383,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
                 if (getGrupoParticipante() != null
                         && pruebaComboBox.getSelectedIndex() != -1) {
                     //Coordinador.getInstance().getControladorPrincipal().cargarEquipoEnRegistros(getGrupoParticipante());
-                    Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba());
+                    Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba(),participantesAsignadosCheckBoxIsSelected());
                 }
             }
         });
@@ -421,8 +438,18 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
                             break;
                     }
                     if (grupoComboBox.getSelectedIndex() != -1) {
-                        Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba());
+                        Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba(),participantesAsignadosCheckBoxIsSelected());
                     }
+                }
+            }
+        });
+        
+        soloParticipantesAsignadosCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (getGrupoParticipante() != null
+                        && pruebaComboBox.getSelectedIndex() != -1) {
+                    Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba(),participantesAsignadosCheckBoxIsSelected());
                 }
             }
         });
@@ -645,6 +672,16 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     @Override
     public void setParticipante(String participante) {
         participanteComboBox.setSelectedItem(participante);
+    }
+    
+    @Override
+    public boolean participantesAsignadosCheckBoxIsSelected(){
+        return soloParticipantesAsignadosCheckBox.isSelected();
+    }
+    
+    @Override
+    public boolean mejoresMarcasCheckBoxIsSelected(){
+        return soloMejoresMarcasCheckBox.isSelected();
     }
 
 }

@@ -94,7 +94,6 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         constraints.fill = GridBagConstraints.NONE;
         constraints.insets = new Insets(0, 5, 0, 0);
         constraints.anchor = GridBagConstraints.WEST;
-
         formularioParticipantePanel.add(nombreLabel, constraints);
 
         apellidosLabel = new JLabel("* Apellidos:");

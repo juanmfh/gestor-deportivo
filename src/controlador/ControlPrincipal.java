@@ -204,7 +204,7 @@ public class ControlPrincipal implements ActionListener {
                 }
                 inscripcionjpa.destroy(insc.getId());
             }
-            
+
             for (Integer g : gruposIds) {
                 Grupo grupo = grupojpa.findGrupo(g);
                 if (grupo != null) {
@@ -214,15 +214,15 @@ public class ControlPrincipal implements ActionListener {
                     }
                 }
             }
-            
+
             for (Compuesta comp : compuesta) {
                 compuestajpa.destroy(comp.getId());
                 pruebajpa.destroy(comp.getPruebaId().getId());
             }
-            
+
             competicionjpa.destroy(c.getId());
         } catch (dao.exceptions.IllegalOrphanException | dao.exceptions.NonexistentEntityException e) {
-                Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, e);
         }
         return true;
     }
@@ -536,7 +536,7 @@ public class ControlPrincipal implements ActionListener {
     public void cargarPruebasEnParticipantes() {
 
         PruebaJpa pruebajpa = new PruebaJpa();
-        
+
         // Obtenemos la lista de pruebas de la competición
         List<Prueba> pruebas = pruebajpa.findPruebasByCompeticon(seleccionada);
         // Limpiamos el comboBox
@@ -557,7 +557,7 @@ public class ControlPrincipal implements ActionListener {
      * @param nombrePrueba Nombre de la prueba. Se utiliza para saber si es
      * individual o en equipo
      */
-    public void cargarParticipantesEnRegistros(String grupo, String nombrePrueba) {
+    public void cargarParticipantesEnRegistros(String grupo, String nombrePrueba, boolean participantesAsignados) {
 
         GrupoJpa grupojpa = new GrupoJpa();
         PruebaJpa pruebajpa = new PruebaJpa();
@@ -569,8 +569,14 @@ public class ControlPrincipal implements ActionListener {
         if (g != null && prueba != null) {
             // Si la prueba es individual
             if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                // Obtenemos todas las personas de este grupo
-                List<Participante> participantes = participantejpa.findParticipantesByGrupo(g.getId());
+                List<Participante> participantes;
+                // Obtenemos solo los participantes que tienen dicha prueba como asignada
+                if (participantesAsignados) {
+                    participantes = participantejpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
+                } else {
+                    // Obtenemos todas los participantes de este grupo
+                    participantes = participantejpa.findParticipantesByGrupo(g.getId());
+                }
                 // Limpiamos el combobox
                 registrosTabPanel.getParticipantesComboBox().removeAllItems();
                 // Añadimos cada participante 

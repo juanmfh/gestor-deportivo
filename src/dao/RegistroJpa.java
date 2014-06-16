@@ -317,13 +317,36 @@ public class RegistroJpa implements Serializable {
      * de una competición.
      * 
      * @param competicionid     Identificador de la competición.
+     * @param mejoresMarcas     Valor booleano que indica si obtener solo las 
+     * mejores marcas de cada equipo o todas las marcas
      * @return List<Registro>
      */
-     public List<Registro> findByCompeticionEquipo(Integer competicionid) {
+     public List<Registro> findByCompeticionEquipo(Integer competicionid, boolean mejoresMarcas) {
          EntityManager em = getEntityManager();
         List<Registro> res;
         try {
-            Query q = em.createNamedQuery("Registro.findByCompeticionEquipo");
+            Query q;
+            if(mejoresMarcas){
+                q = em.createNamedQuery("Registro.findByCompeticionEquipoMM");
+            }else{
+                q = em.createNamedQuery("Registro.findByCompeticionEquipo");
+            }
+            q.setParameter("competicionid", competicionid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+     
+     public List<Object[]> temp(Integer competicionid, boolean mejoresMarcas) {
+         EntityManager em = getEntityManager();
+        List<Object[]> res;
+        try {
+            Query q;
+            q = em.createNamedQuery("Registro.findByCompeticionEquipoMM");
             q.setParameter("competicionid", competicionid);
             res = q.getResultList();
         } catch (NoResultException e) {

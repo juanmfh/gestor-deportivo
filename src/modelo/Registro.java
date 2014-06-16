@@ -33,7 +33,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Registro.findByNumIntento", query = "SELECT r FROM Registro r WHERE r.numIntento = :numIntento"),
     @NamedQuery(name = "Registro.findBySorteo", query = "SELECT r FROM Registro r WHERE r.sorteo = :sorteo"),
     
-    // Ahora participante es una única persona, nunca un equipo
     @NamedQuery(name = "Registro.findByParticipante", query = "SELECT r FROM Registro r WHERE r.participanteId.id = :participanteid"),
     @NamedQuery(name = "Registro.findByEquipo", query = "SELECT r FROM Registro r WHERE r.equipoId.id = :equipoid"),    
     @NamedQuery(name = "Registro.findByInscripcion", query = "SELECT r FROM Registro r WHERE r.inscripcionId.id = :inscripcionid"),
@@ -42,6 +41,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Registro.findByCompeticion", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid"),
     @NamedQuery(name = "Registro.findByCompeticionIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.equipoId IS NULL"),
     @NamedQuery(name = "Registro.findByCompeticionEquipo", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.participanteId IS NULL"),
+    @NamedQuery(name = "Registro.findByCompeticionEquipoMM", query = "SELECT r.equipoId.nombre,r.pruebaId.nombre, MAX(r.num) FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.participanteId IS NULL GROUP BY r.equipoId.id, r.pruebaId.id"),
     
     @NamedQuery(name = "Registro.findByCompeticionPrueba", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid"),
     @NamedQuery(name = "Registro.findByCompeticionPruebaIndividual", query = "SELECT r FROM Registro r WHERE r.inscripcionId.competicionId.id = :competicionid AND r.pruebaId.id = :pruebaid  AND r.equipoId is NULL"),

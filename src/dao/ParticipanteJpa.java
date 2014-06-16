@@ -284,8 +284,31 @@ public class ParticipanteJpa implements Serializable {
         EntityManager em = getEntityManager();
         List<Participante> res;
         try {
-            Query q = em.createNamedQuery("Participante.findPersonaByGrupo");
+            Query q = em.createNamedQuery("Participante.findByGrupo");
             q.setParameter("grupoid", grupoid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve la lista de participantes de un grupo determinado que tienen
+     * asignados una prueba determinada
+     * 
+     * @param grupoid       Identificador del grupo
+     * @param prueba        Prueba asignada
+     * @return List<Participante>
+     */
+    public List<Participante> findParticipantesByGrupoPruebaAsignada(Integer grupoid,Prueba prueba) {
+        EntityManager em = getEntityManager();
+        List<Participante> res;
+        try {
+            Query q = em.createNamedQuery("Participante.findByGrupoPruebaAsignada");
+            q.setParameter("grupoid", grupoid);
+            q.setParameter("pruebaAsignada", prueba);
             res = q.getResultList();
         } catch (NoResultException e) {
             return null;

@@ -34,7 +34,8 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Participante.findBySexo", query = "SELECT p FROM Participante p WHERE p.sexo = :sexo"),
     @NamedQuery(name = "Participante.findByDorsal", query = "SELECT p FROM Participante p WHERE p.dorsal = :dorsal"),
     
-    @NamedQuery(name = "Participante.findPersonaByGrupo", query = "SELECT p FROM Participante p WHERE p.grupoId.id = :grupoid"),
+    @NamedQuery(name = "Participante.findByGrupo", query = "SELECT p FROM Participante p WHERE p.grupoId.id = :grupoid"),
+    @NamedQuery(name = "Participante.findByGrupoPruebaAsignada", query = "SELECT p FROM Participante p WHERE p.grupoId.id = :grupoid AND p.pruebaasignada = :pruebaAsignada"),
     @NamedQuery(name = "Participante.findByEquipo", query = "SELECT p FROM Participante p WHERE p.equipoId.id = :equipoid"),
     @NamedQuery(name = "Participante.findByDorsalAndCompeticion", query = "SELECT p FROM Participante p WHERE p.dorsal = :dorsal AND p IN (SELECT p2 FROM Participante p2 WHERE p2.grupoId IN (SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :competicionid))")
 })
