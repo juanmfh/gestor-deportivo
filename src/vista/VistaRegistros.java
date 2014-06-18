@@ -183,7 +183,7 @@ public interface VistaRegistros {
      * 
      * @return String
      */
-    public String getFiltroParticipante();
+    //public String getFiltroParticipante();
     
     
     /**Devuelve true si el checkbox está seleccionado y false en otro caso

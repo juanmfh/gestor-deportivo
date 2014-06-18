@@ -327,7 +327,7 @@ public class RegistroJpa implements Serializable {
         try {
             Query q;
             if(mejoresMarcas){
-                q = em.createNamedQuery("Registro.findByCompeticionEquipoMM");
+                q = em.createNamedQuery("Registro.findByCompeticionEquipoMMTiempo");
             }else{
                 q = em.createNamedQuery("Registro.findByCompeticionEquipo");
             }
@@ -341,12 +341,12 @@ public class RegistroJpa implements Serializable {
         return res;
     }
      
-     public List<Object[]> temp(Integer competicionid, boolean mejoresMarcas) {
+     public List<Registro> temp(Integer competicionid, boolean mejoresMarcas) {
          EntityManager em = getEntityManager();
-        List<Object[]> res;
+        List<Registro> res;
         try {
             Query q;
-            q = em.createNamedQuery("Registro.findByCompeticionEquipoMM");
+            q = em.createNamedQuery("Registro.findByCompeticionEquipoMMTiempo");
             q.setParameter("competicionid", competicionid);
             res = q.getResultList();
         } catch (NoResultException e) {
@@ -682,6 +682,110 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de un equipo filtrada por competición y
+     * prueba ordenada por marca de mayor a menor
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param equipoid    Identificador del equipo
+     * @return List<Registro>
+     */
+    public List<Registro> findRegistroByEquipoPruebaCompeticionOrderByNum(Integer competicionid, Integer pruebaid, Integer equipoid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findRegistroByEquipoPruebaCompeticionOrderByNum");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("equipoid", equipoid);
+            q.setMaxResults(2);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve la lista de registros de un participante filtrada por competición y
+     * prueba ordenada por marca de mayor a menor
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param participanteid    Identificador del participante
+     * @return List<Registro>
+     */
+    public List<Registro> findRegistroByParticipantePruebaCompeticionOrderByNum(Integer competicionid, Integer pruebaid, Integer participanteid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findRegistroByParticipantePruebaCompeticionOrderByNum");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("participanteid", participanteid);
+            q.setMaxResults(2);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve la lista de registros de un equipo filtrada por competición y
+     * prueba ordenada por tiempo
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param equipoid    Identificador del equipo
+     * @return List<Registro>
+     */
+    public List<Registro> findRegistroByEquipoPruebaCompeticionOrderByTiempo(Integer competicionid, Integer pruebaid, Integer equipoid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findRegistroByEquipoPruebaCompeticionOrderByTiempo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("equipoid", equipoid);
+            q.setMaxResults(2);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    /**Devuelve la lista de registros de un participante filtrada por competición y
+     * prueba ordenada por tiempo
+     * 
+     * @param competicionid     Identificador de la competición
+     * @param pruebaid          Identificador de la prueba
+     * @param participanteid    Identificador del participante
+     * @return List<Registro>
+     */
+    public List<Registro> findRegistroByParticipantePruebaCompeticionOrderByTiempo(Integer competicionid, Integer pruebaid, Integer participanteid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findRegistroByParticipantePruebaCompeticionOrderByTiempo");
+            q.setParameter("competicionid", competicionid);
+            q.setParameter("pruebaid", pruebaid);
+            q.setParameter("participanteid", participanteid);
+            q.setMaxResults(2);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
     /**Devuelve la lista completa de registros de una prueba
      * 
      * @param pruebaid  Identificador de la prueba
@@ -881,7 +985,7 @@ public class RegistroJpa implements Serializable {
         EntityManager em = getEntityManager();
         List<Equipo> res;
         try {
-            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosTiempo");
+            Query q = em.createNamedQuery("Registro.findEquiposConRegistrosTiempoByGrupo");
             q.setParameter("competicionid", competicionid);
             q.setParameter("pruebaid", pruebaid);
             q.setParameter("grupos",nombreGrupos);

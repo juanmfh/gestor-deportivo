@@ -564,7 +564,26 @@ public class ControlRegistros implements ActionListener {
                     }
                 } else if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                     if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        // COMPLETAR
+                        List<String> grupos = new ArrayList();
+                        grupos.add(g.getNombre());
+                        registros = new ArrayList();
+                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempoByGrupos(competicionSeleccionada, p.getId(), grupos);
+                            for (Participante e : participantes) {
+                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
+                        }else{
+                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosNumByGrupo(competicionSeleccionada,p.getId(), grupos);
+                            for (Participante e : participantes) {
+                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
+                        }
                     } else {
                         registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
                     }
