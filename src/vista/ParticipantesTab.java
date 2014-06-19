@@ -340,7 +340,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
 
         participantesScrollPane.setViewportView(participantesTable);
         participantesScrollPane.setPreferredSize(new Dimension(350, 200));
-        modeloParticipantesTable.setColumnIdentifiers(new Object[]{"ID", "DORSAL", "APELLIDOS", "NOMBRE", "GRUPO", "EQUIPO"});
+        modeloParticipantesTable.setColumnIdentifiers(new Object[]{"ID", "DORSAL", "APELLIDOS", "NOMBRE", "GRUPO", "EQUIPO","PRUEBA ASIG."});
         constraints.gridx = 0;
         constraints.gridy = 4;
         constraints.gridwidth = 4;

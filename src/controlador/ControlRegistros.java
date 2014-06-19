@@ -236,7 +236,7 @@ public class ControlRegistros implements ActionListener {
         // Si es un equipo 
         if (r.getPruebaId().getTipo().equals(TipoPrueba.Equipo.toString())) {
             vista.añadirRegistroATabla(new Object[]{r.getId(), r.getEquipoId().getId(),
-                r.getEquipoId().getNombre() + " (E)",
+                r.getEquipoId().getNombre(),
                 r.getPruebaId().getNombre()
                 + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
                 r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())

@@ -63,7 +63,8 @@ public class ControlParticipantes implements ActionListener {
                         p.getApellidos(),
                         p.getNombre(),
                         p.getGrupoId().getNombre(),
-                        p.getEquipoId()!=null?p.getEquipoId().getNombre():""});
+                        p.getEquipoId()!=null?p.getEquipoId().getNombre():"",
+                        p.getPruebaasignada()!=null?p.getPruebaasignada().getNombre():""});
                     vista.limpiarFormularioParticipante();
                     Coordinador.getInstance().setEstadoLabel(
                             "Participante creado correctamente", Color.BLUE);
@@ -294,7 +295,8 @@ public class ControlParticipantes implements ActionListener {
                     g.getNombre(),
                     participante.getEquipoId() == null
                     ? "Ninguno"
-                    : participante.getEquipoId().getNombre()});
+                    : participante.getEquipoId().getNombre(),
+                    participante.getPruebaasignada()!=null?participante.getPruebaasignada().getNombre():""});
             } catch (NonexistentEntityException ex) {
                 return false;
             } catch (Exception ex) {

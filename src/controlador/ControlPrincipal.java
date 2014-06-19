@@ -632,7 +632,8 @@ public class ControlPrincipal implements ActionListener {
                                 g.getNombre(),
                                 p.getEquipoId() != null
                                 ? p.getEquipoId().getNombre()
-                                : "Ninguno"});
+                                : "Ninguno",
+                            p.getPruebaasignada()!=null?p.getPruebaasignada().getNombre():""});
                 }
             }
         }
