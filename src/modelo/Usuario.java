@@ -42,6 +42,9 @@ public class Usuario implements Serializable {
     @Basic(optional = false)
     @Column(name = "PASSWORD")
     private String password;
+    @Basic(optional = false)
+    @Column(name = "ROL")
+    private Integer rol;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuarioId")
     private Collection<Acceso> accesoCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuarioId")

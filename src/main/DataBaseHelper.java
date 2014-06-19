@@ -29,8 +29,9 @@ public class DataBaseHelper {
                     + "    id          INTEGER NOT NULL \n"
                     + "                PRIMARY KEY GENERATED ALWAYS AS IDENTITY \n"
                     + "                (START WITH 1, INCREMENT BY 1),\n"
-                    + "    nick    VARCHAR(30) NOT NULL UNIQUE, \n"
-                    + "    password   VARCHAR(30) NOT NULL\n"
+                    + "    nick        VARCHAR(30) NOT NULL UNIQUE, \n"
+                    + "    rol         INTEGER NOT NULL,"
+                    + "    password    VARCHAR(30) NOT NULL\n"
                     + ")");
             s.execute("CREATE table COMPETICION (\n"
                     + "    id          INTEGER NOT NULL \n"
@@ -139,7 +140,7 @@ public class DataBaseHelper {
                     + "     FOREIGN KEY(prueba_id) REFERENCES PRUEBA(id),\n"
                     + "	FOREIGN KEY(equipo_id) REFERENCES EQUIPO(id)\n"
                     + ")");
-            s.execute("INSERT INTO USUARIO (nick, password) VALUES ('admin', 'admin')");
+            s.execute("INSERT INTO USUARIO (nick, password,rol) VALUES ('admin', 'admin',2)");
 
         } catch (SQLException ex) {
             if (ex.getErrorCode() != DATABASEEXIST) {
