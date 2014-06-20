@@ -40,6 +40,7 @@ import vista.GruposTab;
 import vista.PanelPrincipal;
 import vista.ParticipantesTab;
 import vista.RegistrosTab;
+import vista.UsuariosTab;
 import vista.VistaPrincipal;
 
 /**
@@ -57,13 +58,15 @@ public class ControlPrincipal implements ActionListener {
     private GruposTab gruposTabPanel;
     private EquiposTab equiposTabPanel;
     private RegistrosTab registrosTabPanel;
+    private UsuariosTab usuariosTabPanel;
 
     // Controladores de las pestañas
     private ControlGrupos controlGrupos;
     private ControlParticipantes controlParticipantes;
     private ControlEquipos controlEquipos;
     private ControlRegistros controlRegistros;
-    private final ControlPruebas controlPruebas;
+    private ControlPruebas controlPruebas;
+    private ControlUsuarios controlUsuarios;
 
     /**
      * Constructor que asocia la vista al controlador
@@ -724,6 +727,11 @@ public class ControlPrincipal implements ActionListener {
                                         vista.getTabbedPane().indexOfTab("Registros"));
                                 registrosTabPanel = null;
                             }
+                            if (usuariosTabPanel != null){
+                                vista.getTabbedPane().removeTabAt(
+                                        vista.getTabbedPane().indexOfTab("Usuarios"));
+                                usuariosTabPanel = null;
+                            }
                         }
                         Coordinador.getInstance().getControladorPrincipal().vista.limpiarDatosCompeticion();
                     }
@@ -807,6 +815,18 @@ public class ControlPrincipal implements ActionListener {
                         dialog.setVisible(true);
                     }
                 });
+                break;
+            case VistaPrincipal.ABRIRUSUARIOS:
+                if(seleccionada != null){
+                    if (usuariosTabPanel == null) {
+                        usuariosTabPanel = new UsuariosTab();
+                        controlUsuarios = new ControlUsuarios(usuariosTabPanel);
+                        usuariosTabPanel.controlador(controlUsuarios);
+                        vista.getTabbedPane().addTab("Usuarios", usuariosTabPanel);
+                    }
+                    vista.getTabbedPane().setSelectedIndex(
+                            vista.getTabbedPane().indexOfTab("Usuarios"));
+                }
                 break;
         }
     }

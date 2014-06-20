@@ -395,6 +395,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         return pruebaAsignadaComboBox;
     }
 
+    @Override
     public void controlador(ActionListener al) {
         añadirParticipanteButton.addActionListener(al);
         modificarParticipanteButton.addActionListener(al);

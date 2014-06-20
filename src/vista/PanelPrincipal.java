@@ -47,7 +47,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     private GeneralTab generalTabPanel;
     private JPanel participantesTabPanel;
     private JPanel pruebasTabPanel;
-    private JButton añadirUsuarioButton;
+    private JButton admUsuariosButton;
     private JButton participantesButton;
     private JButton gruposButton;
     private JButton equiposButton;
@@ -129,12 +129,12 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         imprimirButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/imprimirpdf.png"));
         barraHerramientasPanel.add(imprimirButton);
 
-        añadirUsuarioButton = new JButton("Añadir Usuario");
-        añadirUsuarioButton.setEnabled(false);
-        añadirUsuarioButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        añadirUsuarioButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        añadirUsuarioButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/adduser.png"));
-        barraHerramientasPanel.add(añadirUsuarioButton);
+        admUsuariosButton = new JButton("Adm. Usuarios");
+        admUsuariosButton.setEnabled(false);
+        admUsuariosButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        admUsuariosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        admUsuariosButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/adduser.png"));
+        barraHerramientasPanel.add(admUsuariosButton);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -274,6 +274,8 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                     Coordinador.getInstance().limpiarTablaRegistros();
                 } else if (sele == tabbedPane.indexOfTab("General")) {
                     Coordinador.getInstance().cargarTablaPruebasCompeticion(Coordinador.getInstance().getSeleccionada());
+                } else if (sele == tabbedPane.indexOfTab("Usuarios")){
+                    
                 }
             }
         });
@@ -336,6 +338,9 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         imprimirButton.addActionListener(al);
         imprimirButton.setActionCommand(IMPRIMIRPDF);
+        
+        admUsuariosButton.addActionListener(al);
+        admUsuariosButton.setActionCommand(ABRIRUSUARIOS);
     }
 
     private void cargarListaCompeticiones() {
@@ -458,6 +463,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         this.imprimirButton.setEnabled(bool);
         this.modificarcompeticionButton.setEnabled(bool);
         this.eliminarcompeticionButton.setEnabled(bool);
+        this.admUsuariosButton.setEnabled(bool);
         this.getGeneralTabPanel().getCrearPruebaButton().setEnabled(bool);
         this.getGeneralTabPanel().getModificarPruebaButton().setEnabled(bool);
         this.getGeneralTabPanel().getEliminarPruebaButton().setEnabled(bool);

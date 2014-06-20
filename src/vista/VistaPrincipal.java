@@ -33,6 +33,8 @@ public interface VistaPrincipal {
     
     String ABRIRPRUEBAS = "abrirpruebas";
     
+    String ABRIRUSUARIOS = "abrirusuarios";
+    
     String IMPRIMIRPDF = "imprimirpdf";
     
     /**Asocia un listener controlador a elementos de la vista

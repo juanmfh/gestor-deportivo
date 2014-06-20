@@ -148,7 +148,12 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         constraints.insets = new Insets(0,0,0,0);
 
         tablaEquiposScrollPane = new JScrollPane();
-        modeloEquiposTable = new DefaultTableModel();
+        modeloEquiposTable = new DefaultTableModel(){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
         equiposTable = new JTable(modeloEquiposTable);
         equiposTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         equiposTable.setFillsViewportHeight(false);
