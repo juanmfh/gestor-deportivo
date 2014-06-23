@@ -275,7 +275,8 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                 } else if (sele == tabbedPane.indexOfTab("General")) {
                     Coordinador.getInstance().cargarTablaPruebasCompeticion(Coordinador.getInstance().getSeleccionada());
                 } else if (sele == tabbedPane.indexOfTab("Usuarios")){
-                    
+                    Coordinador.getInstance().getControladorPrincipal().cargarTablaUsuarios();
+                    Coordinador.getInstance().getControladorPrincipal().cargarListaCompeticionesTabUsuarios();
                 }
             }
         });

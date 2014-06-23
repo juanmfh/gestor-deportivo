@@ -29,10 +29,12 @@ import dao.GrupoJpa;
 import dao.InscripcionJpa;
 import dao.ParticipanteJpa;
 import dao.RegistroJpa;
+import dao.UsuarioJpa;
 import dao.exceptions.IllegalOrphanException;
 import dao.exceptions.NonexistentEntityException;
 import java.awt.Frame;
 import modelo.Participante;
+import modelo.Usuario;
 import vista.DialogoCrearCompeticion;
 import vista.DialogoImprimirResultados;
 import vista.EquiposTab;
@@ -344,7 +346,7 @@ public class ControlPrincipal implements ActionListener {
         List<Grupo> grupos = gruposByCompeticion(seleccionada);
         registrosTabPanel.getGruposComboBox().removeAllItems();
         registrosTabPanel.getFiltroGrupoComboBox().removeAllItems();
-        //registrosTabPanel.getFiltroGrupoComboBox().addItem("Todos");
+        registrosTabPanel.getFiltroGrupoComboBox().addItem("Todos");
         if (grupos != null) {
             for (Grupo g : grupos) {
                 registrosTabPanel.getFiltroGrupoComboBox().addItem(g.getNombre());
@@ -638,6 +640,40 @@ public class ControlPrincipal implements ActionListener {
                                 : "Ninguno",
                             p.getPruebaasignada()!=null?p.getPruebaasignada().getNombre():""});
                 }
+            }
+        }
+    }
+    
+    /**
+     * Carga en el tab de Adm. de Usuarios la tabla de usuarios
+     */
+    public void cargarTablaUsuarios(){
+        UsuarioJpa usuariojpa = new UsuarioJpa();
+        List<Usuario> usuarios = usuariojpa.findUsuarioEntities();
+        // Limpiamos la tabla
+        int count = usuariosTabPanel.getModeloUsuariosTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            usuariosTabPanel.getModeloUsuariosTable().removeRow(0);
+        }
+        
+        if(usuarios!=null){
+            for(Usuario u: usuarios){
+                usuariosTabPanel.getModeloUsuariosTable().addRow(new Object[]{
+                            u.getId(),
+                            u.getNick(),
+                            u.getPassword(),
+                            RolUsuario.values()[u.getRol()]});
+            }
+        }
+    }
+    
+    public void cargarListaCompeticionesTabUsuarios(){
+        CompeticionJpa competicionjpa = new CompeticionJpa();
+        List<String> competiciones = competicionjpa.findAllCompeticionNames();
+        usuariosTabPanel.eliminarTodasCompeticiones();
+        if(competiciones!=null){
+            for(String s: competiciones){
+                usuariosTabPanel.añadirCompeticion(s);
             }
         }
     }

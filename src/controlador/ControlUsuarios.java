@@ -22,7 +22,19 @@ public class ControlUsuarios implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        
+        String command = ae.getActionCommand();
+        switch (command) {
+            case VistaUsuarios.CREARUSUARIO:
+                
+                break;
+            case VistaUsuarios.MODIFICARUSUARIO:
+                break;
+            case VistaUsuarios.ELIMINARUSUARIO:
+                break;
+            case VistaUsuarios.LIMPIARFORMULARIO:
+                vista.limpiarFormularioUsuario();
+                break;
+        }
     }
     
 }

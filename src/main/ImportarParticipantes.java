@@ -90,13 +90,13 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                         Participante participante = new Participante();
                         // Leemos los apellidos
                         data = hoja.getCell(columna, fila).getContents();
-                        System.out.println("APELLIDOS: " + data);
+                        //System.out.println("APELLIDOS: " + data);
                         participante.setApellidos(data);
                         columna++;
                         if (data.length() > 0) {
                             // Leemos el nombre
                             data = hoja.getCell(columna, fila).getContents();
-                            System.out.println("NOMBRE: " + data);
+                            //System.out.println("NOMBRE: " + data);
                             // QUITAR ESTO
                             if (data == null) {
                                 data = " ";
@@ -107,7 +107,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             GrupoJpa grupojpa = new GrupoJpa();
                             Grupo grupo;
                             data = hoja.getCell(columna, fila).getContents();
-                            System.out.println("GRUPO: " + data);
+                            //System.out.println("GRUPO: " + data);
                             grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                             if (grupo == null) {
                                 grupo = ControlGrupos.crearGrupo(data, null);
@@ -118,7 +118,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             EquipoJpa equipojpa = new EquipoJpa();
                             Equipo equipo;
                             data = hoja.getCell(columna, fila).getContents();
-                            System.out.println("EQUIPO: " + data);
+                            //System.out.println("EQUIPO: " + data);
                             if (data.length() > 0) {
                                 equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                 if (equipo == null) {
@@ -131,11 +131,11 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             boolean pruebaAsignada = false;
                             while (!pruebaAsignada && columna <= nombresPruebas.size() + 5) {
                                 data = hoja.getCell(columna, fila).getContents();
-                                System.out.println("PRUEBAASIGNADA: [" + data + "]");
+                                //System.out.println("PRUEBAASIGNADA: [" + data + "]");
                                 if (!data.equals("")) {
                                     Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - 5),
                                             Coordinador.getInstance().getSeleccionada().getId());
-                                    System.out.println("PRUEBA: " + pr.getNombre());
+                                    //System.out.println("PRUEBA: " + pr.getNombre());
                                     participante.setPruebaasignada(pr);
                                     pruebaAsignada = true;
                                 }

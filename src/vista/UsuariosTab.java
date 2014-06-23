@@ -9,7 +9,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -288,11 +291,48 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.insets = new Insets(0, 20, 10, 20);
         this.add(usuariosScrollPane, constraints);
+        
+        incluirCompeticionButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                List<String> competiciones = getCompeticionesSeleccionadas();
+                if(competiciones !=null){
+                    for(String s: competiciones){
+                        añadirCompeticionConAcceso(s);
+                        eliminarCompeticion(s);
+                    }
+                }
+            }
+        });
+        
+        excluirCompeticionButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                List<String> competiciones = getCompeticionesConAccesoSeleccionadas();
+                if(competiciones !=null){
+                    for(String s: competiciones){
+                        añadirCompeticion(s);
+                        eliminarCompeticionConAcceso(s);
+                    }
+                }
+            }
+        });
+        
     }
     
     @Override
     public void controlador(ActionListener al){
+        crearUsuarioButton.addActionListener(al);
+        crearUsuarioButton.setActionCommand(VistaUsuarios.CREARUSUARIO);
         
+        modificarUsuarioButton.addActionListener(al);
+        modificarUsuarioButton.setActionCommand(VistaUsuarios.MODIFICARUSUARIO);
+        
+        eliminarUsuarioButton.addActionListener(al);
+        eliminarUsuarioButton.setActionCommand(VistaUsuarios.ELIMINARUSUARIO);
+        
+        limpiarFormularioUsuarioButton.addActionListener(al);
+        limpiarFormularioUsuarioButton.setActionCommand(VistaUsuarios.LIMPIARFORMULARIO);
     }
     
     @Override
@@ -304,5 +344,60 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         } catch (IndexOutOfBoundsException e) {
             return -1;
         }
+    }
+    
+    @Override
+    public DefaultTableModel getModeloUsuariosTable() {
+        return modeloUsuariosTable;
+    }
+    
+    @Override
+    public void limpiarFormularioUsuario() {
+        this.nombreUsuarioTextField.setText("");
+        this.contraseñaTextField.setText("");
+        this.rolComboBox.setSelectedIndex(0);
+        usuariosTable.clearSelection();
+        Coordinador.getInstance().getControladorPrincipal().cargarListaCompeticionesTabUsuarios();
+        modeloListaCompeticionesConAcceso.removeAllElements();
+    }
+    
+    @Override
+    public List<String> getCompeticionesSeleccionadas(){
+        return competicionesList.getSelectedValuesList();
+    }
+    
+    @Override
+    public List<String> getCompeticionesConAccesoSeleccionadas(){
+        return competicionesConAccesoList.getSelectedValuesList();
+    }
+    
+    @Override
+    public void añadirCompeticion(String nombreCompeticion){
+        modeloListaCompeticiones.add(0,nombreCompeticion);
+    }
+    
+    @Override
+    public void añadirCompeticionConAcceso(String nombreCompeticion){
+        modeloListaCompeticionesConAcceso.add(0,nombreCompeticion);
+    }
+    
+    @Override
+    public void eliminarCompeticion(String nombreCompeticion){
+        modeloListaCompeticiones.removeElement(nombreCompeticion);
+    }
+    
+    @Override
+    public void eliminarTodasCompeticionesConAcceso(){
+        modeloListaCompeticionesConAcceso.removeAllElements();
+    }
+    
+    @Override
+    public void eliminarCompeticionConAcceso(String nombreCompeticion){
+        modeloListaCompeticionesConAcceso.removeElement(nombreCompeticion);
+    }
+    
+    @Override
+    public void eliminarTodasCompeticiones(){
+        modeloListaCompeticiones.removeAllElements();
     }
 }

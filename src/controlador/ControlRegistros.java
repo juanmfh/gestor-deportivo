@@ -530,67 +530,118 @@ public class ControlRegistros implements ActionListener {
         // Obtenemos la competición seleccionada
         Integer competicionSeleccionada = Coordinador.getInstance().getSeleccionada().getId();
 
-        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
-                Coordinador.getInstance().getSeleccionada().getId());
-        if (g != null) {
-            Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
-                    Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
-            if (p != null) {
+        Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
+                Coordinador.getInstance().getControladorPrincipal().getSeleccionada().getId());
+        if (p != null) {
+            // Si se ha seleccionado todos los grupos
+            if (grupo.equals("Todos")) {
                 if (p.getTipo().equals(TipoPrueba.Equipo.toString())) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        List<String> grupos = new ArrayList();
-                        grupos.add(g.getNombre());
-                        registros = new ArrayList();
-                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempoByGrupo(competicionSeleccionada, p.getId(), grupos);
-                            for (Equipo e : equipos) {
-                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
-                                if (registrosP != null) {
-                                    registros.add(registrosP.get(0));
+                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                            registros = new ArrayList();
+                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempo(competicionSeleccionada, p.getId());
+                                for (Equipo e : equipos) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
+                                }
+                            }else{
+                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosNum(competicionSeleccionada, p.getId());
+                                for (Equipo e : equipos) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
                                 }
                             }
                         }else{
-                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosNumByGrupo(competicionSeleccionada, p.getId(), grupos);
-                            for (Equipo e : equipos) {
-                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
-                                if (registrosP != null) {
-                                    registros.add(registrosP.get(0));
-                                }
-                            }
+                            registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
                         }
-
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupoPruebaEquipo(competicionSeleccionada, g.getId(), p.getId());
-                    }
                 } else if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
-                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                        List<String> grupos = new ArrayList();
-                        grupos.add(g.getNombre());
-                        registros = new ArrayList();
-                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempoByGrupos(competicionSeleccionada, p.getId(), grupos);
-                            for (Participante e : participantes) {
-                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
-                                if (registrosP != null) {
-                                    registros.add(registrosP.get(0));
+                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                            registros = new ArrayList();
+                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempo(competicionSeleccionada, p.getId());
+                                for (Participante e : participantes) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
+                                }
+                            } else {
+                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosNum(competicionSeleccionada, p.getId());
+                                for (Participante e : participantes) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
                                 }
                             }
                         }else{
-                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosNumByGrupo(competicionSeleccionada,p.getId(), grupos);
-                            for (Participante e : participantes) {
-                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
-                                if (registrosP != null) {
-                                    registros.add(registrosP.get(0));
+                            registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
+                        }
+                }
+            } else {
+                Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,
+                        Coordinador.getInstance().getSeleccionada().getId());
+                if (g != null) {
+                    if (p.getTipo().equals(TipoPrueba.Equipo.toString())) {
+                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                            List<String> grupos = new ArrayList();
+                            grupos.add(g.getNombre());
+                            registros = new ArrayList();
+                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempoByGrupo(competicionSeleccionada, p.getId(), grupos);
+                                for (Equipo e : equipos) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
+                                }
+                            } else {
+                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosNumByGrupo(competicionSeleccionada, p.getId(), grupos);
+                                for (Equipo e : equipos) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
                                 }
                             }
+
+                        } else {
+                            registros = registrojpa.findByCompeticionGrupoPruebaEquipo(competicionSeleccionada, g.getId(), p.getId());
                         }
-                    } else {
-                        registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
+                    } else if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
+                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                            List<String> grupos = new ArrayList();
+                            grupos.add(g.getNombre());
+                            registros = new ArrayList();
+                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempoByGrupos(competicionSeleccionada, p.getId(), grupos);
+                                for (Participante e : participantes) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
+                                }
+                            } else {
+                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosNumByGrupo(competicionSeleccionada, p.getId(), grupos);
+                                for (Participante e : participantes) {
+                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                    if (registrosP != null) {
+                                        registros.add(registrosP.get(0));
+                                    }
+                                }
+                            }
+                        } else {
+                            registros = registrojpa.findByCompeticionGrupoPruebaIndividual(competicionSeleccionada, g.getId(), p.getId());
+                        }
                     }
                 }
             }
-
         }
+
         // Actualizamos la vista
         Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
     }

@@ -87,6 +87,14 @@ public class Usuario implements Serializable {
         this.password = password;
     }
 
+    public Integer getRol() {
+        return rol;
+    }
+
+    public void setRol(Integer rol) {
+        this.rol = rol;
+    }
+
     @XmlTransient
     public Collection<Acceso> getAccesoCollection() {
         return accesoCollection;
