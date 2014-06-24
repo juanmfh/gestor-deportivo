@@ -3,15 +3,12 @@ package vista;
 import controlador.Coordinador;
 import controlador.RolUsuario;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -20,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -39,7 +37,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
     private final JLabel nombreUsuarioLabel;
     private final JTextField nombreUsuarioTextField;
     private final JLabel contraseñaLabel;
-    private final JTextField contraseñaTextField;
+    private final JPasswordField contraseñaTextField;
     private final JLabel rolLabel;
     private final JComboBox rolComboBox;
     private final JButton crearUsuarioButton;
@@ -101,7 +99,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         constraints.anchor = GridBagConstraints.WEST;
         formularioUsuariosPanel.add(contraseñaLabel, constraints);
         
-        contraseñaTextField = new JTextField(20);
+        contraseñaTextField = new JPasswordField(20);
         constraints.gridx = 1;
         constraints.gridy = 1;
         constraints.gridwidth = 1;
@@ -272,8 +270,9 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
                 if (!lse.getValueIsAdjusting()) {
-                    if (getUsuarioSeleccionado() != -1) {
-                        //Coordinador.getInstance().cargarFormularioParticipante(getParticipanteSeleccionado());
+                    if (getUsuarioSeleccionado()!=null && getUsuarioSeleccionado() != -1) {
+                        crearUsuarioButton.setEnabled(false);
+                        Coordinador.getInstance().cargarFormularioUsuario(getUsuarioSeleccionado());
                     }
                 }
             }
@@ -281,7 +280,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         
         usuariosScrollPane.setViewportView(usuariosTable);
         usuariosScrollPane.setPreferredSize(new Dimension(350, 200));
-        modeloUsuariosTable.setColumnIdentifiers(new Object[]{"ID", "NOMBRE DE USUARIO", "CONTRASEÑA", "ROL"});
+        modeloUsuariosTable.setColumnIdentifiers(new Object[]{"ID", "NOMBRE DE USUARIO", "ROL"});
         constraints.gridx = 0;
         constraints.gridy = 4;
         constraints.gridwidth = 4;
@@ -291,32 +290,6 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.insets = new Insets(0, 20, 10, 20);
         this.add(usuariosScrollPane, constraints);
-        
-        incluirCompeticionButton.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                List<String> competiciones = getCompeticionesSeleccionadas();
-                if(competiciones !=null){
-                    for(String s: competiciones){
-                        añadirCompeticionConAcceso(s);
-                        eliminarCompeticion(s);
-                    }
-                }
-            }
-        });
-        
-        excluirCompeticionButton.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                List<String> competiciones = getCompeticionesConAccesoSeleccionadas();
-                if(competiciones !=null){
-                    for(String s: competiciones){
-                        añadirCompeticion(s);
-                        eliminarCompeticionConAcceso(s);
-                    }
-                }
-            }
-        });
         
     }
     
@@ -333,6 +306,12 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         
         limpiarFormularioUsuarioButton.addActionListener(al);
         limpiarFormularioUsuarioButton.setActionCommand(VistaUsuarios.LIMPIARFORMULARIO);
+        
+        incluirCompeticionButton.addActionListener(al);
+        incluirCompeticionButton.setActionCommand(VistaUsuarios.INCLUIRCOMPETICION);
+        
+        excluirCompeticionButton.addActionListener(al);
+        excluirCompeticionButton.setActionCommand(VistaUsuarios.EXCLUIRCOMPETICION);
     }
     
     @Override
@@ -359,6 +338,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         usuariosTable.clearSelection();
         Coordinador.getInstance().getControladorPrincipal().cargarListaCompeticionesTabUsuarios();
         modeloListaCompeticionesConAcceso.removeAllElements();
+        crearUsuarioButton.setEnabled(true);
     }
     
     @Override
@@ -399,5 +379,46 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
     @Override
     public void eliminarTodasCompeticiones(){
         modeloListaCompeticiones.removeAllElements();
+        modeloListaCompeticionesConAcceso.removeAllElements();
+    }
+    
+    @Override
+    public String getNombreDeUsuario(){
+        return nombreUsuarioTextField.getText().toString();
+    }
+    
+    @Override
+    public char[] getContraseña(){
+        return contraseñaTextField.getPassword();
+    }
+    
+    @Override
+    public RolUsuario getRol(){
+        return RolUsuario.valueOf(rolComboBox.getSelectedItem().toString());
+    }
+    
+    @Override
+    public void añadirUsuarioATabla(Object[] o){
+        this.modeloUsuariosTable.addRow(o);
+    }
+
+    @Override
+    public void setNombreUsuario(String usuario) {
+        this.nombreUsuarioTextField.setText(usuario);
+    }
+
+    @Override
+    public void setContraseñaUsuario(String contraseña) {
+        this.contraseñaTextField.setText(contraseña);
+    }
+
+    @Override
+    public void setRolUsuario(RolUsuario rol) {
+        this.rolComboBox.setSelectedIndex(rol.ordinal());
+    }
+    
+    @Override
+    public void eliminarUsuarioSeleccionado() {
+        modeloUsuariosTable.removeRow(usuariosTable.getSelectedRow());
     }
 }

@@ -90,6 +90,10 @@ public class ControlPrincipal implements ActionListener {
     public ParticipantesTab getParticipantesTabPanel() {
         return participantesTabPanel;
     }
+    
+    public UsuariosTab getUsuariosTabPanel(){
+        return usuariosTabPanel;
+    }
 
     public EquiposTab getEquiposTabPanel() {
         return equiposTabPanel;
@@ -661,7 +665,6 @@ public class ControlPrincipal implements ActionListener {
                 usuariosTabPanel.getModeloUsuariosTable().addRow(new Object[]{
                             u.getId(),
                             u.getNick(),
-                            u.getPassword(),
                             RolUsuario.values()[u.getRol()]});
             }
         }

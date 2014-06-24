@@ -1,5 +1,6 @@
 package vista;
 
+import controlador.RolUsuario;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
@@ -17,6 +18,10 @@ public interface VistaUsuarios {
     String ELIMINARUSUARIO = "eliminarusuario";
     
     String LIMPIARFORMULARIO = "limpiarformulario";
+    
+    String INCLUIRCOMPETICION = "incluircompeticion";
+    
+    String EXCLUIRCOMPETICION = "excluircompeticion";
     
     
     /**Asocia un listener controlador a elementos de la vista
@@ -88,4 +93,52 @@ public interface VistaUsuarios {
      * @param nombreCompeticion 
      */
     public void eliminarCompeticionConAcceso(String nombreCompeticion);
+    
+    
+    /**Devuelve el nombre de usuario introducido en la vista
+     * 
+     * @return String
+     */
+    public String getNombreDeUsuario();
+    
+    /**Devuelve la contraseña introducida en la vista
+     * 
+     * @return char[] 
+     */
+    public char[] getContraseña();
+    
+    /**Devuelve un enumerado del tipo RolUsuario según lo seleccionado en la vista
+     * 
+     * @return RolUsuario
+     */
+    public RolUsuario getRol();
+    
+    /**Añade una nueva fila a la tabla de usuarios
+     * 
+     * @param o Nueva fila 
+     */
+    public void añadirUsuarioATabla(Object[] o);
+    
+    /**Establece en la vista el nombre del usuario
+     *  
+     * @param usuario 
+     */
+    public void setNombreUsuario(String usuario);
+    
+    /**Establece en la vista la contraseña del usuario
+     * 
+     * @param contraseña 
+     */
+    public void setContraseñaUsuario(String contraseña);
+    
+    /**Establece en la vista el rol de usuario
+     * 
+     * @param rol 
+     */
+    public void setRolUsuario(RolUsuario rol);
+    
+    /**
+     * Elimina la fila seleccionada en la tabla
+     */
+    public void eliminarUsuarioSeleccionado();
 }

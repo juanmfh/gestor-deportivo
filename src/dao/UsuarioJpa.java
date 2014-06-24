@@ -1,5 +1,6 @@
 package dao;
 
+import controlador.RolUsuario;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -252,8 +253,12 @@ public class UsuarioJpa implements Serializable {
         }
     }
     
-    // Creados por mi
-    
+
+    /**Devuelve un usuario buscado a partir de su nick (nombre de usuario)
+     * 
+     * @param nick Nombre de usuario
+     * @return Usuario o null en otro caso
+     */
     public Usuario findUsuariobyNick(String nick){
         EntityManager em = getEntityManager();
         Usuario res = null;
@@ -264,6 +269,21 @@ public class UsuarioJpa implements Serializable {
             res = (Usuario) q.getSingleResult();
             }
         }catch(NoResultException e){
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
+    public List<Usuario> findByRol(RolUsuario rol) {
+        EntityManager em = getEntityManager();
+        List<Usuario> res;
+        try {
+            Query q = em.createNamedQuery("Usuario.findByRol");
+            q.setParameter("rol", rol.ordinal());
+            res = q.getResultList();
+        } catch (NoResultException e) {
             return null;
         } finally {
             em.close();

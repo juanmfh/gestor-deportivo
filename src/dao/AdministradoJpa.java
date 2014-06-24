@@ -211,4 +211,44 @@ public class AdministradoJpa implements Serializable {
         return res;
     }
     
+    /** Devuelve los nombres de las competiciones administradas por un usuario
+     * 
+     * @param usuarioid     Identificador del usuario
+     * @return List<Administrado>
+     */
+    public List<String> findCompeticionesByUser(Integer usuarioid) {
+        EntityManager em = getEntityManager();
+        List<String> res;
+        try {
+            Query q = em.createNamedQuery("Administrado.findCompeticionesByUser");
+            q.setParameter("userid", usuarioid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally{
+            em.close();
+        }
+        return res;
+    }
+    
+    /** Devuelve una lista de Administrados de un usuario
+     * 
+     * @param usuarioid     Identificador del usuario
+     * @return List<Administrado>
+     */
+    public List<Administrado> findByUsuario(Integer usuarioid) {
+        EntityManager em = getEntityManager();
+        List<Administrado> res;
+        try {
+            Query q = em.createNamedQuery("Administrado.findByUsuario");
+            q.setParameter("usuarioid", usuarioid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally{
+            em.close();
+        }
+        return res;
+    }
+    
 }

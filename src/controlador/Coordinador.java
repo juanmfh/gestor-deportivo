@@ -1,5 +1,7 @@
 package controlador;
 
+import dao.AccesoJpa;
+import dao.AdministradoJpa;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -23,11 +25,13 @@ import dao.GrupoJpa;
 import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
+import dao.UsuarioJpa;
 import modelo.Participante;
 import vista.PanelLogin;
 import vista.PanelPrincipal;
 import vista.ParticipantesTab;
 import vista.RegistrosTab;
+import vista.UsuariosTab;
 import vista.VistaLogin;
 
 /**
@@ -271,6 +275,35 @@ public class Coordinador {
             pt.setSexoParticipante(participante.getSexo());
             pt.setPruebaAsignadaParticipante(participante.getPruebaasignada() != null?
                     participante.getPruebaasignada().getNombre():"Ninguna");
+        }
+    }
+    
+    /**
+     * Carga en el formulario de usuarios con los datos del usuario cuyo
+     * id es usuarioid
+     *
+     * @param usuarioid Id del usuario a cargar
+     */
+    public void cargarFormularioUsuario(Integer usuarioid) {
+
+        UsuarioJpa usuariojpa = new UsuarioJpa();
+        Usuario usuario = usuariojpa.findUsuario(usuarioid);
+        
+        if (usuario != null) {
+            UsuariosTab ut = controladorPrincipal.getUsuariosTabPanel();
+            ut.setNombreUsuario(usuario.getNick());
+            ut.setContraseñaUsuario(usuario.getPassword());
+            ut.setRolUsuario(RolUsuario.values()[usuario.getRol()]);
+            
+            controladorPrincipal.cargarListaCompeticionesTabUsuarios();
+            AdministradoJpa administradoJpa = new AdministradoJpa();
+            List<String> competicionesConAcceso = administradoJpa.findCompeticionesByUser(usuarioid);
+            if(competicionesConAcceso!=null){
+                for(String s: competicionesConAcceso){
+                    ut.eliminarCompeticion(s);
+                    ut.añadirCompeticionConAcceso(s);
+                }
+            }
         }
     }
 
