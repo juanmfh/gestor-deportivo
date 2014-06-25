@@ -20,8 +20,9 @@ public class ControlCrearCompeticion implements ActionListener {
 
     private final VistaCrearCompeticion vista;
 
-    /**Constructor que asocia la vista al controlador
-     * 
+    /**
+     * Constructor que asocia la vista al controlador
+     *
      * @param vista Vista del controlador (Interfaz)
      */
     public ControlCrearCompeticion(VistaCrearCompeticion vista) {
@@ -33,12 +34,12 @@ public class ControlCrearCompeticion implements ActionListener {
         String command = ae.getActionCommand();
         switch (command) {
             case VistaCrearCompeticion.OK:
-                Competicion competicion = crearCompeticion();
-                if (competicion != null) {
+                try {
+                    Competicion competicion = crearCompeticion();
                     Coordinador.getInstance().actualizarVistaCompeticionCreada(competicion);
                     vista.cerrar();
-                } else {
-                    vista.estado("Nombre de la competición incorrecta", Color.RED);
+                } catch (InputException ex) {
+                    vista.estado(ex.getMessage(), Color.RED);
                 }
                 break;
             case VistaCrearCompeticion.CANCELAR:
@@ -47,22 +48,21 @@ public class ControlCrearCompeticion implements ActionListener {
         }
     }
 
-    
     /**
-     * Crea una competición a partir de los datos de la vista y le da permisos 
-     * al usuario logeado como administrador
+     * Crea una competición a partir de los datos de la vista y le da permisos de acceso
+     * al usuario que la crea
      *
      * @return la Competicion creada o null si ha habido algún error
      */
-    private Competicion crearCompeticion() {
-        Competicion competicion = null;
+    private Competicion crearCompeticion() throws InputException {
+        Competicion competicion;
 
-        // Datos necesarios para crear la competicion
+        // Datos no obligatorios para crear la competicion
         Date fechaInicio = IOFile.formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
         Date fechaFin = IOFile.formatearFecha(vista.getDiaFin(), String.valueOf(vista.getMesFin()), vista.getAñoFin());
         String nombreImagen = IOFile.getNombreFichero(vista.getRutaImagen());
 
-        // crea la competicion
+        // Creamos la competicion a partir de los datos recogidos de la vista
         competicion = crearCompeticion(vista.getNombre(),
                 vista.getLugar(),
                 fechaInicio,
@@ -70,27 +70,25 @@ public class ControlCrearCompeticion implements ActionListener {
                 nombreImagen,
                 vista.getOrganizador());
 
-        if (competicion != null) {
-            // Copia local de la imagen logo
-            IOFile.copiarFichero(vista.getRutaImagen(),
-                    System.getProperty("user.dir") + "/resources/img/");
+        // Se realiza una copia local de la imagen (logo) de la competición
+        IOFile.copiarFichero(vista.getRutaImagen(),
+                System.getProperty("user.dir") + "/resources/img/");
 
-            // crea permisos al usuario en la competicion
-            crearAdministrado(competicion, Coordinador.getInstance().getUsuario());
-        }
+        // Se crea permisos al usuario para esta competición
+        crearAdministrado(competicion, Coordinador.getInstance().getUsuario());
+
         return competicion;
     }
 
-    
     /**
      * Crea una competición con los datos pasados como parámetros
      *
-     * @param nombre        nombre de la competición
-     * @param lugar         lugar de la competición.
-     * @param fechaInicio   fecha en la que comienza la competición.
-     * @param fechaFin      fecha en la que termina la competición.
-     * @param nombreImagen  nombre de la imagen que será su logo.
-     * @param organizador   organizador de la competición.
+     * @param nombre nombre de la competición
+     * @param lugar lugar de la competición.
+     * @param fechaInicio fecha en la que comienza la competición.
+     * @param fechaFin fecha en la que termina la competición.
+     * @param nombreImagen nombre de la imagen que será su logo.
+     * @param organizador organizador de la competición.
      * @return Competicion
      */
     private Competicion crearCompeticion(String nombre,
@@ -98,10 +96,12 @@ public class ControlCrearCompeticion implements ActionListener {
             Date fechaInicio,
             Date fechaFin,
             String nombreImagen,
-            String organizador) {
+            String organizador) throws InputException {
 
         CompeticionJpa competicionjpa = new CompeticionJpa();
 
+        // Se comprueba que el nombre es no vacío y que no hay una competición ya creada
+        // con dicho nombre
         if (nombre.length() > 0 && competicionjpa.findCompeticionByName(nombre) == null) {
             Competicion competicion = new Competicion();
             competicion.setNombre(nombre);
@@ -114,19 +114,19 @@ public class ControlCrearCompeticion implements ActionListener {
             competicionjpa.create(competicion);
             return competicion;
         } else {
-            return null;
+            throw new InputException("Nombre de competición no válido");
         }
     }
-    
+
     /**
      * Da permisos a un usuario para poder administrar una competición.
-     * 
-     * @param competicion 
+     *
+     * @param competicion
      * @param usuario
      * @return Administrado
      */
     private Administrado crearAdministrado(Competicion competicion, Usuario usuario) {
-        
+
         Administrado administrado = null;
         if (competicion != null && usuario != null) {
             administrado = new Administrado();

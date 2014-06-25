@@ -3,6 +3,8 @@ package controlador;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import main.PDFHelper;
 import vista.VistaImprimirResultados;
 
@@ -28,7 +30,6 @@ public class ControlImprimirResultados implements ActionListener {
         String command = ae.getActionCommand();
         switch (command) {
             case VistaImprimirResultados.OK:
-
                 imprimirResultados();
                 break;
             case VistaImprimirResultados.CANCELAR:
@@ -42,47 +43,22 @@ public class ControlImprimirResultados implements ActionListener {
      */
     private void imprimirResultados() {
 
-        // Se ha seleccionado imprimir todo
-        if (vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {
-            if (PDFHelper.imprimirResultadosPDF(null, null)) {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Resultados imprimidos correctamente", Color.BLUE);
-                vista.cerrar();
-            } else {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Impresión no finalizada", Color.RED);
+        try {
+            if (vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {          // Se ha seleccionado imprimir todo
+                PDFHelper.imprimirResultadosPDF(null, null);
+            } else if (vista.getgruposCheckBox() && !vista.getpruebasCheckBox()) {  //Se ha seleccionado imprimir algunas pruebas de todos los grupos
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null);
+            } else if (!vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {   // Se ha seleccionado imprimir todas las pruebas pero solo de algunos grupos
+                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList());
+            } else if (vista.getpruebasList().isEmpty() || vista.getgruposList().isEmpty()) {   // No se ha seleccionado ningún grupo o ninguna prueba
+                throw new InputException("Selección no válida");                
+            } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList());
             }
-            //Se ha seleccionado imprimir algunas pruebas de todos los grupos
-        } else if (vista.getgruposCheckBox() && !vista.getpruebasCheckBox()) {
-            if (PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null)) {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Resultados imprimidos correctamente", Color.BLUE);
-                vista.cerrar();
-            } else {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Impresión no finalizada", Color.RED);
-            }
-            // Se ha seleccionado imprimir todas las pruebas pero solo de algunos grupos
-        } else if (!vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {
-            if (PDFHelper.imprimirResultadosPDF(null, vista.getgruposList())) {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Resultados imprimidos correctamente", Color.BLUE);
-                vista.cerrar();
-            } else {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Impresión no finalizada", Color.RED);
-            }
-        } else if(vista.getpruebasList().isEmpty() || vista.getgruposList().isEmpty()){
-            // Mensaje de error: selección no válida
-        }else { // Se ha seleccionado algunos grupos y algunas pruebas
-            if (PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList())) {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Resultados imprimidos correctamente", Color.BLUE);
-                vista.cerrar();
-            } else {
-                Coordinador.getInstance().setEstadoLabel(
-                        "Impresión no finalizada", Color.RED);
-            }
+            Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);
+            vista.cerrar();
+        } catch (InputException ex) {
+            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         }
     }
 

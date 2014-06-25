@@ -14,6 +14,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import controlador.Coordinador;
+import controlador.InputException;
 import controlador.TipoPrueba;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,7 +39,7 @@ import modelo.Equipo;
  */
 public class PDFHelper {
 
-    public static boolean imprimirResultadosPDF(List<String> nombrePruebas, List<String> nombreGrupos) {
+    public static void imprimirResultadosPDF(List<String> nombrePruebas, List<String> nombreGrupos) throws InputException {
         Competicion c = Coordinador.getInstance().getControladorPrincipal().getSeleccionada();
         if (c != null) {
             JFileChooser fc = new JFileChooser();
@@ -49,12 +50,12 @@ public class PDFHelper {
                 try {
                     PDFHelper.crearPdf(fc.getSelectedFile().getPath(), c,nombrePruebas,nombreGrupos);
                 } catch (FileNotFoundException | DocumentException ex) {
-                    return false;
+                    throw new InputException("No se pudo crear un archivo en esa ruta. Compruebe que el fichero destino no este abierto");
                 }
-                return true;
             }
+        }else{
+            throw new InputException("Competición no seleccionada");
         }
-        return false;
     }
 
     
