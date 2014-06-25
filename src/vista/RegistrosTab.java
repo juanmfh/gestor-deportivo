@@ -1,6 +1,7 @@
 package vista;
 
 import controlador.Coordinador;
+import controlador.RolUsuario;
 import controlador.TipoResultado;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -444,6 +445,8 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
                 }
             }
         });
+        
+        this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
     
@@ -675,4 +678,14 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         return soloMejoresMarcasCheckBox.isSelected();
     }
 
+    private void habilitarBotones(RolUsuario rol){
+        
+        if(rol.equals(RolUsuario.Invitado)){
+            crearRegistroButton.setEnabled(false);
+            modificarRegistroButton.setEnabled(false);
+            eliminarRegistroButton.setEnabled(false);
+            limpiarFormularioRegistroButton.setEnabled(false);
+        }
+        
+    }
 }

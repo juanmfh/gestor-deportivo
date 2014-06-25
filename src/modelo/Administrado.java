@@ -27,7 +27,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Administrado.findByCompeticion", query = "SELECT a FROM Administrado a WHERE a.competicionId = :compid"),
     @NamedQuery(name = "Administrado.findById", query = "SELECT a FROM Administrado a WHERE a.id = :id"),
     @NamedQuery(name = "Administrado.findCompeticionesByUser", query = "SELECT a.competicionId.nombre FROM Administrado a WHERE a.usuarioId.id = :userid"),
-    @NamedQuery(name = "Administrado.findByUsuario", query = "SELECT a FROM Administrado a WHERE a.usuarioId.id = :usuarioid")    
+    @NamedQuery(name = "Administrado.findByUsuario", query = "SELECT a FROM Administrado a WHERE a.usuarioId.id = :usuarioid"),
+    @NamedQuery(name = "Administrado.findByCompeticionAndUsuario", query = "SELECT a FROM Administrado a WHERE a.competicionId.nombre = :nombrecompeticion AND a.usuarioId.id = :usuarioid")
     })
 public class Administrado implements Serializable {
     private static final long serialVersionUID = 1L;

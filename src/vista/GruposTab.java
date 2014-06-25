@@ -1,6 +1,7 @@
 package vista;
 
 import controlador.Coordinador;
+import controlador.RolUsuario;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -189,6 +190,7 @@ public class GruposTab extends javax.swing.JPanel implements VistaGrupos {
         this.add(gruposTableScrollPane, constraints);
         gruposTableScrollPane.revalidate();
 
+        this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -266,5 +268,16 @@ public class GruposTab extends javax.swing.JPanel implements VistaGrupos {
     @Override
     public void setSubGrupoDe(String nombre){
         this.subgrupoDeComboBox.setSelectedItem(nombre);
+    }
+    
+    private void habilitarBotones(RolUsuario rol){
+        
+        if(rol.equals(RolUsuario.Invitado)){
+            crearGrupoButton.setEnabled(false);
+            modificarGrupoButton.setEnabled(false);
+            eliminarGrupoButton.setEnabled(false);
+            limpiarButton.setEnabled(false);
+        }
+        
     }
 }

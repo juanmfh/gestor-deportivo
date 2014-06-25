@@ -1,8 +1,8 @@
-
 package vista;
 
 import controlador.ControlPrincipal;
 import controlador.Coordinador;
+import controlador.RolUsuario;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -76,64 +76,63 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         crearcompeticionButton = new JButton("Crear competición");
         crearcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         crearcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        crearcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/añadircompeticion.png"));
+        crearcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/añadircompeticion.png"));
         barraHerramientasPanel.add(crearcompeticionButton);
 
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         modificarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        modificarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/modificarCompeticion.png"));
+        modificarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/modificarCompeticion.png"));
         barraHerramientasPanel.add(modificarcompeticionButton);
 
         eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         eliminarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        eliminarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/borrarCompeticion.png"));
+        eliminarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/borrarCompeticion.png"));
         barraHerramientasPanel.add(eliminarcompeticionButton);
 
         pruebasButton = new JButton("Pruebas");
         pruebasButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         pruebasButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        pruebasButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/pruebas.png"));
+        pruebasButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/pruebas.png"));
         barraHerramientasPanel.add(pruebasButton);
 
         gruposButton = new JButton("Grupos");
         gruposButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         gruposButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        gruposButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/groups.png"));
+        gruposButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/groups.png"));
         barraHerramientasPanel.add(gruposButton);
 
         equiposButton = new JButton("Equipos");
         equiposButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         equiposButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        equiposButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/equipos.png"));
+        equiposButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/equipos.png"));
         barraHerramientasPanel.add(equiposButton);
 
         participantesButton = new JButton("Participantes");
         participantesButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         participantesButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        participantesButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/participante.png"));
+        participantesButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/participante.png"));
         barraHerramientasPanel.add(participantesButton);
 
         registrosButton = new JButton("Registros");
         registrosButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         registrosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        registrosButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/registro.png"));
+        registrosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/registro.png"));
         barraHerramientasPanel.add(registrosButton);
 
         imprimirButton = new JButton("Imprimir Resultados");
         imprimirButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         imprimirButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        imprimirButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/imprimirpdf.png"));
+        imprimirButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/imprimirpdf.png"));
         barraHerramientasPanel.add(imprimirButton);
 
         admUsuariosButton = new JButton("Adm. Usuarios");
-        admUsuariosButton.setEnabled(false);
         admUsuariosButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         admUsuariosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        admUsuariosButton.setIcon(new ImageIcon(System.getProperty("user.dir")+"/resources/icons/adduser.png"));
+        admUsuariosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/adduser.png"));
         barraHerramientasPanel.add(admUsuariosButton);
 
         constraints.gridx = 0;
@@ -184,7 +183,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         listaCompeticiones = new JList();
         listaCompeticiones.setSelectionMode(SINGLE_SELECTION);
         modeloListaCompeticiones = new DefaultListModel();
-        cargarListaCompeticiones();
+        //cargarListaCompeticiones();
         listaCompeticiones.setModel(modeloListaCompeticiones);
         listaCompeticiones.addListSelectionListener((new ListSelectionListener() {
             @Override
@@ -198,9 +197,9 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                     tabbedPane.setSelectedIndex(0);
 
                     if (getCompeticionSelected() != null) {
-                        habilitarBotones(true);
+                        habilitarBotones(true, RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
                     } else {
-                        habilitarBotones(false);
+                        habilitarBotones(false, RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
                     }
 
                 }
@@ -250,6 +249,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         pruebasTabPanel = new JPanel(new GridBagLayout());
         participantesTabPanel = new JPanel(new GridBagLayout());
         tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
                 int sele = tabbedPane.getSelectedIndex();
 
@@ -274,7 +274,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                     Coordinador.getInstance().limpiarTablaRegistros();
                 } else if (sele == tabbedPane.indexOfTab("General")) {
                     Coordinador.getInstance().cargarTablaPruebasCompeticion(Coordinador.getInstance().getSeleccionada());
-                } else if (sele == tabbedPane.indexOfTab("Usuarios")){
+                } else if (sele == tabbedPane.indexOfTab("Usuarios")) {
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaUsuarios();
                     Coordinador.getInstance().getControladorPrincipal().cargarListaCompeticionesTabUsuarios();
                 }
@@ -289,7 +289,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.weighty = 1.0;
         this.add(tabbedPane, constraints);
 
-        this.habilitarBotones(false);
+        this.habilitarBotones(false, RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -339,15 +339,14 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         imprimirButton.addActionListener(al);
         imprimirButton.setActionCommand(IMPRIMIRPDF);
-        
+
         admUsuariosButton.addActionListener(al);
         admUsuariosButton.setActionCommand(ABRIRUSUARIOS);
     }
 
-    private void cargarListaCompeticiones() {
-        List<String> listaCompeticiones = ControlPrincipal.getCompeticiones();
-        for (String temp : listaCompeticiones) {
-            modeloListaCompeticiones.addElement(temp);
+    public void cargarListaCompeticiones(List<String> competiciones) {
+        for (String competicion : competiciones) {
+            modeloListaCompeticiones.addElement(competicion);
         }
     }
 
@@ -376,7 +375,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                 generalTabPanel.setImagen(System.getProperty("user.dir") + "/resources/img/" + c.getImagen());
             } else {
                 //System.out.println(getClass().getResource("/img/image_not_found.jpg").toString());
-                generalTabPanel.setImagen(System.getProperty("user.dir")+"/resources/icons/image_not_found.jpg");
+                generalTabPanel.setImagen(System.getProperty("user.dir") + "/resources/icons/image_not_found.jpg");
             }
 
         } else {
@@ -432,7 +431,8 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         listaCompeticiones.clearSelection();
         listaCompeticiones.setSelectedIndex(i);
     }
-     
+
+    @Override
     public GeneralTab getGeneralTabPanel() {
         return generalTabPanel;
     }
@@ -455,20 +455,30 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         this.estadoLabel.setForeground(color);
     }
 
-    private void habilitarBotones(Boolean bool) {
+    private void habilitarBotones(Boolean bool, RolUsuario rol) {
+
         this.pruebasButton.setEnabled(bool);
         this.gruposButton.setEnabled(bool);
         this.equiposButton.setEnabled(bool);
         this.registrosButton.setEnabled(bool);
         this.participantesButton.setEnabled(bool);
         this.imprimirButton.setEnabled(bool);
-        this.modificarcompeticionButton.setEnabled(bool);
-        this.eliminarcompeticionButton.setEnabled(bool);
+
+        if (rol.equals(RolUsuario.Gestor) || rol.equals(RolUsuario.Administrador) || !bool) {
+            this.modificarcompeticionButton.setEnabled(bool);
+            this.eliminarcompeticionButton.setEnabled(bool);
+            this.getGeneralTabPanel().getCrearPruebaButton().setEnabled(bool);
+            this.getGeneralTabPanel().getModificarPruebaButton().setEnabled(bool);
+            this.getGeneralTabPanel().getEliminarPruebaButton().setEnabled(bool);
+            this.getGeneralTabPanel().getLimpiarPruebaButton().setEnabled(bool);
+        }
+        if (rol.equals(RolUsuario.Invitado)){
+            this.crearcompeticionButton.setEnabled(false);
+        }
+    }
+
+    public void habilitarBotonesAdmin(Boolean bool) {
         this.admUsuariosButton.setEnabled(bool);
-        this.getGeneralTabPanel().getCrearPruebaButton().setEnabled(bool);
-        this.getGeneralTabPanel().getModificarPruebaButton().setEnabled(bool);
-        this.getGeneralTabPanel().getEliminarPruebaButton().setEnabled(bool);
-        this.getGeneralTabPanel().getLimpiarPruebaButton().setEnabled(bool);
     }
 
     @Override
@@ -476,5 +486,5 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         progressBar.setVisible(mostrar);
         progressBar.setIndeterminate(mostrar);
     }
-
+    
 }

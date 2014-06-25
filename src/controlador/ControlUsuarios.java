@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import modelo.Administrado;
+import modelo.Competicion;
 import modelo.Usuario;
 import vista.VistaUsuarios;
 
@@ -39,7 +40,7 @@ public class ControlUsuarios implements ActionListener {
         switch (command) {
             case VistaUsuarios.CREARUSUARIO:
                 try {
-                    Usuario usuario = crearUsuario(vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol(), vista.getCompeticionesConAccesoSeleccionadas());
+                    Usuario usuario = crearUsuario(vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol(), vista.getCompeticionesConAcceso());
                     // Actualizamos la vista
                     vista.limpiarFormularioUsuario();
                     vista.añadirUsuarioATabla(new Object[]{
@@ -91,19 +92,25 @@ public class ControlUsuarios implements ActionListener {
                 break;
             case VistaUsuarios.INCLUIRCOMPETICION:
                 List<String> competiciones = vista.getCompeticionesSeleccionadas();
-                if (vista.getUsuarioSeleccionado() != -1) {
-                    for (String s : competiciones) {
-                        vista.añadirCompeticionConAcceso(s);
-                        vista.eliminarCompeticion(s);
+                for (String s : competiciones) {
+                    vista.añadirCompeticionConAcceso(s);
+                    vista.eliminarCompeticion(s);
+                    if (vista.getUsuarioSeleccionado() != -1) {
+                        darAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
                     }
                 }
                 break;
             case VistaUsuarios.EXCLUIRCOMPETICION:
                 List<String> comp = vista.getCompeticionesConAccesoSeleccionadas();
-                if (vista.getUsuarioSeleccionado() != -1) {
-                    for (String s : comp) {
-                        vista.añadirCompeticion(s);
-                        vista.eliminarCompeticionConAcceso(s);
+                for (String s : comp) {
+                    vista.añadirCompeticion(s);
+                    vista.eliminarCompeticionConAcceso(s);
+                    if (vista.getUsuarioSeleccionado() != -1) {
+                        try {
+                            quitarAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
+                        } catch (InputException ex) {
+                            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+                        }
                     }
                 }
                 break;
@@ -121,7 +128,7 @@ public class ControlUsuarios implements ActionListener {
      * @return Usuario
      * @throws InputException
      */
-    public static Usuario crearUsuario(String nick, String password, RolUsuario rol, List<String> competicionesConAcceso) throws InputException {
+    public static Usuario crearUsuario(String nick, String password, RolUsuario rol, List<Object> competicionesConAcceso) throws InputException {
         Usuario usuario = null;
 
         if (nick != null && nick.length() > 0 && password != null && password.length() > 0) {
@@ -136,20 +143,20 @@ public class ControlUsuarios implements ActionListener {
                 usuario.setNick(nick);
                 usuario.setPassword(password);
                 usuario.setRol(rol.ordinal());
-
+                usuariojpa.create(usuario);
+                
                 //Le damos permiso al usuario en las competiciones
                 if (competicionesConAcceso != null) {
+                    
                     AdministradoJpa administradoJpa = new AdministradoJpa();
                     CompeticionJpa competicionJpa = new CompeticionJpa();
-                    for (String competicionString : competicionesConAcceso) {
+                    for (Object competicionString : competicionesConAcceso) {
                         Administrado administrado = new Administrado();
-                        administrado.setCompeticionId(competicionJpa.findCompeticionByName(competicionString));
+                        administrado.setCompeticionId(competicionJpa.findCompeticionByName(competicionString.toString()));
                         administrado.setUsuarioId(usuario);
                         administradoJpa.create(administrado);
                     }
                 }
-
-                usuariojpa.create(usuario);
             } else {
                 throw new InputException("Nombre de usuario ocupado");
             }
@@ -210,9 +217,9 @@ public class ControlUsuarios implements ActionListener {
 
                     //Miramos a ver si es el único usuario con rol de admin
                     List<Usuario> usuarios = usuariojpa.findByRol(RolUsuario.Administrador);
-                    if (nuevoRol==null || (RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1) && !nuevoRol.equals(RolUsuario.Administrador))) {
+                    if (nuevoRol == null || (RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1) && !nuevoRol.equals(RolUsuario.Administrador))) {
                         throw new InputException("No se puede eliminar el último administrador del sistema");
-                    }else{
+                    } else {
                         usuario.setRol(nuevoRol.ordinal());
                     }
                     try {
@@ -227,6 +234,50 @@ public class ControlUsuarios implements ActionListener {
             }
         } else {
             throw new InputException("No se ha seleccionado un usuario válido");
+        }
+    }
+
+    /**
+     * Da permiso para administrar/ver una competición determinada a un usuario
+     *
+     * @param usuariodId Identificador del usuario
+     * @param nombreCompeticion Nombre de la competicion
+     */
+    private void darAccesoACompeticion(Integer usuariodId, String nombreCompeticion) {
+        AdministradoJpa administradoJpa = new AdministradoJpa();
+        Administrado administrado = new Administrado();
+
+        UsuarioJpa usuarioJpa = new UsuarioJpa();
+        Usuario usuario = usuarioJpa.findUsuario(usuariodId);
+
+        CompeticionJpa competicionJpa = new CompeticionJpa();
+        Competicion competicion = competicionJpa.findCompeticionByName(nombreCompeticion);
+
+        if (usuario != null && competicion != null) {
+            administrado.setUsuarioId(usuario);
+            administrado.setCompeticionId(competicion);
+            administradoJpa.create(administrado);
+        }
+    }
+
+    /**
+     * Elimina el permiso para administrar/ver una competición determinada a un
+     * usuario
+     *
+     * @param usuariodId Identificador del usuario
+     * @param nombreCompeticion Nombre de la competicion
+     */
+    private void quitarAccesoACompeticion(Integer usuarioId, String nombreCompeticion) throws InputException {
+        AdministradoJpa administradoJpa = new AdministradoJpa();
+
+        Administrado administrado = administradoJpa.findByCompeticionAndUsuario(usuarioId, nombreCompeticion);
+
+        if (administrado != null) {
+            try {
+                administradoJpa.destroy(administrado.getId());
+            } catch (NonexistentEntityException ex) {
+                throw new InputException("No se puede quitar el acceso a esa competición");
+            }
         }
     }
 

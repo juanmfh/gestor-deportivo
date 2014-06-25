@@ -59,6 +59,12 @@ public interface VistaUsuarios {
      */
     public List<String> getCompeticionesConAccesoSeleccionadas();
     
+    /**Devuelve la lista con el nombre de las competiciones de la segunda lista
+     * 
+     * @return List<String>
+     */
+    public List<Object> getCompeticionesConAcceso();
+    
     /**Añade a la lista de competiciones el nombre pasado como parámetro
      * 
      * @param nombreCompeticion 

@@ -90,8 +90,8 @@ public class ControlPrincipal implements ActionListener {
     public ParticipantesTab getParticipantesTabPanel() {
         return participantesTabPanel;
     }
-    
-    public UsuariosTab getUsuariosTabPanel(){
+
+    public UsuariosTab getUsuariosTabPanel() {
         return usuariosTabPanel;
     }
 
@@ -135,18 +135,24 @@ public class ControlPrincipal implements ActionListener {
         this.vista = vista;
     }
 
-    /**
-     * Devuelve una lista con el nombre de todas las competiciones
-     *
-     * @return List<String>
+    /**Carga la lista de competiciones en la interfaz principal según las competiciones
+     * a las que tiene acceso un usuario, si es admin a todas.
+     * 
+     * @param usuario Usuario 
      */
-    public static List<String> getCompeticiones() {
-        List<String> res;
-        CompeticionJpa compjpa = new CompeticionJpa();
-        res = compjpa.findAllCompeticionNames();
-        return res;
-    }
+    public void cargarListaCompeticiones(Usuario usuario) {
+        List<String> competiciones;
+        if (RolUsuario.values()[usuario.getRol()].equals(RolUsuario.Administrador)) {
+            CompeticionJpa competicionjpa = new CompeticionJpa();
+            competiciones = competicionjpa.findAllCompeticionNames();
+        } else {
+            AdministradoJpa administradojpa = new AdministradoJpa();
+            competiciones = administradojpa.findCompeticionesByUser(usuario.getId());
 
+        }
+        vista.cargarListaCompeticiones(competiciones);
+    }
+    
     /**
      * Devuelve un objeto Competicion a partir del nombre de la competicion
      *
@@ -642,16 +648,16 @@ public class ControlPrincipal implements ActionListener {
                                 p.getEquipoId() != null
                                 ? p.getEquipoId().getNombre()
                                 : "Ninguno",
-                            p.getPruebaasignada()!=null?p.getPruebaasignada().getNombre():""});
+                                p.getPruebaasignada() != null ? p.getPruebaasignada().getNombre() : ""});
                 }
             }
         }
     }
-    
+
     /**
      * Carga en el tab de Adm. de Usuarios la tabla de usuarios
      */
-    public void cargarTablaUsuarios(){
+    public void cargarTablaUsuarios() {
         UsuarioJpa usuariojpa = new UsuarioJpa();
         List<Usuario> usuarios = usuariojpa.findUsuarioEntities();
         // Limpiamos la tabla
@@ -659,23 +665,23 @@ public class ControlPrincipal implements ActionListener {
         for (int i = 0; i < count; i++) {
             usuariosTabPanel.getModeloUsuariosTable().removeRow(0);
         }
-        
-        if(usuarios!=null){
-            for(Usuario u: usuarios){
+
+        if (usuarios != null) {
+            for (Usuario u : usuarios) {
                 usuariosTabPanel.getModeloUsuariosTable().addRow(new Object[]{
-                            u.getId(),
-                            u.getNick(),
-                            RolUsuario.values()[u.getRol()]});
+                    u.getId(),
+                    u.getNick(),
+                    RolUsuario.values()[u.getRol()]});
             }
         }
     }
-    
-    public void cargarListaCompeticionesTabUsuarios(){
+
+    public void cargarListaCompeticionesTabUsuarios() {
         CompeticionJpa competicionjpa = new CompeticionJpa();
         List<String> competiciones = competicionjpa.findAllCompeticionNames();
         usuariosTabPanel.eliminarTodasCompeticiones();
-        if(competiciones!=null){
-            for(String s: competiciones){
+        if (competiciones != null) {
+            for (String s : competiciones) {
                 usuariosTabPanel.añadirCompeticion(s);
             }
         }
@@ -766,7 +772,7 @@ public class ControlPrincipal implements ActionListener {
                                         vista.getTabbedPane().indexOfTab("Registros"));
                                 registrosTabPanel = null;
                             }
-                            if (usuariosTabPanel != null){
+                            if (usuariosTabPanel != null) {
                                 vista.getTabbedPane().removeTabAt(
                                         vista.getTabbedPane().indexOfTab("Usuarios"));
                                 usuariosTabPanel = null;
@@ -856,16 +862,14 @@ public class ControlPrincipal implements ActionListener {
                 });
                 break;
             case VistaPrincipal.ABRIRUSUARIOS:
-                if(seleccionada != null){
-                    if (usuariosTabPanel == null) {
-                        usuariosTabPanel = new UsuariosTab();
-                        controlUsuarios = new ControlUsuarios(usuariosTabPanel);
-                        usuariosTabPanel.controlador(controlUsuarios);
-                        vista.getTabbedPane().addTab("Usuarios", usuariosTabPanel);
-                    }
-                    vista.getTabbedPane().setSelectedIndex(
-                            vista.getTabbedPane().indexOfTab("Usuarios"));
+                if (usuariosTabPanel == null) {
+                    usuariosTabPanel = new UsuariosTab();
+                    controlUsuarios = new ControlUsuarios(usuariosTabPanel);
+                    usuariosTabPanel.controlador(controlUsuarios);
+                    vista.getTabbedPane().addTab("Usuarios", usuariosTabPanel);
                 }
+                vista.getTabbedPane().setSelectedIndex(
+                        vista.getTabbedPane().indexOfTab("Usuarios"));
                 break;
         }
     }

@@ -2,6 +2,7 @@
 package vista;
 
 import controlador.Coordinador;
+import controlador.RolUsuario;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -52,7 +53,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     private JComboBox equipoComboBox;
     private DefaultComboBoxModel modelGrupoComboBox;
     private final DefaultComboBoxModel modelEquipoComboBox;
-    private final JButton añadirParticipanteButton;
+    private final JButton crearParticipanteButton;
     private final JButton modificarParticipanteButton;
     private final JButton eliminarParticipanteButotn;
     private final JTable participantesTable;
@@ -265,7 +266,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         this.add(formularioParticipantePanel, constraints);
         constraints.insets = new Insets(0, 0, 0, 0);
 
-        añadirParticipanteButton = new JButton("Crear");
+        crearParticipanteButton = new JButton("Crear");
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.gridwidth = 1;
@@ -273,7 +274,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0, 20, 0, 0);
-        this.add(añadirParticipanteButton, constraints);
+        this.add(crearParticipanteButton, constraints);
 
         modificarParticipanteButton = new JButton("Modificar");
         constraints.gridx = 1;
@@ -360,6 +361,8 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
                 }
             }
         });
+        
+        this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
 
@@ -397,12 +400,12 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
 
     @Override
     public void controlador(ActionListener al) {
-        añadirParticipanteButton.addActionListener(al);
+        crearParticipanteButton.addActionListener(al);
         modificarParticipanteButton.addActionListener(al);
         eliminarParticipanteButotn.addActionListener(al);
         limpiarButton.addActionListener(al);
         importarButton.addActionListener(al);
-        añadirParticipanteButton.setActionCommand(CREARPARTICIPANTE);
+        crearParticipanteButton.setActionCommand(CREARPARTICIPANTE);
         modificarParticipanteButton.setActionCommand(MODIFICARPARTICIPANTE);
         eliminarParticipanteButotn.setActionCommand(ELIMINARPARTICIPANTE);
         limpiarButton.setActionCommand(LIMPIARPARTICIPANTE);
@@ -570,6 +573,17 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
             sexoButtonGroup.clearSelection();
         }
 
+    }
+    
+     private void habilitarBotones(RolUsuario rol){
+        
+        if(rol.equals(RolUsuario.Invitado)){
+            crearParticipanteButton.setEnabled(false);
+            modificarParticipanteButton.setEnabled(false);
+            eliminarParticipanteButotn.setEnabled(false);
+            limpiarButton.setEnabled(false);
+        }
+        
     }
 
 }

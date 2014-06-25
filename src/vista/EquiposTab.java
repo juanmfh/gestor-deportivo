@@ -2,6 +2,7 @@
 package vista;
 
 import controlador.Coordinador;
+import controlador.RolUsuario;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,7 +34,7 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
     private final JPanel formularioEquipoPanel;
     private final JLabel nombreEquipoLabel;
     private final JTextField nombreEquipoTextField;
-    private final JButton añadirEquipoButton;
+    private final JButton crearEquipoButton;
     private final JScrollPane tablaEquiposScrollPane;
     private final DefaultTableModel modeloEquiposTable;
     private final JTable equiposTable;
@@ -95,7 +96,7 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         this.add(formularioEquipoPanel, constraints);
         constraints.insets = new Insets(0,0,0,0);
         
-        añadirEquipoButton = new JButton("Crear");
+        crearEquipoButton = new JButton("Crear");
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.gridwidth = 1;
@@ -103,7 +104,7 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0,20,0,0);
-        this.add(añadirEquipoButton, constraints);
+        this.add(crearEquipoButton, constraints);
         
         modificarEquipoButton = new JButton("Modificar");
         constraints.gridx = 1;
@@ -179,6 +180,7 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
             }
         });
         
+        this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -201,8 +203,8 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
     // End of variables declaration//GEN-END:variables
     @Override
     public void controlador(ActionListener al) {
-        añadirEquipoButton.addActionListener(al);
-        añadirEquipoButton.setActionCommand(VistaEquipos.AÑADIREQUIPO);
+        crearEquipoButton.addActionListener(al);
+        crearEquipoButton.setActionCommand(VistaEquipos.AÑADIREQUIPO);
         
         modificarEquipoButton.addActionListener(al);
         modificarEquipoButton.setActionCommand(VistaEquipos.MODIFICAREQUIPO);
@@ -273,5 +275,16 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
     
     public void setGrupoDelEquipo(String grupo){
         this.gruposComboBox.setSelectedItem(grupo);
+    }
+    
+    private void habilitarBotones(RolUsuario rol){
+        
+        if(rol.equals(RolUsuario.Invitado)){
+            crearEquipoButton.setEnabled(false);
+            modificarEquipoButton.setEnabled(false);
+            eliminarEquipoButton.setEnabled(false);
+            limpiarButton.setEnabled(false);
+        }
+        
     }
 }

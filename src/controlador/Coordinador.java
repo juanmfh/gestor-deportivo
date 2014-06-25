@@ -149,6 +149,10 @@ public class Coordinador {
         principal = new PanelPrincipal();
         controladorPrincipal = new ControlPrincipal(principal);
         principal.controlador(controladorPrincipal);
+        controladorPrincipal.cargarListaCompeticiones(usuario);
+        if(!(RolUsuario.values()[usuario.getRol()]).equals(RolUsuario.Administrador)){
+            principal.habilitarBotonesAdmin(false);
+        }
         jf.getContentPane().removeAll();
         jf.setContentPane((JPanel) principal);
         jf.revalidate();

@@ -251,4 +251,27 @@ public class AdministradoJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve un objeto Administrado a partir del identificador de un usuario
+     * y el nombre de una competicion
+     * 
+     * @param usuarioid             Identificador del usuario
+     * @param nombrecompeticion     Nombre de la competicion
+     * @return Administrado, null en otro caso
+     */
+    public Administrado findByCompeticionAndUsuario(Integer usuarioid,String nombrecompeticion) {
+        EntityManager em = getEntityManager();
+        Administrado res;
+        try {
+            Query q = em.createNamedQuery("Administrado.findByCompeticionAndUsuario");
+            q.setParameter("usuarioid", usuarioid);
+            q.setParameter("nombrecompeticion", nombrecompeticion);
+            res = (Administrado) q.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally{
+            em.close();
+        }
+        return res;
+    }
+    
 }
