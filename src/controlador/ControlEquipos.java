@@ -53,7 +53,9 @@ public class ControlEquipos implements ActionListener {
                 break;
             case VistaEquipos.MODIFICAREQUIPO:
                 try {
-                    equipo = modificarEquipo(vista.getEquipoSelected());
+                    equipo = modificarEquipo(vista.getEquipoSelected(),
+                            vista.getNombreEquipo(),
+                            vista.getGruposComboBox().getSelectedItem().toString());
                     //Actualizamos la vista
                     vista.añadirEquipoATabla(new Object[]{
                         equipo.getId(),
@@ -102,7 +104,7 @@ public class ControlEquipos implements ActionListener {
      *
      * @param nombre Nombre del equipo
      * @param nombreGrupo Nombre del grupo al que pertenece el equipo
-     * @return Equipo si se ha podido crear el equipo o null en otro caso
+     * @return Equipo si se ha podido crear el equipo
      * @throws controlador.InputException
      */
     public static Equipo crearEquipo(String nombre, String nombreGrupo) throws InputException {
@@ -156,17 +158,16 @@ public class ControlEquipos implements ActionListener {
      * asociados) del equipo cuyo id es equipoid
      *
      * @param equipoid Identificador del equipo a modificar
-     * @return Equipo si se ha modificado correctamente o null en otro caso
+     * @return Equipo si se ha modificado correctamente
      * @throws controlador.InputException
      */
-    private Equipo modificarEquipo(Integer equipoid) throws InputException {
+    private Equipo modificarEquipo(Integer equipoid,String nombreEquipo, String nombreGrupo) throws InputException {
 
-        // Comprobamos que se ha seleccionado un equipo 
-        //if (equipoid != -1) {
+        
         EquipoJpa equipojpa = new EquipoJpa();
 
         Equipo antiguo = equipojpa.findByNombreAndCompeticion(
-                vista.getNombreEquipo(),
+                nombreEquipo,
                 Coordinador.getInstance().getSeleccionada().getId());
 
         Equipo equipo = equipojpa.findEquipo(equipoid);
@@ -175,7 +176,7 @@ public class ControlEquipos implements ActionListener {
         if (equipo != null) {
             // Comprobamos que el nombre del equipo no existe o es suyo
             if (antiguo == null || antiguo.getId() == equipoid) {
-                equipo.setNombre(vista.getNombreEquipo());
+                equipo.setNombre(nombreEquipo);
                 try {
                     GrupoJpa grupojpa = new GrupoJpa();
 
@@ -183,7 +184,7 @@ public class ControlEquipos implements ActionListener {
                     if (equipo.getParticipanteCollection().isEmpty()) {
 
                         // Buscamos el grupo con el nombre obtenido en la vista
-                        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(vista.getGruposComboBox().getSelectedItem().toString(),
+                        Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
                                 Coordinador.getInstance().getSeleccionada().getId());
                         // Comprobamos que el grupo existe
                         if (g != null) {
