@@ -3,6 +3,7 @@ package main;
 import controlador.ControlPruebas;
 import controlador.ControlRegistros;
 import controlador.Coordinador;
+import controlador.InputException;
 import controlador.TipoPrueba;
 import controlador.TipoResultado;
 import java.awt.Color;
@@ -47,7 +48,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
     }
 
     @Override
-    protected Void doInBackground() {
+    protected Void doInBackground(){
         Workbook excel = null;
         try {
             excel = Workbook.getWorkbook(new File(ruta));
@@ -70,21 +71,23 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                             TipoPrueba tipoPrueba = TipoPrueba.valueOf(hoja.getCell(columna + 1, fila).getContents().toString());
                             TipoResultado tipoResultado = TipoResultado.valueOf(hoja.getCell(columna + 2, fila).getContents().toString());
 
-                            prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
-                            if (prueba == null) {
+                            PruebaJpa pruebajpa = new PruebaJpa();
+                            prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId());
+                            if (prueba == null){
+                                try {
+                                    prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
+                                } catch (InputException ex) {
+                                }
+                            }else {
                                 // Si la prueba ya existe, se modifica con el tipo adecuado
-                                PruebaJpa pruebajpa = new PruebaJpa();
-                                prueba = pruebajpa.findPruebaByNombreCompeticion(
-                                        nombrePrueba,
-                                        Coordinador.getInstance().getSeleccionada().getId());
                                 prueba.setTipo(tipoPrueba.toString());
                                 prueba.setTiporesultado(tipoResultado.toString());
                                 try {
                                     pruebajpa.edit(prueba);
                                 } catch (NonexistentEntityException ex) {
-                                    Logger.getLogger(ImportarRegistros.class.getName()).log(Level.SEVERE, null, ex);
+                                    
                                 } catch (Exception ex) {
-                                    Logger.getLogger(ImportarRegistros.class.getName()).log(Level.SEVERE, null, ex);
+                                    
                                 }
                             }
                         } catch (IllegalArgumentException iae) {
@@ -112,24 +115,32 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                             if (!data.isEmpty()) {
                                                 if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                     String tiempo = data.toString();
-                                                    ControlRegistros.crearRegistro(
-                                                            dorsal,
-                                                            prueba.getNombre(),
-                                                            null,
-                                                            false,
-                                                            ControlRegistros.getSegundos(tiempo),
-                                                            ControlRegistros.getMinutos(tiempo),
-                                                            ControlRegistros.getHoras(tiempo));
+                                                    try {
+                                                        ControlRegistros.crearRegistro(
+                                                                dorsal,
+                                                                prueba.getNombre(),
+                                                                null,
+                                                                false,
+                                                                ControlRegistros.getSegundos(tiempo),
+                                                                ControlRegistros.getMinutos(tiempo),
+                                                                ControlRegistros.getHoras(tiempo));
+                                                    } catch (InputException ex) {
+                                                        
+                                                    }
                                                 } else {
                                                     String marca = data.toString();
-                                                    ControlRegistros.crearRegistro(
-                                                            dorsal,
-                                                            prueba.getNombre(),
-                                                            null,
-                                                            false,
-                                                            Double.valueOf(marca),
-                                                            null,
-                                                            null);
+                                                    try {
+                                                        ControlRegistros.crearRegistro(
+                                                                dorsal,
+                                                                prueba.getNombre(),
+                                                                null,
+                                                                false,
+                                                                Double.valueOf(marca),
+                                                                null,
+                                                                null);
+                                                    } catch (InputException ex) {
+                                                        
+                                                    }
                                                 }
                                             }
                                             columna++;
@@ -159,24 +170,32 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                             if (!data.isEmpty()) {
                                                 if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                     String tiempo = data.toString();
-                                                    ControlRegistros.crearRegistro(
-                                                            null,
-                                                            prueba.getNombre(),
-                                                            nombreEquipo,
-                                                            false,
-                                                            ControlRegistros.getSegundos(tiempo),
-                                                            ControlRegistros.getMinutos(tiempo),
-                                                            ControlRegistros.getHoras(tiempo));
+                                                    try {
+                                                        ControlRegistros.crearRegistro(
+                                                                null,
+                                                                prueba.getNombre(),
+                                                                nombreEquipo,
+                                                                false,
+                                                                ControlRegistros.getSegundos(tiempo),
+                                                                ControlRegistros.getMinutos(tiempo),
+                                                                ControlRegistros.getHoras(tiempo));
+                                                    } catch (InputException ex) {
+                                                        
+                                                    }
                                                 } else {
                                                     String marca = data.toString();
-                                                    ControlRegistros.crearRegistro(
-                                                            null,
-                                                            prueba.getNombre(),
-                                                            nombreEquipo,
-                                                            false,
-                                                            Double.valueOf(marca),
-                                                            null,
-                                                            null);
+                                                    try {
+                                                        ControlRegistros.crearRegistro(
+                                                                null,
+                                                                prueba.getNombre(),
+                                                                nombreEquipo,
+                                                                false,
+                                                                Double.valueOf(marca),
+                                                                null,
+                                                                null);
+                                                    } catch (InputException ex) {
+                                                        
+                                                    }
                                                 }
                                             }
                                             columna++;

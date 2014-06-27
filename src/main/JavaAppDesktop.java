@@ -19,10 +19,6 @@ public class JavaAppDesktop {
         
         Coordinador c = Coordinador.getInstance();
 
-        /*RegistroJpa registroJpa = new RegistroJpa();
-        List<Double> marcas;
-        List<Registro> registros = registroJpa.temp(1,true);
-        System.out.println(registros);*/
     }
     
 }

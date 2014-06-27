@@ -4,6 +4,7 @@ import controlador.ControlEquipos;
 import controlador.ControlGrupos;
 import controlador.ControlPruebas;
 import controlador.Coordinador;
+import controlador.InputException;
 import controlador.TipoPrueba;
 import controlador.TipoResultado;
 import dao.EquipoJpa;
@@ -70,12 +71,19 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                 // Obtenemos el nombre de las pruebas
                 while (columna < numColumnas) {
                     data = hoja.getCell(columna, fila).getContents();
-                    nombresPruebas.add(data);
-                    prueba = pruebajpa.findPruebaByNombreCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                    // Se crea una nueva prueba, por defecto se crea de tipo individual y con un resultado numérico.
-                    // Esto se podrá modificar luego manualmente en el programa
-                    if (prueba == null) {
-                        ControlPruebas.crearPrueba(data, TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+
+                    if (data.length() > 0) {
+                        nombresPruebas.add(data);
+                        prueba = pruebajpa.findPruebaByNombreCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
+                        // Se crea una nueva prueba, por defecto se crea de tipo individual y con un resultado numérico.
+                        // Esto se podrá modificar luego manualmente en el programa
+                        if (prueba == null) {
+                            try {
+                                ControlPruebas.crearPrueba(data, TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+                            } catch (InputException ex) {
+
+                            }
+                        }
                     }
                     columna++;
                 }

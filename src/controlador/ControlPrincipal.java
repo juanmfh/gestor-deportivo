@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import main.PDFHelper;
 import modelo.Administrado;
 import modelo.Competicion;
 import modelo.Compuesta;
@@ -135,10 +134,11 @@ public class ControlPrincipal implements ActionListener {
         this.vista = vista;
     }
 
-    /**Carga la lista de competiciones en la interfaz principal según las competiciones
-     * a las que tiene acceso un usuario, si es admin a todas.
-     * 
-     * @param usuario Usuario 
+    /**
+     * Carga la lista de competiciones en la interfaz principal según las
+     * competiciones a las que tiene acceso un usuario, si es admin a todas.
+     *
+     * @param usuario Usuario
      */
     public void cargarListaCompeticiones(Usuario usuario) {
         List<String> competiciones;
@@ -152,7 +152,7 @@ public class ControlPrincipal implements ActionListener {
         }
         vista.cargarListaCompeticiones(competiciones);
     }
-    
+
     /**
      * Devuelve un objeto Competicion a partir del nombre de la competicion
      *
@@ -183,63 +183,67 @@ public class ControlPrincipal implements ActionListener {
      * resultados) dado su nombre
      *
      * @param nombreCompeticion Nombre de la competicion
-     * @return
+     * @throws controlador.InputException
      */
-    public boolean eliminarCompeticion(String nombreCompeticion) {
+    public void eliminarCompeticion(String nombreCompeticion) throws InputException {
 
         CompeticionJpa competicionjpa = new CompeticionJpa();
-        AdministradoJpa admjpa = new AdministradoJpa();
-        CompuestaJpa compuestajpa = new CompuestaJpa();
-        PruebaJpa pruebajpa = new PruebaJpa();
-        InscripcionJpa inscripcionjpa = new InscripcionJpa();
-        GrupoJpa grupojpa = new GrupoJpa();
-        RegistroJpa registrosjpa = new RegistroJpa();
-
-        // Obtenemos la competicion y la lista de todos sus componentes
-        // relacionados
+        // Obtenemos la competicion a partir de su nombre
         Competicion c = competicionjpa.findCompeticionByName(nombreCompeticion);
-        List<Compuesta> compuesta = compuestajpa.findCompuestaByCompeticion(c.getId());
-        List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
-        List<Grupo> grupos = grupojpa.findGruposByCompeticion(c);
-        List<Integer> gruposIds = new ArrayList<>();
-        List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(seleccionada.getId());
 
-        try {
-            for (Administrado temp : administra) {
-                admjpa.destroy(temp.getId());
-            }
-            for (Inscripcion insc : inscripciones) {
-                gruposIds.add(insc.getGrupoId().getId());
-                List<Registro> registros = registrosjpa.findByInscripcion(insc.getId());
-                if (registros != null) {
-                    // Eliminamos todos los registros
-                    for (Registro r : registros) {
-                        registrosjpa.destroy(r.getId());
+        // Se comprueba que la competición existe
+        if (c != null) {
+            CompuestaJpa compuestajpa = new CompuestaJpa();
+            List<Compuesta> compuesta = compuestajpa.findCompuestaByCompeticion(c.getId());
+            
+            AdministradoJpa admjpa = new AdministradoJpa();
+            List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
+            
+            InscripcionJpa inscripcionjpa = new InscripcionJpa();
+            List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(c.getId());
+
+            try {
+                for (Administrado temp : administra) {
+                    admjpa.destroy(temp.getId());
+                }
+                RegistroJpa registrosjpa = new RegistroJpa();
+                List<Integer> gruposIds = new ArrayList<>();
+                for (Inscripcion insc : inscripciones) {
+                    gruposIds.add(insc.getGrupoId().getId());
+                    List<Registro> registros = registrosjpa.findByInscripcion(insc.getId());
+                    if (registros != null) {
+                        // Eliminamos todos los registros
+                        for (Registro r : registros) {
+                            registrosjpa.destroy(r.getId());
+                        }
+                    }
+                    inscripcionjpa.destroy(insc.getId());
+                }
+
+                GrupoJpa grupojpa = new GrupoJpa();
+                for (Integer g : gruposIds) {
+                    Grupo grupo = grupojpa.findGrupo(g);
+                    if (grupo != null) {
+                        if (grupo.getInscripcionCollection().isEmpty()
+                                && grupo.getGrupoId() == null) {
+                            eliminarGrupo(grupo);
+                        }
                     }
                 }
-                inscripcionjpa.destroy(insc.getId());
-            }
-
-            for (Integer g : gruposIds) {
-                Grupo grupo = grupojpa.findGrupo(g);
-                if (grupo != null) {
-                    if (grupo.getInscripcionCollection().isEmpty()
-                            && grupo.getGrupoId() == null) {
-                        eliminarGrupo(grupo);
-                    }
+                PruebaJpa pruebajpa = new PruebaJpa();
+                for (Compuesta comp : compuesta) {
+                    compuestajpa.destroy(comp.getId());
+                    pruebajpa.destroy(comp.getPruebaId().getId());
                 }
-            }
 
-            for (Compuesta comp : compuesta) {
-                compuestajpa.destroy(comp.getId());
-                pruebajpa.destroy(comp.getPruebaId().getId());
+                competicionjpa.destroy(c.getId());
+            } catch (dao.exceptions.IllegalOrphanException | dao.exceptions.NonexistentEntityException e) {
+                throw new InputException("No se pudo eliminar algún dato de la competición seleccionada");
             }
-
-            competicionjpa.destroy(c.getId());
-        } catch (dao.exceptions.IllegalOrphanException | dao.exceptions.NonexistentEntityException e) {
-            Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, e);
+        } else {
+            throw new InputException("Competición no encontrada");
         }
-        return true;
+
     }
 
     /**
@@ -247,7 +251,7 @@ public class ControlPrincipal implements ActionListener {
      *
      * @param g Grupo a eliminar
      */
-    public void eliminarGrupo(Grupo g) {
+    public void eliminarGrupo(Grupo g) throws InputException {
         GrupoJpa grupojpa = new GrupoJpa();
         InscripcionJpa inscrjpa = new InscripcionJpa();
         RegistroJpa registrosjpa = new RegistroJpa();
@@ -275,8 +279,8 @@ public class ControlPrincipal implements ActionListener {
             eliminarParticipantes(g);
             // Eliminamos el grupo
             grupojpa.destroy(g.getId());
-        } catch (IllegalOrphanException | NonexistentEntityException ex) {
-
+        } catch (IllegalOrphanException | NonexistentEntityException | InputException ex) {
+            throw new InputException(ex.getMessage());
         }
     }
 
@@ -285,7 +289,7 @@ public class ControlPrincipal implements ActionListener {
      *
      * @param g Grupo al que pertenecen los participantes
      */
-    public void eliminarParticipantes(Grupo g) {
+    public void eliminarParticipantes(Grupo g) throws InputException {
 
         ParticipanteJpa participantejpa = new ParticipanteJpa();
 
@@ -306,8 +310,9 @@ public class ControlPrincipal implements ActionListener {
      * Elimina todos los equipos de un grupo g (No sus participantes)
      *
      * @param g Grupo al que pertenecen los equipos
+     * @throws controlador.InputException
      */
-    public void eliminarEquiposGrupo(Grupo g) {
+    public void eliminarEquiposGrupo(Grupo g) throws InputException {
 
         EquipoJpa equipojpa = new EquipoJpa();
 
@@ -319,7 +324,7 @@ public class ControlPrincipal implements ActionListener {
                 equipojpa.destroy(e.getId());
             }
         } catch (NonexistentEntityException ex) {
-            Logger.getLogger(ControlPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InputException("Equipo no encontrado");
         }
     }
 
@@ -744,8 +749,12 @@ public class ControlPrincipal implements ActionListener {
                 if (confirmDialog == JOptionPane.YES_OPTION) {
                     // Confirmación aceptada
                     if (vista.getCompeticionSelected() != null) {
-                        // Eliminamos la competición
-                        if (eliminarCompeticion(vista.getCompeticionSelected())) {
+                        try {
+                            // Eliminamos la competición
+                            eliminarCompeticion(vista.getCompeticionSelected());
+                        } catch (InputException ex) {
+                            Coordinador.getInstance().setEstadoLabel(ex.getMessage(),Color.RED);
+                        }
                             // Actualizamos la vista
                             vista.eliminarCompeticionSeleccionada();
                             vista.getTabbedPane().setSelectedIndex(0);
@@ -779,7 +788,6 @@ public class ControlPrincipal implements ActionListener {
                             }
                         }
                         Coordinador.getInstance().getControladorPrincipal().vista.limpiarDatosCompeticion();
-                    }
                 }
                 break;
 

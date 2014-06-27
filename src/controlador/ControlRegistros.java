@@ -51,9 +51,8 @@ public class ControlRegistros implements ActionListener {
                 try {
                     PruebaJpa pruebajpa = new PruebaJpa();
                     Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(vista.getPrueba(), Coordinador.getInstance().getSeleccionada().getId());
-                    Registro registro = null;
+                    Registro registro;
                     if (prueba != null) {
-
                         if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                             registro = crearRegistro(
                                     vista.getDorsalParticipante(),
@@ -73,30 +72,51 @@ public class ControlRegistros implements ActionListener {
                                     vista.getMinutos() == null ? null : Integer.parseInt(vista.getMinutos()),
                                     vista.getHoras() == null ? null : Integer.parseInt(vista.getHoras()));
                         }
-                    }
-                    if (registro != null) {
+                        //Actualizamos la vista
                         añadirRegistroAVista(registro);
-                        Coordinador.getInstance().setEstadoLabel(
-                                "Registro creado correctamente", Color.BLUE);
-                    } else {
-                        Coordinador.getInstance().setEstadoLabel(
-                                "Datos incorrectos", Color.RED);
+                        Coordinador.getInstance().setEstadoLabel("Registro creado correctamente", Color.BLUE);
+                    }else{
+                        Coordinador.getInstance().setEstadoLabel("Prueba no válida", Color.RED);
                     }
-
                 } catch (NumberFormatException e) {
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Datos incorrectos", Color.RED);
+                    Coordinador.getInstance().setEstadoLabel("Error en el formato numérico del registro", Color.RED);
+                } catch (InputException ex) {
+                    Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                 }
 
                 break;
             case VistaRegistros.MODIFICARREGISTRO:
-                if (modificarRegistro(vista.getRegistroSeleccionado())) {
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Registro modificado correctamente", Color.BLUE);
-                    vista.eliminarRegistroDeTabla();
+                Registro registro = null;
+                try {
+                    registro = modificarRegistro(vista.getRegistroSeleccionado());
+                } catch (InputException ex) {
+                    Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+                }
+                Coordinador.getInstance().setEstadoLabel(
+                        "Registro modificado correctamente", Color.BLUE);
+                vista.eliminarRegistroDeTabla();
+                // Actualizamos la vista
+                SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
+                if (registro.getEquipoId() != null) {
+                    vista.añadirRegistroATabla(new Object[]{registro.getId(), registro.getEquipoId().getId(),
+                        registro.getEquipoId().getNombre() + " (E)",
+                        registro.getPruebaId().getNombre()
+                        + (registro.getSorteo() == 1
+                        ? " (Sorteo)" : ""),
+                        registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                        ? dt.format(registro.getTiempo())
+                        : registro.getNum(), registro.getNumIntento()});
                 } else {
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Datos incorrectos", Color.RED);
+                    vista.añadirRegistroATabla(new Object[]{registro.getId(),
+                        registro.getParticipanteId().getDorsal(),
+                        registro.getParticipanteId().getApellidos()
+                        + ", " + registro.getParticipanteId().getNombre(),
+                        registro.getPruebaId().getNombre()
+                        + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
+                        registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                        ? dt.format(registro.getTiempo())
+                        : registro.getNum(),
+                        registro.getNumIntento()});
                 }
                 break;
             case VistaRegistros.ELIMINARREGISTRO:
@@ -106,14 +126,15 @@ public class ControlRegistros implements ActionListener {
                             "Aviso",
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialogRegistro == JOptionPane.YES_OPTION) {
-                        if (eliminarRegistro(vista.getRegistroSeleccionado())) {
-                            vista.eliminarRegistroDeTabla();
+                        try {
+                            eliminarRegistro(vista.getRegistroSeleccionado());
+                        } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(
-                                    "Registro eliminado correctamente", Color.BLUE);
-                        } else {
-                            Coordinador.getInstance().setEstadoLabel(
-                                    "Selecciona un registro de la tabla", Color.RED);
+                                    ex.getMessage(), Color.RED);
                         }
+                        vista.eliminarRegistroDeTabla();
+                        Coordinador.getInstance().setEstadoLabel(
+                                "Registro eliminado correctamente", Color.BLUE);
                     }
                 }
                 break;
@@ -129,13 +150,10 @@ public class ControlRegistros implements ActionListener {
                 fc.setDialogTitle("Abrir");
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
-
                     Coordinador.getInstance().setEstadoLabel("Importando registros ...", Color.BLACK);
                     Coordinador.getInstance().mostrarBarraProgreso(true);
-
                     ImportarRegistros imReg;
                     (imReg = new ImportarRegistros(fc.getSelectedFile().getPath())).execute();
-
                 }
                 break;
         }
@@ -153,11 +171,12 @@ public class ControlRegistros implements ActionListener {
      * es de tiempo
      * @param minutos Marca en minutos, si la prueba no es de tiempo null
      * @param horas Marca en horas, si la prueba no es de tiempo null
-     * @return Registro si ha sido creado correctamente, null en otro caso
+     * @return Registro si ha sido creado correctamente
+     * @throws controlador.InputException
      */
     public static Registro crearRegistro(Integer dorsal,
             String nombrePrueba, String nombreEquipo, Boolean sorteo,
-            Double segundos, Integer minutos, Integer horas) {
+            Double segundos, Integer minutos, Integer horas) throws InputException {
 
         Registro registro = null;
         RegistroJpa registrojpa = new RegistroJpa();
@@ -171,60 +190,68 @@ public class ControlRegistros implements ActionListener {
                 Coordinador.getInstance().getSeleccionada().getId());
 
         // Comprobamos que los parámetros son correctos
-        if (nombrePrueba != null
-                && !(dorsal == null && prueba.getTipo().equals(TipoPrueba.Individual.toString()))
-                && !(nombreEquipo == null && prueba.getTipo().equals(TipoPrueba.Equipo.toString()))) {
+        if (prueba != null) {
+            if (!(dorsal == null && prueba.getTipo().equals(TipoPrueba.Individual.toString()))) {
+                if (!(nombreEquipo == null && prueba.getTipo().equals(TipoPrueba.Equipo.toString()))) {
 
-            Participante participante;
-            Grupo g;
-            registro = new Registro();
-            Inscripcion i;
-            // Si se ha seleccionado un participante individual
-            if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                // Obtenemos el participante
-                participante = participantejpa.findByDorsalAndCompeticion(dorsal, Coordinador.getInstance().getSeleccionada().getId());
-                g = grupojpa.findByParticipanteCompeticion(Coordinador.getInstance().getSeleccionada().getId(), participante.getId());
-                registro.setParticipanteId(participante);
-                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                        Coordinador.getInstance().getSeleccionada().getId(), g.getId());
-                registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
-                        prueba.getId(), participante.getId()) + 1);
+                    Participante participante;
+                    Grupo g;
+                    registro = new Registro();
+                    Inscripcion i;
+                    // Si se ha seleccionado un participante individual
+                    if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
+                        // Obtenemos el participante
+                        participante = participantejpa.findByDorsalAndCompeticion(dorsal, Coordinador.getInstance().getSeleccionada().getId());
+                        g = grupojpa.findByParticipanteCompeticion(Coordinador.getInstance().getSeleccionada().getId(), participante.getId());
+                        registro.setParticipanteId(participante);
+                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
+                                Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                        registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
+                                prueba.getId(), participante.getId()) + 1);
+                    } else {
+                        // Obtenemosel equipo
+                        EquipoJpa equipojpa = new EquipoJpa();
+                        Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
+                                Coordinador.getInstance().getSeleccionada().getId());
+                        g = grupojpa.findByEquipoCompeticion(Coordinador.getInstance().getSeleccionada().getId(), equipo.getId());
+                        registro.setEquipoId(equipo);
+                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
+                                Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                        registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
+                                prueba.getId(), equipo.getId()) + 1);
+                    }
+
+                    // Establecemos los datos del registro comunes
+                    registro.setInscripcionId(i);
+                    registro.setPruebaId(prueba);
+                    registro.setSorteo(sorteo ? 1 : 0);
+
+                    // Comprueba que la prueba no es de tipo tiempo
+                    if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
+                            || prueba.getTiporesultado().equals(TipoResultado.Numerica.toString())) {
+                        if (segundos == null) {
+                            throw new InputException("Formato del registro no válido");
+                        }
+                        registro.setNum(segundos);
+                        // Si es de tipo Tiempo formateamos la hora, minutos y segundos    
+                    } else if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                        // Obtenemos un objeto Date a partir de los parámetros
+                        Date date = getTiempo(segundos, minutos, horas);
+                        if (date == null) {
+                            throw new InputException("Formato de tiempo no válido");
+                        }
+                        registro.setTiempo(date);
+                    }
+                    // Creamos el registro en la base de datos
+                    registrojpa.create(registro);
+                } else {
+                    throw new InputException("Equipo no válido");
+                }
             } else {
-                // Obtenemosel equipo
-                EquipoJpa equipojpa = new EquipoJpa();
-                Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
-                        Coordinador.getInstance().getSeleccionada().getId());
-                g = grupojpa.findByEquipoCompeticion(Coordinador.getInstance().getSeleccionada().getId(), equipo.getId());
-                registro.setEquipoId(equipo);
-                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                        Coordinador.getInstance().getSeleccionada().getId(), g.getId());
-                registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
-                        prueba.getId(), equipo.getId()) + 1);
+                throw new InputException("Participante no válido");
             }
-
-            // Establecemos los datos del registro comunes
-            registro.setInscripcionId(i);
-            registro.setPruebaId(prueba);
-            registro.setSorteo(sorteo ? 1 : 0);
-
-            // Comprueba que la prueba no es de tipo tiempo
-            if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
-                    || prueba.getTiporesultado().equals(TipoResultado.Numerica.toString())) {
-                if (segundos == null) {
-                    return null;
-                }
-                registro.setNum(segundos);
-                // Si es de tipo Tiempo formateamos la hora, minutos y segundos    
-            } else if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                // Obtenemos un objeto Date a partir de los parámetros
-                Date date = getTiempo(segundos, minutos, horas);
-                if (date == null) {
-                    return null;
-                }
-                registro.setTiempo(date);
-            }
-            // Creamos el registro en la base de datos
-            registrojpa.create(registro);
+        } else {
+            throw new InputException("Prueba no válida");
         }
         return registro;
     }
@@ -392,18 +419,16 @@ public class ControlRegistros implements ActionListener {
      * Elimina un registro cuyo id es "registroid"
      *
      * @param registroid Id del registro a eliminar
-     *
-     * @return true si se ha podido eliminar el registro
+     * @throws controlador.InputException
      */
-    public boolean eliminarRegistro(Integer registroid) {
+    public void eliminarRegistro(Integer registroid) throws InputException {
 
         RegistroJpa registrojpa = new RegistroJpa();
         try {
             registrojpa.destroy(registroid);
         } catch (NonexistentEntityException ex) {
-            return false;
+            throw new InputException("Registro no encontrado");
         }
-        return true;
     }
 
     /**
@@ -411,9 +436,10 @@ public class ControlRegistros implements ActionListener {
      *
      * @param registroid Id del registro que se va a modificar
      *
-     * @return true si se ha podido eliminar el registro
+     * @return el Registro modificado
+     * @throws controlador.InputException
      */
-    public boolean modificarRegistro(Integer registroid) {
+    public Registro modificarRegistro(Integer registroid) throws InputException {
 
         RegistroJpa registrojpa = new RegistroJpa();
 
@@ -425,88 +451,69 @@ public class ControlRegistros implements ActionListener {
             if (registro.getPruebaId().getTiporesultado().equals("Distancia")
                     || registro.getPruebaId().getTiporesultado().equals("Numérica")) {
                 if (vista.getSegundos().length() == 0) {
-                    return false;
+                    throw new InputException("Formato del registro no válido");
                 }
                 // Establecemos el nuevo registro
                 registro.setNum(Double.valueOf(vista.getSegundos()));
                 // Si es de tipo Tiempo formateamos la hora, minutos y segundos
             } else if (registro.getPruebaId().getTiporesultado().equals("Tiempo")) {
-                Date date = null;
-                try {
-                    String horas = vista.getHoras();
-                    if (horas.length() == 0) {
-                        horas = "00";
-                    } else if (horas.length() == 1) {
-                        horas = "0" + horas;
-                    }
-                    String minutos = vista.getMinutos();
-                    if (minutos.length() == 0) {
-                        minutos = "00";
-                    } else if (minutos.length() == 1) {
-                        minutos = "0" + minutos;
-                    }
-                    String segundos = vista.getSegundos();
-                    if (segundos.length() == 0) {
-                        segundos = "00.0";
-                    } else {
-                        segundos = Double.toString(Double.parseDouble(segundos));
-                        if (Double.parseDouble(segundos) > 59.999) {
-                            return false;
-                        }
-                        if (segundos.charAt(2) == '.') {
-                            String decimales = segundos.substring(2);
-                            //System.out.println(decimales);
+                Date date = getTiempo(Double.parseDouble(vista.getSegundos()), Integer.parseInt(vista.getMinutos()), Integer.parseInt(vista.getHoras()));
+                /*try {
+                 String horas = vista.getHoras();
+                 if (horas.length() == 0) {
+                 horas = "00";
+                 } else if (horas.length() == 1) {
+                 horas = "0" + horas;
+                 }
+                 String minutos = vista.getMinutos();
+                 if (minutos.length() == 0) {
+                 minutos = "00";
+                 } else if (minutos.length() == 1) {
+                 minutos = "0" + minutos;
+                 }
+                 String segundos = vista.getSegundos();
+                 if (segundos.length() == 0) {
+                 segundos = "00.0";
+                 } else {
+                 segundos = Double.toString(Double.parseDouble(segundos));
+                 if (Double.parseDouble(segundos) > 59.999) {
+                 return false;
+                 }
+                 if (segundos.charAt(2) == '.') {
+                 String decimales = segundos.substring(2);
+                 //System.out.println(decimales);
 
-                            for (int j = 2; j < decimales.length(); j++) {
-                                formatDate += "S";
-                            }
-                        }
-                    }
-                    date = new SimpleDateFormat(formatDate).parse(
-                            horas + ":" + minutos + ":" + segundos);
+                 for (int j = 2; j < decimales.length(); j++) {
+                 formatDate += "S";
+                 }
+                 }
+                 }
+                 date = new SimpleDateFormat(formatDate).parse(
+                 horas + ":" + minutos + ":" + segundos);
 
-                } catch (ParseException ex) {
-                    System.out.println("ParseException");
-                    return false;
-                } catch (NumberFormatException e) {
-                    return false;
+                 } catch (ParseException ex) {
+                 System.out.println("ParseException");
+                 return false;
+                 } catch (NumberFormatException e) {
+                 return false;
+                 }*/
+                if (date != null) {
+                    // Establecemos el tiempo formateado
+                    registro.setTiempo(date);
+                } else {
+                    throw new InputException("Formato de tiempo no válido");
                 }
-                // Establecemos el tiempo formateado
-                registro.setTiempo(date);
+
             }
             try {
                 // Guardamos los cambios en la base de datos
                 registrojpa.edit(registro);
             } catch (Exception ex) {
-                return false;
+                throw new InputException(ex.getMessage());
             }
-
-            // Actualizamos la vista
-            SimpleDateFormat dt = new SimpleDateFormat(formatDate);
-            if (registro.getEquipoId() != null) {
-                vista.añadirRegistroATabla(new Object[]{registro.getId(), registro.getEquipoId().getId(),
-                    registro.getEquipoId().getNombre() + " (E)",
-                    registro.getPruebaId().getNombre()
-                    + (registro.getSorteo() == 1
-                    ? " (Sorteo)" : ""),
-                    registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                    ? dt.format(registro.getTiempo())
-                    : registro.getNum(), registro.getNumIntento()});
-            } else {
-                vista.añadirRegistroATabla(new Object[]{registro.getId(),
-                    registro.getParticipanteId().getDorsal(),
-                    registro.getParticipanteId().getApellidos()
-                    + ", " + registro.getParticipanteId().getNombre(),
-                    registro.getPruebaId().getNombre()
-                    + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
-                    registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                    ? dt.format(registro.getTiempo())
-                    : registro.getNum(),
-                    registro.getNumIntento()});
-            }
-            return true;
+            return registro;
         }
-        return false;
+        throw new InputException("Registro no encontrado");
     }
 
     /**
@@ -535,51 +542,51 @@ public class ControlRegistros implements ActionListener {
             // Si se ha seleccionado todos los grupos
             if (grupo.equals("Todos")) {
                 if (p.getTipo().equals(TipoPrueba.Equipo.toString())) {
-                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                            registros = new ArrayList();
-                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempo(competicionSeleccionada, p.getId());
-                                for (Equipo e : equipos) {
-                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
-                                    if (registrosP != null) {
-                                        registros.add(registrosP.get(0));
-                                    }
-                                }
-                            }else{
-                                List<Equipo> equipos = registrojpa.findEquiposConRegistrosNum(competicionSeleccionada, p.getId());
-                                for (Equipo e : equipos) {
-                                    List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
-                                    if (registrosP != null) {
-                                        registros.add(registrosP.get(0));
-                                    }
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        registros = new ArrayList();
+                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosTiempo(competicionSeleccionada, p.getId());
+                            for (Equipo e : equipos) {
+                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
                                 }
                             }
-                        }else{
-                            registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
+                        } else {
+                            List<Equipo> equipos = registrojpa.findEquiposConRegistrosNum(competicionSeleccionada, p.getId());
+                            for (Equipo e : equipos) {
+                                List<Registro> registrosP = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
                         }
+                    } else {
+                        registros = registrojpa.findByCompeticionPruebaEquipo(competicionSeleccionada, p.getId());
+                    }
                 } else if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
-                        if (vista.mejoresMarcasCheckBoxIsSelected()) {
-                            registros = new ArrayList();
-                            if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempo(competicionSeleccionada, p.getId());
-                                for (Participante e : participantes) {
-                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
-                                    if (registrosP != null) {
-                                        registros.add(registrosP.get(0));
-                                    }
-                                }
-                            } else {
-                                List<Participante> participantes = registrojpa.findParticipantesConRegistrosNum(competicionSeleccionada, p.getId());
-                                for (Participante e : participantes) {
-                                    List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
-                                    if (registrosP != null) {
-                                        registros.add(registrosP.get(0));
-                                    }
+                    if (vista.mejoresMarcasCheckBoxIsSelected()) {
+                        registros = new ArrayList();
+                        if (p.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosTiempo(competicionSeleccionada, p.getId());
+                            for (Participante e : participantes) {
+                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByTiempo(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
                                 }
                             }
-                        }else{
-                            registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
+                        } else {
+                            List<Participante> participantes = registrojpa.findParticipantesConRegistrosNum(competicionSeleccionada, p.getId());
+                            for (Participante e : participantes) {
+                                List<Registro> registrosP = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNum(competicionSeleccionada, p.getId(), e.getId());
+                                if (registrosP != null) {
+                                    registros.add(registrosP.get(0));
+                                }
+                            }
                         }
+                    } else {
+                        registros = registrojpa.findByCompeticionPruebaIndividual(competicionSeleccionada, p.getId());
+                    }
                 }
             } else {
                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(grupo,

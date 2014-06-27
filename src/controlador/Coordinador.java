@@ -1,6 +1,5 @@
 package controlador;
 
-import dao.AccesoJpa;
 import dao.AdministradoJpa;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -42,7 +41,7 @@ public class Coordinador {
 
     private JFrame jf;
     private VistaLogin login;
-    private PanelPrincipal principal;
+    private PanelPrincipal panelPrincipal;
     private static Coordinador coordinador = new Coordinador();
     private ControlPrincipal controladorPrincipal;
     private ControlLogin controladorLogin;
@@ -78,7 +77,7 @@ public class Coordinador {
                     dbhelper.close();
                 }
             } catch (SQLException sqlException) {
-                ;
+                
             }
         }
 
@@ -117,11 +116,10 @@ public class Coordinador {
         } else {
             return null;
         }
-
     }
 
     public PanelPrincipal getPanelPrincipal() {
-        return principal;
+        return panelPrincipal;
     }
 
     public ControlPrincipal getControladorPrincipal() {
@@ -146,15 +144,15 @@ public class Coordinador {
      *
      */
     public void loginOK() {
-        principal = new PanelPrincipal();
-        controladorPrincipal = new ControlPrincipal(principal);
-        principal.controlador(controladorPrincipal);
+        panelPrincipal = new PanelPrincipal();
+        controladorPrincipal = new ControlPrincipal(panelPrincipal);
+        panelPrincipal.controlador(controladorPrincipal);
         controladorPrincipal.cargarListaCompeticiones(usuario);
         if(!(RolUsuario.values()[usuario.getRol()]).equals(RolUsuario.Administrador)){
-            principal.habilitarBotonesAdmin(false);
+            panelPrincipal.habilitarBotonesAdmin(false);
         }
         jf.getContentPane().removeAll();
-        jf.setContentPane((JPanel) principal);
+        jf.setContentPane((JPanel) panelPrincipal);
         jf.revalidate();
 
     }
@@ -167,7 +165,7 @@ public class Coordinador {
      */
     public void actualizarVistaCompeticionCreada(Competicion competicion) {
         controladorPrincipal.setSeleccionada(competicion);
-        principal.añadirCompeticion(competicion.getNombre());
+        panelPrincipal.añadirCompeticion(competicion.getNombre());
         controladorPrincipal.getVista().setFocusList(0);
         controladorPrincipal.getVista().setEstadoLabel(
                 "Competición creada correctamente", Color.BLUE);
@@ -180,8 +178,8 @@ public class Coordinador {
      * @param competicion
      */
     public void actualizarVistaCompeticionModificada(Competicion competicion) {
-        principal.eliminarCompeticionSeleccionada();
-        principal.añadirCompeticion(competicion.getNombre());
+        panelPrincipal.eliminarCompeticionSeleccionada();
+        panelPrincipal.añadirCompeticion(competicion.getNombre());
         controladorPrincipal.getVista().setFocusList(0);
         controladorPrincipal.getVista().setEstadoLabel(
                 "Competición modificada correctamente", Color.BLUE);
@@ -202,14 +200,14 @@ public class Coordinador {
 
             // Borramos todas las filas de la tabla
             limpiarTablaPruebas();
-            int count = principal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
+            int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
             for (int i = 0; i < count; i++) {
-                principal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
+                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
             }
 
             // Añadimos las nuevas filas a la tabla a partir de la lista de pruebas
             for (Prueba p : lista) {
-                principal.getGeneralTabPanel().getModeloPruebasTable().addRow(
+                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().addRow(
                         new Object[]{
                             p.getId(),
                             p.getNombre(),
@@ -223,9 +221,9 @@ public class Coordinador {
      * Elimina todas las filas de la tabla de pruebas
      */
     public void limpiarTablaPruebas() {
-        int count = principal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
+        int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
         for (int i = 0; i < count; i++) {
-            principal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
+            panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
         }
     }
 
@@ -238,24 +236,22 @@ public class Coordinador {
             controladorPrincipal.getRegistrosTabPanel().getModeloRegistrosTable().removeRow(0);
         }
     }
-
-    /**
-     * A partir del nombre de una prueba obtiene la prueba y comprueba si es de
-     * tipo tiempo
+    
+        /**
+     * Establece un mensaje en la parte inferior del programa
      *
-     * @param prueba Nombre de la prueba
-     * @return true si la prueba es de tipo Tiempo
+     * @param estado Mensaje que se mostrará
+     * @param color Color del mensaje
      */
-    public boolean pruebaDeTiempo(String prueba) {
-        PruebaJpa pruebajpa = new PruebaJpa();
-        Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
-                Coordinador.getInstance().getSeleccionada().getId());
-        if (p != null) {
-            return p.getTiporesultado().equals(TipoResultado.Tiempo.toString());
-        } else {
-            return false;
-        }
+    public void setEstadoLabel(String estado, Color color) {
+        controladorPrincipal.getVista().setEstadoLabel(estado, color);
     }
+
+    public void mostrarBarraProgreso(Boolean mostrar) {
+        controladorPrincipal.getVista().mostrarBarraProgreso(mostrar);
+    }
+
+    
 
     /**
      * Carga en el formulario de participantes los datos del participante cuyo
@@ -312,20 +308,6 @@ public class Coordinador {
     }
 
     /**
-     * Establece un mensaje en la parte inferior del programa
-     *
-     * @param estado Mensaje que se mostrará
-     * @param color Color del mensaje
-     */
-    public void setEstadoLabel(String estado, Color color) {
-        controladorPrincipal.getVista().setEstadoLabel(estado, color);
-    }
-
-    public void mostrarBarraProgreso(Boolean mostrar) {
-        controladorPrincipal.getVista().mostrarBarraProgreso(mostrar);
-    }
-
-    /**
      * Carga los datos de una prueba cuyo id es pruebaid en el formulario
      *
      * @param pruebaid Id de la prueba
@@ -379,36 +361,6 @@ public class Coordinador {
     }
 
     /**
-     * Devuelve el tipo de prueba dado el nombre de una prueba
-     *
-     * @param prueba Nombre de la prueba
-     * @return 0: Tiempo, 1: Distancia, 2:Num, -1 Error
-     */
-    public TipoResultado tipoResultado(String prueba) {
-        PruebaJpa pruebajpa = new PruebaJpa();
-        Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
-                Coordinador.getInstance().getSeleccionada().getId());
-        if (p == null) {
-            return null;
-        }
-        /*return p.getTipo().equals("Tiempo") ?
-         0 : (p.getTipo().equals("Distancia") ? 1 : 2);*/
-        return TipoResultado.valueOf(p.getTiporesultado());
-    }
-
-    public TipoPrueba tipoPrueba(String nombrePrueba) {
-        PruebaJpa pruebajpa = new PruebaJpa();
-        Prueba p = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba,
-                Coordinador.getInstance().getSeleccionada().getId());
-        if (p == null) {
-            return null;
-        }
-        /*return p.getTipo().equals("Tiempo") ?
-         0 : (p.getTipo().equals("Distancia") ? 1 : 2);*/
-        return TipoPrueba.valueOf(p.getTipo());
-    }
-
-    /**
      * Carga los datos de un registro cuyo id es "registroSeleccionado" en el
      * formulario
      *
@@ -446,6 +398,50 @@ public class Coordinador {
                 rt.setSegundos(registro.getNum().toString());
             }
 
+        }
+    }
+    
+    /**
+     * Devuelve el tipo de prueba dado el nombre de una prueba
+     *
+     * @param prueba Nombre de la prueba
+     * @return 0: Tiempo, 1: Distancia, 2:Num, -1 Error
+     */
+    public TipoResultado tipoResultado(String prueba) {
+        PruebaJpa pruebajpa = new PruebaJpa();
+        Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
+                Coordinador.getInstance().getSeleccionada().getId());
+        if (p == null) {
+            return null;
+        }
+        return TipoResultado.valueOf(p.getTiporesultado());
+    }
+
+    public TipoPrueba tipoPrueba(String nombrePrueba) {
+        PruebaJpa pruebajpa = new PruebaJpa();
+        Prueba p = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba,
+                Coordinador.getInstance().getSeleccionada().getId());
+        if (p == null) {
+            return null;
+        }
+        return TipoPrueba.valueOf(p.getTipo());
+    }
+    
+    /**
+     * A partir del nombre de una prueba obtiene la prueba y comprueba si es de
+     * tipo tiempo
+     *
+     * @param prueba Nombre de la prueba
+     * @return true si la prueba es de tipo Tiempo
+     */
+    public boolean pruebaDeTiempo(String prueba) {
+        PruebaJpa pruebajpa = new PruebaJpa();
+        Prueba p = pruebajpa.findPruebaByNombreCompeticion(prueba,
+                Coordinador.getInstance().getSeleccionada().getId());
+        if (p != null) {
+            return p.getTiporesultado().equals(TipoResultado.Tiempo.toString());
+        } else {
+            return false;
         }
     }
 }
