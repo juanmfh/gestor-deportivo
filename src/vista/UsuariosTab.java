@@ -143,6 +143,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
 
         modeloListaCompeticiones = new DefaultListModel();
         competicionesList = new JList();
+        competicionesList.setPrototypeCellValue("                                           ");
         listaCompeticionesScrollPane = new JScrollPane();
         competicionesList.setModel(modeloListaCompeticiones);
         listaCompeticionesScrollPane.setViewportView(competicionesList);
@@ -182,6 +183,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
 
         modeloListaCompeticionesConAcceso = new DefaultListModel();
         competicionesConAccesoList = new JList();
+        competicionesConAccesoList.setPrototypeCellValue("                                           ");
         listaCompeticionesConAccesoScrollPane = new JScrollPane();
         competicionesConAccesoList.setModel(modeloListaCompeticionesConAcceso);
         listaCompeticionesConAccesoScrollPane.setViewportView(competicionesConAccesoList);

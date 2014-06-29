@@ -879,6 +879,16 @@ public class ControlPrincipal implements ActionListener {
                 vista.getTabbedPane().setSelectedIndex(
                         vista.getTabbedPane().indexOfTab("Usuarios"));
                 break;
+            case VistaPrincipal.CERRARSESION:
+                // Mostramos un mensaje de confirmación
+                confirmDialog = JOptionPane.showConfirmDialog(null,
+                        "¿Está seguro de que desea cerrar sesión?",
+                        "Aviso",
+                        JOptionPane.YES_NO_OPTION);
+                if (confirmDialog == JOptionPane.YES_OPTION) {
+                    Coordinador.getInstance().inicializarLogin();
+                }
+                break;
         }
     }
 

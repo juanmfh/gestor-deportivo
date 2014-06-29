@@ -58,6 +58,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     private JButton imprimirButton;
     private JLabel listaCompeticionesLabel;
     private JProgressBar progressBar;
+    private JButton cerrarSesionButton;
 
     /**
      * Creates new form PanelPrincipal
@@ -72,8 +73,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         barraHerramientasPanel = new JPanel();
         barraHerramientasPanel.setLayout(new FlowLayout());
 
-        crearcompeticionButton = new JButton("Crear competición");
-        crearcompeticionButton = new JButton("Crear competición");
+        crearcompeticionButton = new JButton("Crear ");
         crearcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         crearcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         crearcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/añadircompeticion.png"));
@@ -123,7 +123,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         registrosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/registro.png"));
         barraHerramientasPanel.add(registrosButton);
 
-        imprimirButton = new JButton("Imprimir Resultados");
+        imprimirButton = new JButton("Imprimir resultados");
         imprimirButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         imprimirButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         imprimirButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/imprimirpdf.png"));
@@ -134,6 +134,12 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         admUsuariosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         admUsuariosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/adduser.png"));
         barraHerramientasPanel.add(admUsuariosButton);
+
+        cerrarSesionButton = new JButton("Cerrar sesión");
+        cerrarSesionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cerrarSesionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cerrarSesionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/cerrarsesion.png"));
+        barraHerramientasPanel.add(cerrarSesionButton);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -182,6 +188,8 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         listaScrollPane = new JScrollPane();
         listaCompeticiones = new JList();
         listaCompeticiones.setSelectionMode(SINGLE_SELECTION);
+        // Esto evita que la lista se redimensione a más pequeña
+        listaCompeticiones.setPrototypeCellValue("                    ");
         modeloListaCompeticiones = new DefaultListModel();
         //cargarListaCompeticiones();
         listaCompeticiones.setModel(modeloListaCompeticiones);
@@ -238,7 +246,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         progressBar.setValue(0);
         barraInferiorPanel.add(progressBar);
         progressBar.setVisible(false);
-        //progressBar.setIndeterminate(true);
+        progressBar.setIndeterminate(true);
 
         this.add(barraInferiorPanel, constraints);
         constraints.weightx = 0;
@@ -342,6 +350,9 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         admUsuariosButton.addActionListener(al);
         admUsuariosButton.setActionCommand(ABRIRUSUARIOS);
+
+        cerrarSesionButton.addActionListener(al);
+        cerrarSesionButton.setActionCommand(CERRARSESION);
     }
 
     public void cargarListaCompeticiones(List<String> competiciones) {
@@ -472,7 +483,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
             this.getGeneralTabPanel().getEliminarPruebaButton().setEnabled(bool);
             this.getGeneralTabPanel().getLimpiarPruebaButton().setEnabled(bool);
         }
-        if (rol.equals(RolUsuario.Invitado)){
+        if (rol.equals(RolUsuario.Invitado)) {
             this.crearcompeticionButton.setEnabled(false);
         }
     }
@@ -483,8 +494,16 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
     @Override
     public void mostrarBarraProgreso(Boolean mostrar) {
-        progressBar.setVisible(mostrar);
-        progressBar.setIndeterminate(mostrar);
+        if (mostrar) {
+                    progressBar = new JProgressBar(0, 100);
+                    progressBar.setValue(0);
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(true);
+        } else {
+            progressBar.setVisible(false);
+        }
+
+        //progressBar.setIndeterminate(mostrar);
     }
-    
+
 }

@@ -37,6 +37,8 @@ public interface VistaPrincipal {
     
     String IMPRIMIRPDF = "imprimirpdf";
     
+    String CERRARSESION = "cerrarsesion";
+    
     /**Asocia un listener controlador a elementos de la vista
      * 
      * @param al ActionListener 

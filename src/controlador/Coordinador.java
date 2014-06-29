@@ -77,15 +77,16 @@ public class Coordinador {
                     dbhelper.close();
                 }
             } catch (SQLException sqlException) {
-                
+
             }
         }
 
         SwingUtilities.invokeLater(new Runnable() {
-            
+
             @Override
             public void run() {
                 // Cargamos la pantalla de Login
+
                 jf = new JFrame("Aplicación para Gestión de Actividades Físicas y Deportivas");
                 login = new PanelLogin();
                 controladorLogin = new ControlLogin(login);
@@ -138,6 +139,17 @@ public class Coordinador {
         this.controladorLogin = controladorLogin;
     }
 
+    public void inicializarLogin() {
+        panelPrincipal = null;
+        controladorPrincipal = null;
+        jf.getContentPane().removeAll();
+        login = new PanelLogin();
+        controladorLogin = new ControlLogin(login);
+        login.controlador(controladorLogin);
+        jf.setContentPane((JPanel) login);
+        jf.revalidate();
+    }
+
     /**
      * Método llamado cuando el Login es correcto para cargar el programa
      * principal
@@ -148,7 +160,7 @@ public class Coordinador {
         controladorPrincipal = new ControlPrincipal(panelPrincipal);
         panelPrincipal.controlador(controladorPrincipal);
         controladorPrincipal.cargarListaCompeticiones(usuario);
-        if(!(RolUsuario.values()[usuario.getRol()]).equals(RolUsuario.Administrador)){
+        if (!(RolUsuario.values()[usuario.getRol()]).equals(RolUsuario.Administrador)) {
             panelPrincipal.habilitarBotonesAdmin(false);
         }
         jf.getContentPane().removeAll();
@@ -236,8 +248,8 @@ public class Coordinador {
             controladorPrincipal.getRegistrosTabPanel().getModeloRegistrosTable().removeRow(0);
         }
     }
-    
-        /**
+
+    /**
      * Establece un mensaje en la parte inferior del programa
      *
      * @param estado Mensaje que se mostrará
@@ -250,8 +262,6 @@ public class Coordinador {
     public void mostrarBarraProgreso(Boolean mostrar) {
         controladorPrincipal.getVista().mostrarBarraProgreso(mostrar);
     }
-
-    
 
     /**
      * Carga en el formulario de participantes los datos del participante cuyo
@@ -273,14 +283,14 @@ public class Coordinador {
             pt.setEquipoParticipante(participante.getEquipoId() != null
                     ? participante.getEquipoId().getNombre() : "Ninguno");
             pt.setSexoParticipante(participante.getSexo());
-            pt.setPruebaAsignadaParticipante(participante.getPruebaasignada() != null?
-                    participante.getPruebaasignada().getNombre():"Ninguna");
+            pt.setPruebaAsignadaParticipante(participante.getPruebaasignada() != null
+                    ? participante.getPruebaasignada().getNombre() : "Ninguna");
         }
     }
-    
+
     /**
-     * Carga en el formulario de usuarios con los datos del usuario cuyo
-     * id es usuarioid
+     * Carga en el formulario de usuarios con los datos del usuario cuyo id es
+     * usuarioid
      *
      * @param usuarioid Id del usuario a cargar
      */
@@ -288,18 +298,18 @@ public class Coordinador {
 
         UsuarioJpa usuariojpa = new UsuarioJpa();
         Usuario usuario = usuariojpa.findUsuario(usuarioid);
-        
+
         if (usuario != null) {
             UsuariosTab ut = controladorPrincipal.getUsuariosTabPanel();
             ut.setNombreUsuario(usuario.getNick());
             ut.setContraseñaUsuario(usuario.getPassword());
             ut.setRolUsuario(RolUsuario.values()[usuario.getRol()]);
-            
+
             controladorPrincipal.cargarListaCompeticionesTabUsuarios();
             AdministradoJpa administradoJpa = new AdministradoJpa();
             List<String> competicionesConAcceso = administradoJpa.findCompeticionesByUser(usuarioid);
-            if(competicionesConAcceso!=null){
-                for(String s: competicionesConAcceso){
+            if (competicionesConAcceso != null) {
+                for (String s : competicionesConAcceso) {
                     ut.eliminarCompeticion(s);
                     ut.añadirCompeticionConAcceso(s);
                 }
@@ -367,7 +377,7 @@ public class Coordinador {
      * @param registroId Id del registro
      */
     public void cargarFormularioRegistro(Integer registroId) {
-        
+
         // Buscamos el registro a partir de su id
         RegistroJpa registrojpa = new RegistroJpa();
         Registro registro = registrojpa.findRegistro(registroId);
@@ -400,7 +410,7 @@ public class Coordinador {
 
         }
     }
-    
+
     /**
      * Devuelve el tipo de prueba dado el nombre de una prueba
      *
@@ -426,7 +436,7 @@ public class Coordinador {
         }
         return TipoPrueba.valueOf(p.getTipo());
     }
-    
+
     /**
      * A partir del nombre de una prueba obtiene la prueba y comprueba si es de
      * tipo tiempo
