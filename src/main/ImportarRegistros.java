@@ -24,6 +24,7 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
+import java.util.concurrent.ExecutionException;
 import modelo.Participante;
 
 /**
@@ -40,15 +41,29 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
 
     @Override
     protected void done() {
-        RegistroJpa registrojpa = new RegistroJpa();
-        List<Registro> registros = registrojpa.findByCompeticion(Coordinador.getInstance().getSeleccionada().getId());
-        Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
-        Coordinador.getInstance().setEstadoLabel("Registros importardos", Color.BLUE);
-        Coordinador.getInstance().mostrarBarraProgreso(false);
+        try {
+            get();
+            Coordinador.getInstance().setEstadoLabel("Registros importardos", Color.BLUE);
+        } catch (InterruptedException | ExecutionException ex) {
+            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+        } finally {
+            RegistroJpa registrojpa = new RegistroJpa();
+            List<Registro> registros = registrojpa.findByCompeticion(Coordinador.getInstance().getSeleccionada().getId());
+            Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
+            Coordinador.getInstance().mostrarBarraProgreso(false);
+        }
+
     }
 
     @Override
-    protected Void doInBackground(){
+    protected void process(List chunks) {
+        Coordinador.getInstance().mostrarBarraProgreso(true);
+    }
+
+    @Override
+    protected Void doInBackground() throws InputException {
+
+        publish((Void) null);
         Workbook excel = null;
         try {
             excel = Workbook.getWorkbook(new File(ruta));
@@ -73,21 +88,21 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
 
                             PruebaJpa pruebajpa = new PruebaJpa();
                             prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId());
-                            if (prueba == null){
+                            if (prueba == null) {
                                 try {
                                     prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
                                 } catch (InputException ex) {
                                 }
-                            }else {
+                            } else {
                                 // Si la prueba ya existe, se modifica con el tipo adecuado
                                 prueba.setTipo(tipoPrueba.toString());
                                 prueba.setTiporesultado(tipoResultado.toString());
                                 try {
                                     pruebajpa.edit(prueba);
                                 } catch (NonexistentEntityException ex) {
-                                    
+
                                 } catch (Exception ex) {
-                                    
+
                                 }
                             }
                         } catch (IllegalArgumentException iae) {
@@ -125,7 +140,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 ControlRegistros.getMinutos(tiempo),
                                                                 ControlRegistros.getHoras(tiempo));
                                                     } catch (InputException ex) {
-                                                        
+
                                                     }
                                                 } else {
                                                     String marca = data.toString();
@@ -139,7 +154,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 null,
                                                                 null);
                                                     } catch (InputException ex) {
-                                                        
+
                                                     }
                                                 }
                                             }
@@ -180,7 +195,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 ControlRegistros.getMinutos(tiempo),
                                                                 ControlRegistros.getHoras(tiempo));
                                                     } catch (InputException ex) {
-                                                        
+
                                                     }
                                                 } else {
                                                     String marca = data.toString();
@@ -194,7 +209,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 null,
                                                                 null);
                                                     } catch (InputException ex) {
-                                                        
+
                                                     }
                                                 }
                                             }
@@ -214,17 +229,13 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                 }
             }
         } catch (IOException | BiffException ex) {
-            Logger.getLogger(IOFile.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InputException("Error al abrir el archivo. Formato no válido");
         } finally {
             if (excel != null) {
                 excel.close();
             }
         }
         return null;
-    }
-
-    public static void importarRegistrosDeExcel(String rutaFichero) {
-
     }
 
 }

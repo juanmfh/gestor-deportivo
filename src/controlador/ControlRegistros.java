@@ -151,7 +151,7 @@ public class ControlRegistros implements ActionListener {
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
                     Coordinador.getInstance().setEstadoLabel("Importando registros ...", Color.BLACK);
-                    Coordinador.getInstance().mostrarBarraProgreso(true);
+                    //Coordinador.getInstance().mostrarBarraProgreso(true);
                     ImportarRegistros imReg;
                     (imReg = new ImportarRegistros(fc.getSelectedFile().getPath())).execute();
                 }

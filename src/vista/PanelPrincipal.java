@@ -4,6 +4,7 @@ import controlador.ControlPrincipal;
 import controlador.Coordinador;
 import controlador.RolUsuario;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -143,21 +144,19 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.gridheight = 3;
-        constraints.weightx = 0;
+        constraints.gridheight = 1;
         constraints.gridwidth = 3;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         this.add(barraHerramientasPanel, constraints);
-        constraints.weightx = 0;
 
         // BOTON DE AÑADIR COMPETICION
-        constraints.gridx = 0;
+        /*constraints.gridx = 0;
         constraints.gridy = 3;
         constraints.gridwidth = 2;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.anchor = GridBagConstraints.WEST;*/
         //this.add(crearcompeticionButton, constraints);
 
         // BOTONES DE ELIMINAR Y MODIFCAR COMPETICION
@@ -173,11 +172,13 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
          constraints.fill = GridBagConstraints.HORIZONTAL;
          constraints.anchor = GridBagConstraints.WEST;
          this.add(modElimButtonPanel, constraints);*/
+        
+        
         listaCompeticionesLabel = new JLabel("Lista de competiciones");
         //listaCompeticionesLabel.setFont(new Font("TimesRoman", Font.BOLD, 14));
         constraints.gridx = 0;
-        constraints.gridy = 4;
-        constraints.gridwidth = 2;
+        constraints.gridy = 1;
+        constraints.gridwidth = 1;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.CENTER;
@@ -216,9 +217,9 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         listaScrollPane.setViewportView(listaCompeticiones);
 
         constraints.gridx = 0;
-        constraints.gridy = 5;
-        constraints.gridwidth = 2;
-        constraints.gridheight = 6;
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weighty = 1.0;
@@ -228,28 +229,42 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.insets = new Insets(0, 0, 0, 0);
 
         // BARRA INFERIOR
-        barraInferiorPanel = new JPanel(new FlowLayout());
-
+        //barraInferiorPanel = new JPanel(new FlowLayout());
+        barraInferiorPanel = new JPanel(new GridBagLayout());
+        //barraInferiorPanel.setBackground(Color.CYAN);
+        GridBagConstraints constraintsBarraInferior = new GridBagConstraints();
+        
         estadoEtiquetaLabel = new JLabel("Estado: ");
+        constraintsBarraInferior.gridx = 0;
+        constraintsBarraInferior.gridy = 0;
+        constraintsBarraInferior.gridheight = 1;
+        constraintsBarraInferior.gridwidth = 1;
+        constraintsBarraInferior.fill = GridBagConstraints.NONE;
+        constraintsBarraInferior.anchor = GridBagConstraints.WEST;
+        barraInferiorPanel.add(estadoEtiquetaLabel,constraintsBarraInferior);
+        
         estadoLabel = new JLabel();
-        constraints.gridx = 0;
-        constraints.gridy = 11;
-        constraints.gridheight = 3;
-        constraints.gridwidth = 8;
-        constraints.weightx = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        barraInferiorPanel.add(estadoEtiquetaLabel);
-        barraInferiorPanel.add(estadoLabel);
+        constraintsBarraInferior.gridx = 1;
+        barraInferiorPanel.add(estadoLabel,constraintsBarraInferior);
 
         progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
-        barraInferiorPanel.add(progressBar);
         progressBar.setVisible(false);
-        progressBar.setIndeterminate(true);
+        constraintsBarraInferior.gridx = 2;
+        constraintsBarraInferior.anchor = GridBagConstraints.EAST;
+        barraInferiorPanel.add(progressBar,constraintsBarraInferior);
 
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.gridheight = 1;
+        constraints.gridwidth = 3;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(5, 5, 5, 5);
         this.add(barraInferiorPanel, constraints);
         constraints.weightx = 0;
+        constraints.insets = new Insets(0, 0, 0, 0);
 
         // CONTENIDO PRINCIPAL
         tabbedPane = new JTabbedPane();
@@ -290,9 +305,10 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         });
         tabbedPane.addTab("General", generalTabPanel);
 
-        constraints.gridx = 2;
-        constraints.gridy = 3;
-        constraints.gridwidth = 6;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.gridwidth = 2;
+        constraints.gridheight = 2;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weighty = 1.0;
         this.add(tabbedPane, constraints);
@@ -493,17 +509,11 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     }
 
     @Override
-    public void mostrarBarraProgreso(Boolean mostrar) {
-        if (mostrar) {
-                    progressBar = new JProgressBar(0, 100);
-                    progressBar.setValue(0);
-                    progressBar.setVisible(true);
-                    progressBar.setIndeterminate(true);
-        } else {
-            progressBar.setVisible(false);
-        }
-
-        //progressBar.setIndeterminate(mostrar);
+    public void mostrarBarraProgreso(Boolean mostrar) {        
+       progressBar.setVisible(mostrar);
+       
+       progressBar.setIndeterminate(mostrar);
+       
     }
 
 }

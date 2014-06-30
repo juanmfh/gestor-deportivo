@@ -136,18 +136,6 @@ public class ControlParticipantes implements ActionListener {
                 if (res == JFileChooser.APPROVE_OPTION) {
 
                     Coordinador.getInstance().setEstadoLabel("Importando participantes ...", Color.BLACK);
-                    
-                    
-                    
-                    new Thread(new Runnable(){
-
-                        @Override
-                        public void run() {
-                            Coordinador.getInstance().mostrarBarraProgreso(true);
-                        }
-                    }).start();
-                    
-
                     ImportarParticipantes inPart;
                     (inPart = new ImportarParticipantes(fc.getSelectedFile().getPath())).execute();
 

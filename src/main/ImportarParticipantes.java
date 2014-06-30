@@ -21,6 +21,7 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.WorkbookSettings;
@@ -40,14 +41,30 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
         ruta = rutaFichero;
     }
 
+    @Override
     protected void done() {
-        Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
-        Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
-        Coordinador.getInstance().mostrarBarraProgreso(false);
+        try {
+            get();
+            Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
+            
+        } catch (InterruptedException | ExecutionException ex) {
+            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+        }finally{
+            Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
+            Coordinador.getInstance().mostrarBarraProgreso(false);
+        }
+
     }
 
     @Override
-    protected Void doInBackground() {
+    protected void process(List chunks) {
+        Coordinador.getInstance().mostrarBarraProgreso(true);
+    }
+
+    @Override
+    protected Void doInBackground() throws InputException {
+
+        publish((Void) null);
         Workbook excel = null;
         WorkbookSettings ws = new WorkbookSettings();
         ws.setEncoding("CP1250");
@@ -156,9 +173,9 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             participantejpa.edit(participante);
                         }
                     } catch (RuntimeException ex) {
-                        Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new InputException(ex.getMessage());
                     } catch (Exception ex) {
-                        Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new InputException(ex.getMessage());
                     } finally {
                         columna = 1;
                         fila++;
@@ -168,7 +185,11 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
             }
 
         } catch (IOException | BiffException ex) {
-            Logger.getLogger(ImportarParticipantes.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InputException("Error al abrir el archivo. Formato no válido");
+        } finally {
+            if (excel != null) {
+                excel.close();
+            }
         }
         return null;
     }
