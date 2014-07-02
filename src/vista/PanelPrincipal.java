@@ -1,10 +1,8 @@
 package vista;
 
-import controlador.ControlPrincipal;
 import controlador.Coordinador;
 import controlador.RolUsuario;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,7 +38,6 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
     private JButton crearcompeticionButton;
     private JButton modificarcompeticionButton;
     private JButton eliminarcompeticionButton;
-    private JPanel modElimButtonPanel;
     private JPanel barraHerramientasPanel;
     private JPanel barraInferiorPanel;
     private JTabbedPane tabbedPane;
@@ -149,33 +146,8 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         this.add(barraHerramientasPanel, constraints);
-
-        // BOTON DE AÑADIR COMPETICION
-        /*constraints.gridx = 0;
-        constraints.gridy = 3;
-        constraints.gridwidth = 2;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.WEST;*/
-        //this.add(crearcompeticionButton, constraints);
-
-        // BOTONES DE ELIMINAR Y MODIFCAR COMPETICION
-        modElimButtonPanel = new JPanel(new GridLayout(1, 2));
-
-        /*modElimButtonPanel.add(modificarcompeticionButton);
-         modElimButtonPanel.add(eliminarcompeticionButton);
-
-         constraints.gridx = 0;
-         constraints.gridy = 4;
-         constraints.gridwidth = 2;
-         constraints.gridheight = 1;
-         constraints.fill = GridBagConstraints.HORIZONTAL;
-         constraints.anchor = GridBagConstraints.WEST;
-         this.add(modElimButtonPanel, constraints);*/
-        
         
         listaCompeticionesLabel = new JLabel("Lista de competiciones");
-        //listaCompeticionesLabel.setFont(new Font("TimesRoman", Font.BOLD, 14));
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.gridwidth = 1;
@@ -192,7 +164,6 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         // Esto evita que la lista se redimensione a más pequeña
         listaCompeticiones.setPrototypeCellValue("                    ");
         modeloListaCompeticiones = new DefaultListModel();
-        //cargarListaCompeticiones();
         listaCompeticiones.setModel(modeloListaCompeticiones);
         listaCompeticiones.addListSelectionListener((new ListSelectionListener() {
             @Override
@@ -229,9 +200,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         constraints.insets = new Insets(0, 0, 0, 0);
 
         // BARRA INFERIOR
-        //barraInferiorPanel = new JPanel(new FlowLayout());
         barraInferiorPanel = new JPanel(new GridBagLayout());
-        //barraInferiorPanel.setBackground(Color.CYAN);
         GridBagConstraints constraintsBarraInferior = new GridBagConstraints();
         
         estadoEtiquetaLabel = new JLabel("Estado: ");
@@ -277,21 +246,17 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                 int sele = tabbedPane.getSelectedIndex();
 
                 if (sele == tabbedPane.indexOfTab("Participantes")) {
-                    //System.out.println("Pestaña participantes seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().getParticipantesTabPanel().clearSelectionParticipante();
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
                     Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnParticipantes();
                 } else if (sele == tabbedPane.indexOfTab("Grupos")) {
-                    //System.out.println("Pestaña grupos seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaGrupos();
                 } else if (sele == tabbedPane.indexOfTab("Equipos")) {
-                    //System.out.println("Pestaña equipos seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarTablaEquipos();
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnEquipos();
                 } else if (sele == tabbedPane.indexOfTab("Registros")) {
-                    //System.out.println("Pestaña registros seleccionada");
                     Coordinador.getInstance().getControladorPrincipal().cargarGruposEnRegistros();
                     Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnRegistros();
                     Coordinador.getInstance().limpiarTablaRegistros();

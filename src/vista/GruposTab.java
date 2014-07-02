@@ -37,8 +37,8 @@ public class GruposTab extends javax.swing.JPanel implements VistaGrupos {
     private JButton modificarGrupoButton;
     private JButton eliminarGrupoButton;
     private ComboBoxModel subgrupoDeModel;
-    private JTable grupostable;
-    private DefaultTableModel modeloGruposTable;
+    private final JTable grupostable;
+    private final DefaultTableModel modeloGruposTable;
     private final JScrollPane gruposTableScrollPane;
     private JPanel formularioGrupoPanel;
     private JLabel listaGruposLabel;

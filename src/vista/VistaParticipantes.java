@@ -161,4 +161,15 @@ public interface VistaParticipantes {
      * @param prueba Nombre de la prueba 
      */
     public void setPruebaAsignadaParticipante(String prueba);
+    
+    /**
+     * Quita la seleccion de la tabla de participantes
+     */
+    public void clearSelectionParticipante();
+    
+    /**
+     * Devuelve el comboBox de grupos
+     * @return JComboBox
+     */
+    public JComboBox getGrupoComboBox();
 }

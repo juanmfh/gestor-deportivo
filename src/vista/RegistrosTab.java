@@ -79,9 +79,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JLabel filtrarPruebaLabel;
     private DefaultComboBoxModel modeloFiltroPruebas;
     private JComboBox filtroPruebaComboBox;
-    //private JLabel filtrarParticipanteLabel;
-    //private DefaultComboBoxModel modeloFiltroParticipantes;
-    //private JComboBox filtroParticipanteComboBox;
     private JButton aplicarFiltroButton;
     private JLabel listaRegistrosLabel;
     private JCheckBox soloMejoresMarcasCheckBox;
@@ -117,14 +114,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         constraintsFormulario.insets = new Insets(5, 5, 5, 5);
         formularioRegistroPanel.add(grupoLabel, constraintsFormulario);
 
-        /*equipoLabel = new JLabel("* Equipo:");
-         constraintsFormulario.gridx = 1;
-         constraintsFormulario.gridy = 0;
-         constraintsFormulario.gridwidth = 1;
-         constraintsFormulario.gridheight = 1;
-         constraintsFormulario.fill = GridBagConstraints.NONE;
-         constraintsFormulario.anchor = GridBagConstraints.WEST;
-         formularioRegistroPanel.add(equipoLabel, constraintsFormulario);*/
         sorteoLabel = new JLabel("* Prueba por sorteo:");
         constraintsFormulario.gridx = 1;
         constraintsFormulario.gridy = 0;
@@ -314,11 +303,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         modeloFiltroPruebas = new DefaultComboBoxModel();
         filtroPruebaComboBox = new JComboBox(modeloFiltroPruebas);
         filtrosPanel.add(filtroPruebaComboBox);
-        /*filtrarParticipanteLabel = new JLabel("Participantes:");
-        filtrosPanel.add(filtrarParticipanteLabel);
-        modeloFiltroParticipantes = new DefaultComboBoxModel(new String[]{"Todos", "Equipos", "Individuales"});
-        filtroParticipanteComboBox = new JComboBox(modeloFiltroParticipantes);
-        filtrosPanel.add(filtroParticipanteComboBox);*/
         soloMejoresMarcasCheckBox = new JCheckBox("Solo mejores marcas por participante");
         filtrosPanel.add(soloMejoresMarcasCheckBox);
         aplicarFiltroButton = new JButton("Aplicar");
@@ -374,7 +358,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
             public void actionPerformed(ActionEvent ae) {
                 if (getGrupoParticipante() != null
                         && pruebaComboBox.getSelectedIndex() != -1) {
-                    //Coordinador.getInstance().getControladorPrincipal().cargarEquipoEnRegistros(getGrupoParticipante());
                     Coordinador.getInstance().getControladorPrincipal().cargarParticipantesEnRegistros(getGrupoParticipante(),getPrueba(),participantesAsignadosCheckBoxIsSelected());
                 }
             }
@@ -517,7 +500,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     public void limpiarFormulario() {
 
         grupoComboBox.setSelectedIndex(-1);
-        //equipoComboBox.setSelectedIndex(-1);
         participanteComboBox.setSelectedIndex(-1);
         sorteoButtonGroup.clearSelection();
         pruebaComboBox.setSelectedIndex(-1);
@@ -525,7 +507,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         limpiarMarca();
     }
 
-    public void limpiarMarca() {
+    private void limpiarMarca() {
         horaTextField.setText("");
         minutosTextField.setText("");
         segundosTextField.setText("");
@@ -631,11 +613,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     public JComboBox getFiltroPruebasComboBox() {
         return filtroPruebaComboBox;
     }
-
-    /*@Override
-    public String getFiltroParticipante() {
-        return filtroParticipanteComboBox.getSelectedItem().toString();
-    }*/
 
     @Override
     public void setGrupoParticipante(String grupo) {

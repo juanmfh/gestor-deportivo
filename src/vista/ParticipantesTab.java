@@ -384,6 +384,8 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+    
+    @Override
     public JComboBox getGrupoComboBox() {
         return grupoComboBox;
     }
@@ -500,6 +502,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         }
     }
 
+    @Override
     public void clearSelectionParticipante() {
 
         participantesTable.clearSelection();

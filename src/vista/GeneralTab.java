@@ -57,7 +57,7 @@ public class GeneralTab extends javax.swing.JPanel {
     private JButton crearPruebaButton;
     private JButton modificarPruebaButton;
     private JButton eliminarPruebaButton;
-    private JTable pruebasTable;
+    private final JTable pruebasTable;
     private DefaultTableModel modeloPruebasTable;
     private JScrollPane pruebasTableScrollPane;
     private JLabel nombrePruebaLabel;
@@ -67,13 +67,7 @@ public class GeneralTab extends javax.swing.JPanel {
     private JPanel formularioAñadirPruebaPanel;
     private JLabel tipoResultadoLabel;
     private JComboBox tipoResultadoComboBox;
-    //private JLabel pruebaElegidaLabel;
-    //private JCheckBox pruebaElegidaCheckBox;
-    private JPanel formularioAñadirPruebaExistentePanel;
-    private JLabel añadirPruebaLabel;
     private JComboBox pruebasComboBox;
-    private DefaultComboBoxModel pruebasComboBoxModel;
-    private JButton añadirPruebaExistenteButton;
     private JButton limpiarPruebaButton;
     private JLabel listaPruebasLabel;
     private JLabel lugarLabel;
@@ -93,8 +87,6 @@ public class GeneralTab extends javax.swing.JPanel {
 
         GridBagConstraints constraintsComp = new GridBagConstraints();
         nombreCompeticionLabel = new JLabel("Nombre de la competición: ");
-        Font titulosFont = new Font("TimesRoman", Font.BOLD, 12);
-        //nombreCompeticionLabel.setFont(titulosFont);
         constraintsComp.insets = new Insets(10, 5, 5, 10);
         constraintsComp.gridx = 0;
         constraintsComp.gridy = 0;
@@ -106,7 +98,6 @@ public class GeneralTab extends javax.swing.JPanel {
         constraintsComp.gridx = 1;
         datosPanel.add(nombreCompeticion, constraintsComp);
         organizadorLabel = new JLabel("Organizador: ");
-        //organizadorLabel.setFont(titulosFont);
         constraintsComp.gridx = 0;
         constraintsComp.gridy = 1;
 
@@ -116,7 +107,6 @@ public class GeneralTab extends javax.swing.JPanel {
         datosPanel.add(organizador, constraintsComp);
 
         lugarLabel = new JLabel("Lugar: ");
-        //lugarLabel.setFont(titulosFont);
         constraintsComp.gridx = 0;
         constraintsComp.gridy = 2;
         datosPanel.add(lugarLabel, constraintsComp);
@@ -125,7 +115,6 @@ public class GeneralTab extends javax.swing.JPanel {
         datosPanel.add(lugar, constraintsComp);
 
         fechaInicioLabel = new JLabel("Fecha de Inicio: ");
-        //fechaInicioLabel.setFont(titulosFont);
         constraintsComp.gridx = 0;
         constraintsComp.gridy = 3;
         datosPanel.add(fechaInicioLabel, constraintsComp);
@@ -133,7 +122,6 @@ public class GeneralTab extends javax.swing.JPanel {
         constraintsComp.gridx = 1;
         datosPanel.add(fechaInicio, constraintsComp);
         fechaFinLabel = new JLabel("Fecha de Fin: ");
-        //fechaFinLabel.setFont(titulosFont);
         constraintsComp.gridx = 0;
         constraintsComp.gridy = 4;
         datosPanel.add(fechaFinLabel, constraintsComp);
@@ -202,16 +190,6 @@ public class GeneralTab extends javax.swing.JPanel {
 
         this.add(imagePanel, constraintsComp);
 
-        // AÑADIR PRUEBA EXISTENTE
-        /*formularioAñadirPruebaExistentePanel = new JPanel(new FlowLayout());
-         añadirPruebaLabel = new JLabel("Pruebas creadas anteriormente");
-         pruebasComboBox = new JComboBox();
-         añadirPruebaExistenteButton = new JButton("Añadir prueba existente");
-         formularioAñadirPruebaExistentePanel.add(añadirPruebaLabel);
-         formularioAñadirPruebaExistentePanel.add(pruebasComboBox);
-         pruebasComboBoxModel = new DefaultComboBoxModel();
-         pruebasComboBox.setModel(pruebasComboBoxModel);
-         formularioAñadirPruebaExistentePanel.add(añadirPruebaExistenteButton);*/
         botonesPanel = new JPanel(new FlowLayout());
 
         crearPruebaButton = new JButton("Crear");
@@ -249,7 +227,6 @@ public class GeneralTab extends javax.swing.JPanel {
         constraints.insets = new Insets(0, 0, 0, 0);
 
         pruebasTableScrollPane = new JScrollPane();
-        // pruebasTableScrollPane.setBorder(new EmptyBorder(20, 20, 20, 20) );
         modeloPruebasTable = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -329,10 +306,6 @@ public class GeneralTab extends javax.swing.JPanel {
         return eliminarPruebaButton;
     }
 
-    /*public JButton getModificarPruebaButton(){
-     return modificarPruebaButton;
-     }*/
-
     public JTextField getNombrePruebaTextField() {
         return nombrePruebaTextField;
     }
@@ -362,13 +335,6 @@ public class GeneralTab extends javax.swing.JPanel {
         this.tipoPruebaComboBox = tipoPruebaComboBox;
     }
 
-    /*public JCheckBox getPruebaElegidaCheckBox() {
-     return pruebaElegidaCheckBox;
-     }
-
-     public void setPruebaElegidaCheckBox(JCheckBox pruebaElegidaCheckBox) {
-     this.pruebaElegidaCheckBox = pruebaElegidaCheckBox;
-     }*/
     public JLabel getNombreCompeticion() {
         return nombreCompeticion;
     }
@@ -407,9 +373,6 @@ public class GeneralTab extends javax.swing.JPanel {
     }
 
     public Integer getPruebaSelected() {
-
-        //System.out.println("Fila seleccionada: " + pruebasTable.getSelectedRow());
-        //System.out.println("ID: " + modeloPruebasTable.getValueAt(pruebasTable.getSelectedRow(), 0));
         if (pruebasTable.getSelectedRow() != -1) {
             return (Integer) modeloPruebasTable.getValueAt(pruebasTable.getSelectedRow(), 0);
         } else {
