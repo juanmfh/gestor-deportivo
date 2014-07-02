@@ -9,8 +9,6 @@ import modelo.Inscripcion;
 import dao.GrupoJpa;
 import dao.InscripcionJpa;
 import dao.exceptions.NonexistentEntityException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import modelo.Competicion;
 import vista.GruposTab;
 import vista.VistaGrupos;

@@ -10,8 +10,6 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import jxl.Sheet;
 import jxl.Workbook;
@@ -34,6 +32,11 @@ import modelo.Participante;
 public class ImportarRegistros extends SwingWorker<Void, Void> {
 
     String ruta;
+    
+    private static final int PRIMERA_FILA = 2;
+    private static final int PRIMERA_COLUMNA_PRUEBA = 2;
+    private static final int PRIMERA_COLUMNA = 1;
+    private static final int NUM_PARAMPRUEBA = 2;
 
     public ImportarRegistros(String rutaFichero) {
         ruta = rutaFichero;
@@ -51,6 +54,8 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
             List<Registro> registros = registrojpa.findByCompeticion(Coordinador.getInstance().getSeleccionada().getId());
             Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
             Coordinador.getInstance().mostrarBarraProgreso(false);
+            Coordinador.getInstance().getControladorPrincipal().cargarGruposEnRegistros();
+            Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnRegistros();
         }
 
     }
@@ -63,28 +68,36 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws InputException {
 
+        // Actualiza la interfaz (muestra la barra de estado)
         publish((Void) null);
+        
         Workbook excel = null;
         try {
             excel = Workbook.getWorkbook(new File(ruta));
             String data;
             Prueba prueba = null;
+            // Por cada hoja del archivo excel...
             for (int numHoja = 0; numHoja < excel.getNumberOfSheets(); numHoja++) {
 
+                // Obtenemos el número de filas, columnas y la hoja.
                 Sheet hoja = excel.getSheet(numHoja);
+                // Si la hoja es la de Tipos se descarta (hoja donde se encuentran las listas de tipos de prueba)
                 if (!hoja.getName().equals("Tipos")) {
                     int numFilas = hoja.getRows();
                     int numColumnas = hoja.getColumns();
 
-                    int fila = 2;
-                    int columna = 2;
+                    // Se establecen los índices en las celdas iniciales de datos
+                    int fila = PRIMERA_FILA;
+                    int columna = PRIMERA_COLUMNA_PRUEBA;
 
                     // Obtenemos la prueba con sus parámetros y si no existe se crea
-                    if (columna + 2 <= numColumnas) {
+                    if (columna + NUM_PARAMPRUEBA <= numColumnas) {
                         try {
-                            String nombrePrueba = hoja.getCell(columna, fila).getContents().toString();
-                            TipoPrueba tipoPrueba = TipoPrueba.valueOf(hoja.getCell(columna + 1, fila).getContents().toString());
-                            TipoResultado tipoResultado = TipoResultado.valueOf(hoja.getCell(columna + 2, fila).getContents().toString());
+                            String nombrePrueba = hoja.getCell(fila, columna).getContents().toString();
+                            fila++;
+                            TipoPrueba tipoPrueba = TipoPrueba.valueOf(hoja.getCell(fila, columna).getContents().toString());
+                            fila++;
+                            TipoResultado tipoResultado = TipoResultado.valueOf(hoja.getCell(fila, columna).getContents().toString());
 
                             PruebaJpa pruebajpa = new PruebaJpa();
                             prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId());
@@ -92,27 +105,30 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                 try {
                                     prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
                                 } catch (InputException ex) {
+                                    throw new InputException(ex.getMessage());
                                 }
                             } else {
-                                // Si la prueba ya existe, se modifica con el tipo adecuado
+                                // Si la prueba ya existe, se modifica
                                 prueba.setTipo(tipoPrueba.toString());
                                 prueba.setTiporesultado(tipoResultado.toString());
                                 try {
                                     pruebajpa.edit(prueba);
                                 } catch (NonexistentEntityException ex) {
-
+                                    //throw new InputException("Prueba no encontrada");
                                 } catch (Exception ex) {
-
+                                    //throw new InputException(ex.getMessage());
                                 }
                             }
                         } catch (IllegalArgumentException iae) {
+                            //throw new InputException(iae.getMessage());
                         }
                     }
+                    // Si la prueba es válida...
                     if (prueba != null) {
-                        columna = 1;
-                        fila = 4;
+                        columna = PRIMERA_COLUMNA;
+                        
                         while (fila < numFilas) {
-                            // Si es una prueba individual
+                            // Si es una prueba individual..
                             if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                                 try {
                                     // Leemos el dorsal
@@ -121,13 +137,13 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                     ParticipanteJpa participanteJpa = new ParticipanteJpa();
                                     Participante participante = participanteJpa.findByDorsalAndCompeticion(dorsal,
                                             Coordinador.getInstance().getSeleccionada().getId());
-                                    // Si existe una persona con ese dorsal
+                                    // Si existe una persona con ese dorsal se crean los registros, sino se pasa al siguiente dorsal
                                     if (participante != null) {
                                         columna++;
-                                        while (columna < numColumnas) {
-                                            // Si la prueba es de tipo tiempo
+                                        while (columna < numColumnas) {                                            
                                             data = hoja.getCell(columna, fila).getContents();
                                             if (!data.isEmpty()) {
+                                                // Se comprueba el tipo de Prueba y se crea un registro con los datos correspondientes
                                                 if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                     String tiempo = data.toString();
                                                     try {
@@ -140,7 +156,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 ControlRegistros.getMinutos(tiempo),
                                                                 ControlRegistros.getHoras(tiempo));
                                                     } catch (InputException ex) {
-
+                                                        //throw new InputException(ex.getMessage());
                                                     }
                                                 } else {
                                                     String marca = data.toString();
@@ -154,17 +170,19 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                                 null,
                                                                 null);
                                                     } catch (InputException ex) {
-
+                                                        //throw new InputException(ex.getMessage());
                                                     }
                                                 }
                                             }
                                             columna++;
                                         }
-                                        columna = 1;
+                                    }else{
+                                        //throw new InputException("Dorsal no encontrado");
                                     }
                                 } catch (NumberFormatException nfe) {
-
+                                    //throw new InputException("Formato numérico no válido");
                                 } finally {
+                                    columna = PRIMERA_COLUMNA;
                                     fila++;
                                 }
                                 // Si es una prueba de equipos    
@@ -176,7 +194,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                     EquipoJpa equipoJpa = new EquipoJpa();
                                     Equipo equipo = equipoJpa.findByNombreAndCompeticion(nombreEquipo,
                                             Coordinador.getInstance().getSeleccionada().getId());
-                                    // Si existe una persona con ese dorsal
+                                    // Si existe un equipo con ese nombre se crean los registros 
                                     if (equipo != null) {
                                         columna++;
                                         while (columna < numColumnas) {
@@ -215,14 +233,15 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                             }
                                             columna++;
                                         }
-                                        columna = 1;
+                                    }else{
+                                        //throw new InputException("Equipo no encontrado");
                                     }
                                 } catch (NumberFormatException nfe) {
-
+                                    //throw new InputException("Formato numérico no válido");
                                 } finally {
                                     fila++;
+                                    columna = PRIMERA_COLUMNA;
                                 }
-
                             }
                         }
                     }

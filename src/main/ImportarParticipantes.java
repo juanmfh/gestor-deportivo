@@ -22,8 +22,6 @@ import dao.PruebaJpa;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jxl.WorkbookSettings;
 import modelo.Equipo;
 import modelo.Participante;
@@ -37,6 +35,10 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
 
     String ruta;
 
+    private static final int PRIMERA_FILA = 2;
+    private static final int PRIMERA_COLUMNA = 1;
+    private static final int PRIMERA_COLUMNA_PRUEBAS = PRIMERA_COLUMNA + 4;
+
     public ImportarParticipantes(String rutaFichero) {
         ruta = rutaFichero;
     }
@@ -46,12 +48,13 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
         try {
             get();
             Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
-            
+
         } catch (InterruptedException | ExecutionException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
-        }finally{
+        } finally {
             Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
             Coordinador.getInstance().mostrarBarraProgreso(false);
+            Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
         }
 
     }
@@ -64,38 +67,43 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws InputException {
 
+        // Actualiza la interfaz (muestra la barra de estado)
         publish((Void) null);
+
         Workbook excel = null;
         WorkbookSettings ws = new WorkbookSettings();
         ws.setEncoding("CP1250");
         try {
-            int dorsal = 1;
             excel = Workbook.getWorkbook(new File(ruta), ws);
 
             String data;
+            // Por cada hoja del archivo excel...
             for (int numHoja = 0; numHoja < excel.getNumberOfSheets(); numHoja++) {
 
+                // Obtenemos el número de filas, columnas y la hoja.
                 Sheet hoja = excel.getSheet(numHoja);
                 int numFilas = hoja.getRows();
                 int numColumnas = hoja.getColumns();
 
-                int fila = 2;
-                int columna = 5;
+                // Se establecen los índices en las celdas iniciales donde se encuentran los nombres de las pruebas
+                int fila = PRIMERA_FILA;
+                int columna = PRIMERA_COLUMNA_PRUEBAS;
 
                 List<String> nombresPruebas = new ArrayList();
                 PruebaJpa pruebajpa = new PruebaJpa();
                 Prueba prueba;
                 // Obtenemos el nombre de las pruebas
                 while (columna < numColumnas) {
+                    // Se obtiene el nombre de la prueba y se comprueba que no es vacío
                     data = hoja.getCell(columna, fila).getContents();
-
                     if (data.length() > 0) {
+                        // Se añade a una lista de nombres de pruebas que será utilizada posteriormente
                         nombresPruebas.add(data);
                         prueba = pruebajpa.findPruebaByNombreCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                        // Se crea una nueva prueba, por defecto se crea de tipo individual y con un resultado numérico.
-                        // Esto se podrá modificar luego manualmente en el programa
                         if (prueba == null) {
                             try {
+                                // Se crea una nueva prueba en caso de que no exista, por defecto se crea de tipo individual y con un resultado numérico.
+                                // Se podrá modificar luego manualmente en el programa o al importar registros
                                 ControlPruebas.crearPrueba(data, TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
                             } catch (InputException ex) {
 
@@ -106,7 +114,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                 }
 
                 fila++;
-                columna = 1;
+                columna = PRIMERA_COLUMNA;
 
                 // Iteramos sobre los participantes
                 while (fila < numFilas) {
@@ -115,72 +123,79 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                         Participante participante = new Participante();
                         // Leemos los apellidos
                         data = hoja.getCell(columna, fila).getContents();
-                        //System.out.println("APELLIDOS: " + data);
-                        participante.setApellidos(data);
-                        columna++;
+
+                        // Si este campo está vacío se pasa a la siguiente fila
                         if (data.length() > 0) {
+                            participante.setApellidos(data);
+                            columna++;
+
                             // Leemos el nombre
                             data = hoja.getCell(columna, fila).getContents();
-                            //System.out.println("NOMBRE: " + data);
-                            // QUITAR ESTO
+                            // Si el nombre está vacío se pone un espacio ya que en la base de datos es un campo obligatorio
                             if (data == null) {
                                 data = " ";
                             }
                             participante.setNombre(data);
                             columna++;
+
                             // Leemos el nombre del grupo
                             GrupoJpa grupojpa = new GrupoJpa();
                             Grupo grupo;
                             data = hoja.getCell(columna, fila).getContents();
-                            //System.out.println("GRUPO: " + data);
-                            grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                            if (grupo == null) {
-                                grupo = ControlGrupos.crearGrupo(data, null);
-                            }
-                            participante.setGrupoId(grupo);
-                            columna++;
-                            // Leeemos el nombre del equipo
-                            EquipoJpa equipojpa = new EquipoJpa();
-                            Equipo equipo;
-                            data = hoja.getCell(columna, fila).getContents();
-                            //System.out.println("EQUIPO: " + data);
-                            if (data.length() > 0) {
-                                equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                                if (equipo == null) {
-                                    equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
+                            // Si este campo no esta vacío se busca el grupo y si no existe se crea
+                            // En caso de que este vacío se pasa al siguiente participante
+                            if (data != null) {
+                                grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
+                                if (grupo == null) {
+                                    grupo = ControlGrupos.crearGrupo(data, null);
                                 }
-                                participante.setEquipoId(equipo);
-                            }
-                            columna++;
-                            // Leemos la prueba asignada al participante
-                            boolean pruebaAsignada = false;
-                            while (!pruebaAsignada && columna <= nombresPruebas.size() + 5) {
+                                participante.setGrupoId(grupo);
+                                columna++;
+
+                                // Leeemos el nombre del equipo
                                 data = hoja.getCell(columna, fila).getContents();
-                                //System.out.println("PRUEBAASIGNADA: [" + data + "]");
-                                if (!data.equals("")) {
-                                    Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - 5),
-                                            Coordinador.getInstance().getSeleccionada().getId());
-                                    //System.out.println("PRUEBA: " + pr.getNombre());
-                                    participante.setPruebaasignada(pr);
-                                    pruebaAsignada = true;
+                                if (data != null) {
+                                    EquipoJpa equipojpa = new EquipoJpa();
+                                    Equipo equipo;
+                                    equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
+                                    if (equipo == null) {
+                                        equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
+                                    }
+                                    participante.setEquipoId(equipo);
                                 }
                                 columna++;
 
+                                // Leemos la prueba asignada al participante
+                                boolean pruebaAsignada = false;
+                                while (!pruebaAsignada && columna <= nombresPruebas.size() + PRIMERA_COLUMNA_PRUEBAS) {
+                                    data = hoja.getCell(columna, fila).getContents();
+                                    if (!data.equals("")) {
+                                        Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - PRIMERA_COLUMNA_PRUEBAS),
+                                                Coordinador.getInstance().getSeleccionada().getId());
+                                        participante.setPruebaasignada(pr);
+                                        pruebaAsignada = true;
+                                    }
+                                    columna++;
+
+                                }
+                                participantejpa.create(participante);
+                                // Se pone un dorsal automáticamente (el id del participante)
+                                participante.setDorsal(participante.getId());
+                                participantejpa.edit(participante);
+                            } else {
+                                //throw new InputException("Error: el campo grupo es obligatorio");
                             }
-                            //participante.setDorsal(dorsal++);
-                            participantejpa.create(participante);
-                            participante.setDorsal(participante.getId());
-                            participantejpa.edit(participante);
+                        } else {
+                            //throw new InputException("Error: el campo apellidos es obligatorio");
                         }
                     } catch (RuntimeException ex) {
                         throw new InputException(ex.getMessage());
                     } catch (Exception ex) {
                         throw new InputException(ex.getMessage());
                     } finally {
-                        columna = 1;
+                        columna = PRIMERA_COLUMNA;
                         fila++;
                     }
-
                 }
             }
 

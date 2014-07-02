@@ -358,7 +358,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
             }
         });
         registrosScrollPane.setViewportView(registrosTable);
-        modeloRegistrosTable.setColumnIdentifiers(new Object[]{"ID", "DORSAL", "PARTICIPANTE", "PRUEBA", "MARCA", "NUM. INTENTO"});
+        modeloRegistrosTable.setColumnIdentifiers(new Object[]{"ID", "DORSAL/ID_EQUIPO", "PARTICIPANTE/EQUIPO", "PRUEBA", "MARCA", "NUM. INTENTO"});
         constraints.gridx = 0;
         constraints.gridy = 5;
         constraints.gridwidth = 4;

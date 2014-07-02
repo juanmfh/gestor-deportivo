@@ -9,8 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,8 +17,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 import modelo.Competicion;
 import javax.swing.filechooser.FileFilter;
@@ -62,11 +58,6 @@ public class DialogoCrearCompeticion extends JDialog implements VistaCrearCompet
 
     public DialogoCrearCompeticion(String titulo, java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");  // Pone el estilo visual de Windows
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(DialogoCrearCompeticion.class.getName()).log(Level.SEVERE, null, ex);
-        }
         initComponents();
         this.setTitle(titulo);
         this.setLayout(new GridBagLayout());

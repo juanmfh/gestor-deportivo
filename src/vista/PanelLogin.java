@@ -36,6 +36,8 @@ public class PanelLogin extends JPanel implements VistaLogin {
 
     public PanelLogin() {
         try {
+             //UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
+             //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());            // Pone el estilo visual del SO
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");  // Pone el estilo visual de Windows
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(PanelLogin.class.getName()).log(Level.SEVERE, null, ex);

@@ -17,40 +17,6 @@ import java.util.Date;
 public class IOFile {
 
     /**
-     * Devuelve en un objeto Date la fecha pasada como parámetros en String o
-     * null si los parámetros no son correctos.
-     *
-     * @param dia numero del dia en String.
-     * @param mes numero del mes en String.
-     * @param año numero del año en String.
-     * @return Date
-     */
-    public static Date formatearFecha(String dia, String mes, String año) {
-        String fecha = null;
-        try {
-            Date res = null;
-            if (año.length() == 4) {
-                fecha = String.valueOf(Integer.parseInt(año)) + "-";
-                if (mes.length() == 1) {
-                    fecha += "0" + mes + "-";
-                } else {
-                    fecha += mes + "-";
-                }
-                if (dia.length() == 1) {
-                    fecha += "0" + dia;
-                } else {
-                    fecha += dia;
-                }
-                SimpleDateFormat textFormat = new SimpleDateFormat("yyyy-MM-dd");
-                res = textFormat.parse(fecha);
-            }
-            return res;
-        } catch (NumberFormatException | ParseException exception) {
-            return null;
-        }
-    }
-
-    /**
      * Copia el archivo que se encuentra en la ruta pasada como parámetro
      * "rutaFichero" en la ruta "rutaCopia"
      *
@@ -93,6 +59,40 @@ public class IOFile {
     public static String getNombreFichero(String rutaAbsoluta) {
         return rutaAbsoluta.substring(rutaAbsoluta.lastIndexOf("\\") + 1,
                 rutaAbsoluta.length());
+    }
+    
+    /**
+     * Devuelve en un objeto Date la fecha pasada como parámetros en String o
+     * null si los parámetros no son correctos.
+     *
+     * @param dia numero del dia en String.
+     * @param mes numero del mes en String.
+     * @param año numero del año en String.
+     * @return Date
+     */
+    public static Date formatearFecha(String dia, String mes, String año) {
+        String fecha = null;
+        try {
+            Date res = null;
+            if (año.length() == 4) {
+                fecha = String.valueOf(Integer.parseInt(año)) + "-";
+                if (mes.length() == 1) {
+                    fecha += "0" + mes + "-";
+                } else {
+                    fecha += mes + "-";
+                }
+                if (dia.length() == 1) {
+                    fecha += "0" + dia;
+                } else {
+                    fecha += dia;
+                }
+                SimpleDateFormat textFormat = new SimpleDateFormat("yyyy-MM-dd");
+                res = textFormat.parse(fecha);
+            }
+            return res;
+        } catch (NumberFormatException | ParseException exception) {
+            return null;
+        }
     }
 
     

@@ -54,7 +54,6 @@ public class GeneralTab extends javax.swing.JPanel {
     private JLabel fechaFinLabel;
     private JLabel fechaFin;
     private JPanel datosPanel;
-    private JButton informacionButton;
     private JButton crearPruebaButton;
     private JButton modificarPruebaButton;
     private JButton eliminarPruebaButton;

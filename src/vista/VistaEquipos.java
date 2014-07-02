@@ -1,5 +1,6 @@
 package vista;
 
+import controlador.RolUsuario;
 import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
@@ -69,4 +70,22 @@ public interface VistaEquipos {
      * Limpia el formulario
      */
     public void limpiarFormularioEquipo();
+    
+    /**Establece en el campo nombre el nombre del equipo pasado como parámetro
+     * 
+     * @param nombre Nombre del equipo
+     */
+    public void setNombreEquipo(String nombre);
+    
+    /**Selecciona en el comboBox el grupo pasado como parámetro
+     * 
+     * @param grupo 
+     */
+    public void setGrupoDelEquipo(String grupo);
+    
+    /**Dependiendo del rol del Usuario habilita ciertos botones
+     * 
+     * @param rol RolUsuario
+     */
+    public void habilitarBotones(RolUsuario rol);
 }

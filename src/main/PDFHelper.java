@@ -58,10 +58,18 @@ public class PDFHelper {
         }
     }
 
-    
+    /**Crea un fichero pdf en la ruta pasada como parámetro (path)
+     * 
+     * @param path              Ruta donde se guardará el fichero (no el nombre del fichero)
+     * @param c                 Competición de la que se va a crear los resultados
+     * @param nombrePruebas     Nombre de las pruebas de las que se va a crear los resultados 
+     * @param nombreGrupos      Nombre de los grupos de los que se va a crear los resultados
+     * @throws FileNotFoundException
+     * @throws DocumentException 
+     */
     public static void crearPdf(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos) throws FileNotFoundException, DocumentException {
         
-        
+        // Se crea un fichero de salida en la ruta seleccionada
         FileOutputStream archivo = new FileOutputStream(path
                 + "/" + c.getNombre() + "_resultados.pdf");
         Document documento = new Document(PageSize.LETTER, 80, 80, 75, 75);
@@ -70,6 +78,7 @@ public class PDFHelper {
         documento.open();
         documento.addTitle("Resultados_" + c.getNombre());
 
+        // Se cargar el logo de la competición si existe
         if (c.getImagen() != null && c.getImagen().length() > 0) {
             try {
                 Image logo = Image.getInstance(System.getProperty("user.dir")
@@ -77,19 +86,24 @@ public class PDFHelper {
                 logo.scaleAbsolute(100, 100);
                 documento.add(logo);
             } catch (BadElementException | IOException ex) {
+                // Sin logo
             }
         }
-
+        // DATOS DE LA COMPETICION
+        
+        // Titulo
         Paragraph titulo = new Paragraph(c.getNombre().toUpperCase()
                 + " - RESULTADOS");
         titulo.setAlignment(Paragraph.ALIGN_CENTER);
         documento.add(titulo);
 
+        // Ciudad
         if (c.getCiudad() != null && c.getCiudad().length() > 0) {
             Paragraph lugar = new Paragraph("Lugar: " + c.getCiudad());
             documento.add(lugar);
         }
 
+        // Fechas
         SimpleDateFormat fechas = new SimpleDateFormat("dd-MM-yyyy");
         if (c.getFechainicio() != null) {
             Paragraph fechaInicio = new Paragraph("Fecha de Inicio: "
@@ -101,6 +115,8 @@ public class PDFHelper {
                     + fechas.format(c.getFechafin()));
             documento.add(fechaFin);
         }
+        
+        // Organizador
         if (c.getOrganizador() != null && c.getOrganizador().length() > 0) {
             Paragraph organizador = new Paragraph("Organizador: "
                     + c.getOrganizador());
@@ -112,7 +128,7 @@ public class PDFHelper {
         RegistroJpa registrojpa = new RegistroJpa();
         GrupoJpa grupojpa = new GrupoJpa();
         
-        
+        // Se cargan las Pruebas de las que se van a generar resultados
         List<Prueba> pruebas;
         if(nombrePruebas == null){
              pruebas = pruebajpa.findPruebasByCompeticon(c);
@@ -123,14 +139,15 @@ public class PDFHelper {
             }
         }
         
-        
+        // Formato de tiempo
         SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
         
-        
+        // Por cada prueba se crea una tabla con los registros ordenados por clasificación
         for (Prueba p : pruebas) {
             List<Participante> participantes = null;
             List<Equipo> equipos = null;
             
+            // Se comprueba el tipo de prueba y se realiza una búsqueda en la BD con los parámetros adecuados
             if (p.getTiporesultado().equals("Tiempo")) {
                 if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                     if(nombreGrupos==null){
@@ -165,6 +182,7 @@ public class PDFHelper {
 
             List<Registro> registros;
 
+            // DATOS DE LA TABLA
             PdfPTable tabla = new PdfPTable(8);
             float[] columnWidths = {1f, 2f, 1f, 1f, 1f, 1f, 1f, 1f};
             Font normal = new Font(FontFamily.TIMES_ROMAN, 9);
@@ -189,8 +207,10 @@ public class PDFHelper {
             tabla.addCell(new Phrase("PUNTOS", normal));
             int puesto = 1;
 
+            
             if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
-
+                
+                // Por cada participante se cargan sus registros y se escribe en la tabla
                 for (Participante part : participantes) {
 
                     Grupo g;
@@ -244,6 +264,7 @@ public class PDFHelper {
                     puesto++;
                 }
             } else {
+                // Por cada equipo se cargan sus registros en la prueba y se escriben en la tabla
                 for (Equipo equipo : equipos) {
 
                     Grupo g;
@@ -298,7 +319,7 @@ public class PDFHelper {
                     puesto++;
                 }
             }
-
+            // Se añade la tabla al documento
             documento.add(tabla);
 
         }

@@ -6,7 +6,6 @@ import controlador.RolUsuario;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -264,27 +263,29 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         modeloEquiposTable.removeRow(equiposTable.getSelectedRow());
     }
     
+    @Override
     public void limpiarFormularioEquipo(){
         this.nombreEquipoTextField.setText("");
         this.gruposComboBox.setSelectedIndex(-1);
     }
     
+    @Override
     public void setNombreEquipo(String nombre){
         this.nombreEquipoTextField.setText(nombre);
     }
     
+    @Override
     public void setGrupoDelEquipo(String grupo){
         this.gruposComboBox.setSelectedItem(grupo);
     }
     
-    private void habilitarBotones(RolUsuario rol){
-        
+    @Override
+    public void habilitarBotones(RolUsuario rol){
         if(rol.equals(RolUsuario.Invitado)){
             crearEquipoButton.setEnabled(false);
             modificarEquipoButton.setEnabled(false);
             eliminarEquipoButton.setEnabled(false);
             limpiarButton.setEnabled(false);
         }
-        
     }
 }

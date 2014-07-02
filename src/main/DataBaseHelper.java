@@ -21,6 +21,10 @@ public class DataBaseHelper {
         s = connection.createStatement();
     }
 
+    /**
+     * Crea la base de datos y en caso de que ya esté creada lanza una excepción SQLException
+     * @throws SQLException 
+     */
     public void iniDB() throws SQLException {
         try {
             connection.setAutoCommit(false);
@@ -151,6 +155,10 @@ public class DataBaseHelper {
         }
     }
 
+    /**
+     * Cierra la conexión con la base de datos
+     * @throws SQLException 
+     */
     public void close() throws SQLException {
 
         s.close();
