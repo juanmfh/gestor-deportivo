@@ -108,7 +108,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                     while (columna < fila.getLastCellNum()) {
                         // Se obtiene el nombre de la prueba y se comprueba que no es vacío
                         Cell celda = fila.getCell(columna);
-                        System.out.println(celda.getStringCellValue());
+                        //System.out.println(celda.getStringCellValue());
                         if (celda.getStringCellValue().length() > 0) {
                             // Se añade a una lista de nombres de pruebas que será utilizada posteriormente
                             nombresPruebas.add(celda.getStringCellValue());
