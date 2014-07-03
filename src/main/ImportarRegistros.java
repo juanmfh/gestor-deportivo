@@ -11,9 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.swing.SwingWorker;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
 import modelo.Equipo;
 import modelo.Prueba;
 import modelo.Registro;
@@ -22,8 +19,18 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import modelo.Participante;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  *
@@ -70,8 +77,37 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
 
         // Actualiza la interfaz (muestra la barra de estado)
         publish((Void) null);
+        try {
+            FileInputStream file = new FileInputStream(new File(ruta));
+            Workbook workbook = WorkbookFactory.create(file);
+            
+            String data;
+            Prueba prueba = null;
+            
+            // Por cada hoja del archivo excel...
+            for (int numHoja = 0; numHoja < workbook.getNumberOfSheets(); numHoja++) {
+                // Obtenemos el número de filas, columnas y la hoja.
+                Sheet hoja = workbook.getSheetAt(numHoja);
+                // Si la hoja es la de Tipos se descarta (hoja donde se encuentran las listas de tipos de prueba)
+                if (!hoja.getHeader().equals("Tipos")) {
+                
+                    Iterator<Row> iteradorFila = hoja.iterator();
+                    Row fila = iteradorFila.next(); //Cabecera, no contiene datos
+                    fila = iteradorFila.next();     //Fila donde se encuentra los datos de las pruebas
+
+
+                }  
+            }
+        } catch (FileNotFoundException ex) {
+            throw new InputException("Archivo no encontrado");
+        } catch (IOException ex) {
+            throw new InputException("Archivo no válido");
+        } catch (InvalidFormatException ex) {
+            throw new InputException("Formato de archivo no válido");
+        }
         
-        Workbook excel = null;
+        
+        /*Workbook excel = null;
         try {
             excel = Workbook.getWorkbook(new File(ruta));
             String data;
@@ -253,7 +289,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
             if (excel != null) {
                 excel.close();
             }
-        }
+        }*/
         return null;
     }
 

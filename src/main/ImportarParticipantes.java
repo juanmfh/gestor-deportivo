@@ -12,20 +12,26 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.SwingWorker;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
 import modelo.Grupo;
 import dao.GrupoJpa;
 import dao.ParticipanteJpa;
 import dao.PruebaJpa;
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import jxl.WorkbookSettings;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import modelo.Equipo;
 import modelo.Participante;
 import modelo.Prueba;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  *
@@ -46,15 +52,16 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
     @Override
     protected void done() {
         try {
-            get();
-            Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
+        get();
+        Coordinador.getInstance().setEstadoLabel("Participantes importados", Color.BLUE);
 
         } catch (InterruptedException | ExecutionException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         } finally {
-            Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
-            Coordinador.getInstance().mostrarBarraProgreso(false);
-            Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
+        Coordinador.getInstance().getControladorPrincipal().cargarTablaParticipantes();
+        Coordinador.getInstance().mostrarBarraProgreso(false);
+        Coordinador.getInstance().getControladorPrincipal().cargarGruposEnParticipantes();
+        Coordinador.getInstance().getControladorPrincipal().cargarPruebasEnParticipantes();
         }
 
     }
@@ -64,65 +71,70 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
         Coordinador.getInstance().mostrarBarraProgreso(true);
     }
 
+    
+
     @Override
     protected Void doInBackground() throws InputException {
 
         // Actualiza la interfaz (muestra la barra de estado)
         publish((Void) null);
 
-        Workbook excel = null;
-        WorkbookSettings ws = new WorkbookSettings();
-        ws.setEncoding("CP1250");
         try {
-            excel = Workbook.getWorkbook(new File(ruta), ws);
+            FileInputStream file = new FileInputStream(new File(ruta));
+            Workbook workbook = WorkbookFactory.create(file);
 
             String data;
             // Por cada hoja del archivo excel...
-            for (int numHoja = 0; numHoja < excel.getNumberOfSheets(); numHoja++) {
+            for (int numHoja = 0; numHoja < workbook.getNumberOfSheets(); numHoja++) {
 
                 // Obtenemos el número de filas, columnas y la hoja.
-                Sheet hoja = excel.getSheet(numHoja);
-                int numFilas = hoja.getRows();
-                int numColumnas = hoja.getColumns();
+                Sheet hoja = workbook.getSheetAt(numHoja);
+                Iterator<Row> iteradorFila = hoja.iterator();
 
-                // Se establecen los índices en las celdas iniciales donde se encuentran los nombres de las pruebas
-                int fila = PRIMERA_FILA;
-                int columna = PRIMERA_COLUMNA_PRUEBAS;
+                Row fila = iteradorFila.next(); //Cabecera, no contiene datos
+                fila = iteradorFila.next();     //Fila donde se encuentra los nombres de las pruebas
 
+                Iterator<Cell> iteradorCelda = fila.cellIterator();
                 List<String> nombresPruebas = new ArrayList();
                 PruebaJpa pruebajpa = new PruebaJpa();
-                Prueba prueba;
-                // Obtenemos el nombre de las pruebas
-                while (columna < numColumnas) {
-                    // Se obtiene el nombre de la prueba y se comprueba que no es vacío
-                    data = hoja.getCell(columna, fila).getContents();
-                    if (data.length() > 0) {
-                        // Se añade a una lista de nombres de pruebas que será utilizada posteriormente
-                        nombresPruebas.add(data);
-                        prueba = pruebajpa.findPruebaByNombreCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
-                        if (prueba == null) {
-                            try {
-                                // Se crea una nueva prueba en caso de que no exista, por defecto se crea de tipo individual y con un resultado numérico.
-                                // Se podrá modificar luego manualmente en el programa o al importar registros
-                                ControlPruebas.crearPrueba(data, TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-                            } catch (InputException ex) {
+                // Se comprueba si hay pruebas o no
+                if (fila.getLastCellNum() < PRIMERA_COLUMNA_PRUEBAS) {
+                    // No hay pruebas que añadir
+                } else {
+                    int columna = PRIMERA_COLUMNA_PRUEBAS;
 
+                    Prueba prueba;
+                    // Obtenemos el nombre de las pruebas
+                    while (columna < fila.getLastCellNum()) {
+                        // Se obtiene el nombre de la prueba y se comprueba que no es vacío
+                        Cell celda = fila.getCell(columna);
+                        System.out.println(celda.getStringCellValue());
+                        if (celda.getStringCellValue().length() > 0) {
+                            // Se añade a una lista de nombres de pruebas que será utilizada posteriormente
+                            nombresPruebas.add(celda.getStringCellValue());
+                            prueba = pruebajpa.findPruebaByNombreCompeticion(celda.getStringCellValue(), Coordinador.getInstance().getSeleccionada().getId());
+                            if (prueba == null) {
+                                try {
+                                    // Se crea una nueva prueba en caso de que no exista, por defecto se crea de tipo individual y con un resultado numérico.
+                                    // Se podrá modificar luego manualmente en el programa o al importar registros
+                                    ControlPruebas.crearPrueba(celda.getStringCellValue(), TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+                                } catch (InputException ex) {
+
+                                }
                             }
                         }
+                        columna++;
                     }
-                    columna++;
                 }
-
-                fila++;
-                columna = PRIMERA_COLUMNA;
-
-                // Iteramos sobre los participantes
-                while (fila < numFilas) {
-                    try {
-                        ParticipanteJpa participantejpa = new ParticipanteJpa();
-                        Participante participante = new Participante();
-                        // Leemos los apellidos
-                        data = hoja.getCell(columna, fila).getContents();
+                while (iteradorFila.hasNext()) {
+                    fila = iteradorFila.next();
+                    int columna = PRIMERA_COLUMNA;
+                    ParticipanteJpa participantejpa = new ParticipanteJpa();
+                    Participante participante = new Participante();
+                    // Leemos los apellidos
+                    Cell celda = fila.getCell(columna);
+                    if (celda != null) {
+                        data = fila.getCell(columna).getStringCellValue();
 
                         // Si este campo está vacío se pasa a la siguiente fila
                         if (data.length() > 0) {
@@ -130,7 +142,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             columna++;
 
                             // Leemos el nombre
-                            data = hoja.getCell(columna, fila).getContents();
+                            data = fila.getCell(columna).getStringCellValue();
                             // Si el nombre está vacío se pone un espacio ya que en la base de datos es un campo obligatorio
                             if (data == null) {
                                 data = " ";
@@ -141,8 +153,8 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                             // Leemos el nombre del grupo
                             GrupoJpa grupojpa = new GrupoJpa();
                             Grupo grupo;
-                            data = hoja.getCell(columna, fila).getContents();
-                            // Si este campo no esta vacío se busca el grupo y si no existe se crea
+                            data = fila.getCell(columna).getStringCellValue();
+                        // Si este campo no esta vacío se busca el grupo y si no existe se crea
                             // En caso de que este vacío se pasa al siguiente participante
                             if (data != null) {
                                 grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
@@ -153,7 +165,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                 columna++;
 
                                 // Leeemos el nombre del equipo
-                                data = hoja.getCell(columna, fila).getContents();
+                                data = fila.getCell(columna).getStringCellValue();
                                 if (data != null) {
                                     EquipoJpa equipojpa = new EquipoJpa();
                                     Equipo equipo;
@@ -168,7 +180,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                 // Leemos la prueba asignada al participante
                                 boolean pruebaAsignada = false;
                                 while (!pruebaAsignada && columna <= nombresPruebas.size() + PRIMERA_COLUMNA_PRUEBAS) {
-                                    data = hoja.getCell(columna, fila).getContents();
+                                    data = fila.getCell(columna).getStringCellValue();
                                     if (!data.equals("")) {
                                         Prueba pr = pruebajpa.findPruebaByNombreCompeticion(nombresPruebas.get(columna - PRIMERA_COLUMNA_PRUEBAS),
                                                 Coordinador.getInstance().getSeleccionada().getId());
@@ -178,34 +190,26 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                     columna++;
 
                                 }
+
                                 participantejpa.create(participante);
                                 // Se pone un dorsal automáticamente (el id del participante)
                                 participante.setDorsal(participante.getId());
                                 participantejpa.edit(participante);
-                            } else {
-                                //throw new InputException("Error: el campo grupo es obligatorio");
                             }
-                        } else {
-                            //throw new InputException("Error: el campo apellidos es obligatorio");
                         }
-                    } catch (RuntimeException ex) {
-                        throw new InputException(ex.getMessage());
-                    } catch (Exception ex) {
-                        throw new InputException(ex.getMessage());
-                    } finally {
-                        columna = PRIMERA_COLUMNA;
-                        fila++;
                     }
+
                 }
             }
-
-        } catch (IOException | BiffException ex) {
-            throw new InputException("Error al abrir el archivo. Formato no válido");
-        } finally {
-            if (excel != null) {
-                excel.close();
-            }
+            file.close();
+        } catch (IOException ex) {
+            throw new InputException("Archivo no válido");
+        } catch (InvalidFormatException ex) {
+            throw new InputException("Formato de archivo no válido");
+        } catch (Exception ex) {
+            throw new InputException(ex.getMessage());
         }
+
         return null;
     }
 }

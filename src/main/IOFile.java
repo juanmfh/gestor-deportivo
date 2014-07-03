@@ -41,10 +41,8 @@ public class IOFile {
             fos.close();
             return true;
         } catch (FileNotFoundException fileNotFoundException) {
-            System.out.println(fileNotFoundException.toString());
             return false;
         } catch (IOException ioException) {
-            System.out.println(ioException.toString());
             return false;
         }
     }
