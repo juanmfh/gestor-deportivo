@@ -52,7 +52,7 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         GridBagConstraints constraints = new GridBagConstraints();
 
         formularioEquipoPanel = new JPanel(new GridBagLayout());
-        TitledBorder bordeFormularioEquipo = BorderFactory.createTitledBorder("Nuevo Equipo");
+        TitledBorder bordeFormularioEquipo = BorderFactory.createTitledBorder("Formulario Equipo");
         formularioEquipoPanel.setBorder(bordeFormularioEquipo);
 
         nombreEquipoLabel = new JLabel("* Nombre:");

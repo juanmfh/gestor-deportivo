@@ -68,7 +68,7 @@ public class UsuariosTab extends JPanel implements VistaUsuarios {
         GridBagConstraints constraints = new GridBagConstraints();
 
         formularioUsuariosPanel = new JPanel(new GridBagLayout());
-        TitledBorder bordeFormularioUsuariosPanel = BorderFactory.createTitledBorder("Formulario de Usuarios");
+        TitledBorder bordeFormularioUsuariosPanel = BorderFactory.createTitledBorder("Formulario Usuario");
         formularioUsuariosPanel.setBorder(bordeFormularioUsuariosPanel);
 
         nombreUsuarioLabel = new JLabel("* Nombre de usuario:");

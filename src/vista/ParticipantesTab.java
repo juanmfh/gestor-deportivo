@@ -84,7 +84,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         this.add(importarButton, constraints);
 
         formularioParticipantePanel = new JPanel(new GridBagLayout());
-        TitledBorder bordeFormularioParticipantePanel = BorderFactory.createTitledBorder("Nuevo Participante");
+        TitledBorder bordeFormularioParticipantePanel = BorderFactory.createTitledBorder("Formulario Participante");
         formularioParticipantePanel.setBorder(bordeFormularioParticipantePanel);
 
         nombreLabel = new JLabel("* Nombre:");

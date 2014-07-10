@@ -231,17 +231,21 @@ public class ControlPruebas implements ActionListener {
         PruebaJpa pruebajpa = new PruebaJpa();
         RegistroJpa registrojpa = new RegistroJpa();
 
+        // Eliminamos la prueba de la competición
+        Compuesta c = compuestajpa.findCompuestaByPrueba_Competicion(
+                pruebaid, competicionid);
         try {
-            // Eliminamos la prueba de la competición
-            Compuesta c = compuestajpa.findCompuestaByPrueba_Competicion(
-                    pruebaid, competicionid);
             compuestajpa.destroy(c.getId());
-
             // Eliminamos todos los registros de esa prueba
             List<Registro> registros = registrojpa.findByPrueba(pruebaid);
             for (Registro r : registros) {
                 registrojpa.destroy(r.getId());
             }
+        } catch (NonexistentEntityException ex) {
+
+        }
+
+        try {
             // Eliminamos la prueba
             pruebajpa.destroy(pruebaid);
         } catch (dao.exceptions.NonexistentEntityException ex) {

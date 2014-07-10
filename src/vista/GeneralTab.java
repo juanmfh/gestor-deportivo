@@ -148,7 +148,7 @@ public class GeneralTab extends javax.swing.JPanel {
         
         
         formularioAñadirPruebaPanel = new JPanel(new FlowLayout());
-        TitledBorder bordeFormularioPruebaPanel = BorderFactory.createTitledBorder("Nueva prueba");
+        TitledBorder bordeFormularioPruebaPanel = BorderFactory.createTitledBorder("Formulario Prueba");
         formularioAñadirPruebaPanel.setBorder(bordeFormularioPruebaPanel);
         formularioAñadirPruebaPanel.add(nombrePruebaLabel);
         formularioAñadirPruebaPanel.add(nombrePruebaTextField);

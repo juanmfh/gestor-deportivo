@@ -51,7 +51,7 @@ public class GruposTab extends javax.swing.JPanel implements VistaGrupos {
         GridBagConstraints constraints = new GridBagConstraints();
 
         formularioGrupoPanel = new JPanel(new GridBagLayout());
-        TitledBorder bordeFormularioGrupoPanel = BorderFactory.createTitledBorder("Nuevo Grupo");
+        TitledBorder bordeFormularioGrupoPanel = BorderFactory.createTitledBorder("Formulario Grupo");
         formularioGrupoPanel.setBorder(bordeFormularioGrupoPanel);
         
         nombreGrupoLabel = new JLabel("* Nombre del grupo:");

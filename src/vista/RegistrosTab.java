@@ -101,7 +101,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
 
         GridBagConstraints constraintsFormulario = new GridBagConstraints();
         formularioRegistroPanel = new JPanel(new GridBagLayout());
-        TitledBorder bordeDatosPanel = BorderFactory.createTitledBorder("Nuevo Registro");
+        TitledBorder bordeDatosPanel = BorderFactory.createTitledBorder("Formulario Registro");
         formularioRegistroPanel.setBorder(bordeDatosPanel);
 
         grupoLabel = new JLabel("* Grupo:");
