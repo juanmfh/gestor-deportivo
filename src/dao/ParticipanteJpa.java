@@ -274,6 +274,26 @@ public class ParticipanteJpa implements Serializable {
     
     // author: Juan María Frías Hidalgo
     
+    /**Devuelve la lista de participantes de una competicion
+     * 
+     * @param competicionid       Identificador de la competicion
+     * @return List<Participante>
+     */
+    /*public List<Participante> findParticipantesByCompeticion(Integer competicionid) {
+        EntityManager em = getEntityManager();
+        List<Participante> res;
+        try {
+            Query q = em.createNamedQuery("Participante.findByCompeticion");
+            q.setParameter("competicionid", competicionid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }*/
+    
 
     /**Devuelve la lista de participantes de un grupo determinado
      * 

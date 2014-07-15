@@ -43,15 +43,15 @@ public class ControlImprimirResultados implements ActionListener {
 
         try {
             if (vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {          // Se ha seleccionado imprimir todo
-                PDFHelper.imprimirResultadosPDF(null, null);
+                PDFHelper.imprimirResultadosPDF(null, null,vista.getgenerarListaSalidaCheckBox());
             } else if (vista.getgruposCheckBox() && !vista.getpruebasCheckBox()) {  //Se ha seleccionado imprimir algunas pruebas de todos los grupos
-                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null);
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null,vista.getgenerarListaSalidaCheckBox());
             } else if (!vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {   // Se ha seleccionado imprimir todas las pruebas pero solo de algunos grupos
-                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList());
+                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList(),vista.getgenerarListaSalidaCheckBox());
             } else if (vista.getpruebasList().isEmpty() || vista.getgruposList().isEmpty()) {   // No se ha seleccionado ningún grupo o ninguna prueba
                 throw new InputException("Selección no válida");                
             } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
-                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList());
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(),vista.getgenerarListaSalidaCheckBox());
             }
             Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);
             vista.cerrar();

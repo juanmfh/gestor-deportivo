@@ -852,7 +852,7 @@ public class ControlPrincipal implements ActionListener {
                     public void run() {
                         DialogoImprimirResultados dialog
                                 = new DialogoImprimirResultados(new Frame(), true);
-                        dialog.setMinimumSize(new Dimension(420, 300));
+                        dialog.setMinimumSize(new Dimension(420, 320));
                         Dimension dimension
                                 = Toolkit.getDefaultToolkit().getScreenSize();
                         dialog.setLocation(dimension.width / 2

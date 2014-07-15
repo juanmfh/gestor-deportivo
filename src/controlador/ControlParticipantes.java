@@ -361,7 +361,7 @@ public class ControlParticipantes implements ActionListener {
      * @param dorsal Numero del dorsal
      * @return true si el dorsal no está ocupado
      */
-    private static boolean dorsalLibre(Integer dorsal, Competicion competicion) {
+    public static boolean dorsalLibre(Integer dorsal, Competicion competicion) {
         ParticipanteJpa participantejpa = new ParticipanteJpa();
         return (participantejpa.findByDorsalAndCompeticion(dorsal,
                 competicion.getId())) == null;

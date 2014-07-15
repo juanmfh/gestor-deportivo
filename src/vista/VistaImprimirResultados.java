@@ -36,6 +36,12 @@ public interface VistaImprimirResultados {
      */
     public boolean getgruposCheckBox();
     
+    /**Devuelve true si el checkbox de lista de salida está marcado, false en otro caso
+     * 
+     * @return boolean
+     */
+    public boolean getgenerarListaSalidaCheckBox();
+    
     /**Devuelve la lista con los nombres de las pruebas seleccionadas
      * 
      * @return List<String>

@@ -1,10 +1,13 @@
 package vista;
 
+import java.awt.Color;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -28,6 +31,7 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     private JScrollPane jScrollPane1;
     private JScrollPane jScrollPane2;
     private JCheckBox pruebasCheckBox;
+    private JCheckBox listaSalidaCheckBox;
     private JLabel pruebasLabel;
     private JList pruebasList;
     private DefaultListModel pruebasListModel;
@@ -41,33 +45,77 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     private void initComponents(){
         
         this.setTitle("Opciones de impresión");
-        
-        pruebasLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        pruebasList = new javax.swing.JList();
-        gruposLabel = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        gruposList = new javax.swing.JList();
-        pruebasCheckBox = new javax.swing.JCheckBox();
-        gruposCheckBox = new javax.swing.JCheckBox();
-        imprimirButton = new javax.swing.JButton();
-        cancelarButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        pruebasLabel.setText("Pruebas");
-
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        GridBagLayout layout = new GridBagLayout();
+        this.setLayout(layout);
+        GridBagConstraints constraints = new GridBagConstraints();
+        
+        
+        pruebasLabel = new javax.swing.JLabel("Pruebas");
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(10,10,10,10);
+        
+        this.add(pruebasLabel, constraints);
+        
+        gruposLabel = new javax.swing.JLabel("Grupos");
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(10,10,10,10);
+        this.add(gruposLabel, constraints);
+        
+        jScrollPane1 = new javax.swing.JScrollPane();
+        pruebasList = new javax.swing.JList();
         pruebasListModel = new DefaultListModel();
         pruebasList.setModel(pruebasListModel);
+        pruebasList.setPrototypeCellValue("                                                            ");
         jScrollPane1.setViewportView(pruebasList);
-
-        gruposLabel.setText("Grupos");
-
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0,10,5,0);
+        this.add(jScrollPane1, constraints);
+        
+        jScrollPane2 = new javax.swing.JScrollPane();
+        gruposList = new javax.swing.JList();
         gruposListModel = new DefaultListModel();
         gruposList.setModel(gruposListModel);
+        gruposList.setPrototypeCellValue("                                                            ");
         jScrollPane2.setViewportView(gruposList);
-
-        pruebasCheckBox.setText("Todas las pruebas");
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0,10,5,0);
+        this.add(jScrollPane2, constraints);
+        
+        pruebasCheckBox = new javax.swing.JCheckBox("Todas las pruebas");
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0,10,0,0);
+        this.add(pruebasCheckBox, constraints);
+        
         pruebasCheckBox.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
@@ -79,8 +127,17 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
                     }
                 }
         });
-
-        gruposCheckBox.setText("Todos los grupos");
+        
+        gruposCheckBox = new javax.swing.JCheckBox("Todos los grupos");
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        //constraints.insets = new Insets(10,10,10,10);
+        this.add(gruposCheckBox, constraints);
+        
         gruposCheckBox.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
@@ -92,12 +149,40 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
                     }
                 }
         });
-
-        imprimirButton.setText("Imprimir en PDF");
-
-        cancelarButton.setText("Cancelar");
         
-        GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        listaSalidaCheckBox = new javax.swing.JCheckBox("Generar lista de salida");
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0,10,5,0);
+        this.add(listaSalidaCheckBox, constraints);
+        
+        imprimirButton = new javax.swing.JButton("Imprimir en PDF");
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0,10,0,0);
+        constraints.weighty = 1.0;
+        this.add(imprimirButton, constraints);
+
+        cancelarButton = new javax.swing.JButton("Cancelar");
+        constraints.gridx = 1;
+        constraints.gridy = 5;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        //constraints.insets = new Insets(10,10,10,10);
+        constraints.weightx = 1.0;
+        this.add(cancelarButton, constraints);
+        
+        /*GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -142,7 +227,7 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
-        pack();
+        pack();*/
     }
 
     @Override
@@ -167,6 +252,11 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     @Override
     public boolean getgruposCheckBox() {
         return gruposCheckBox.isSelected();
+    }
+    
+    @Override
+    public boolean getgenerarListaSalidaCheckBox(){
+        return listaSalidaCheckBox.isSelected();
     }
 
     @Override
