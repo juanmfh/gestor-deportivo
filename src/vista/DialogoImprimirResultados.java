@@ -22,7 +22,7 @@ import javax.swing.event.ChangeListener;
  * @author JuanM
  */
 public class DialogoImprimirResultados extends JDialog implements VistaImprimirResultados {
-    
+
     private JButton cancelarButton;
     private JCheckBox gruposCheckBox;
     private JLabel gruposLabel;
@@ -36,25 +36,27 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     private JList pruebasList;
     private DefaultListModel pruebasListModel;
     private DefaultListModel gruposListModel;
-    
-    public DialogoImprimirResultados(Frame parent, boolean modal){
+    private JCheckBox participantesAsignadosCheckBox;
+    private String formato;
+
+    public DialogoImprimirResultados(Frame parent, boolean modal, String formato) {
         super(parent, modal);
-        initComponents();
+        this.formato = formato;
+        initComponents(formato);
     }
-    
-    private void initComponents(){
-        
-        this.setTitle("Opciones de impresión");
+
+    private void initComponents(String formato) {
+
+        this.setTitle("Opciones");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.NORTHWEST;
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
         GridBagConstraints constraints = new GridBagConstraints();
-        
-        
+
         pruebasLabel = new javax.swing.JLabel("Pruebas");
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -62,10 +64,10 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(10,10,10,10);
-        
+        constraints.insets = new Insets(10, 10, 10, 10);
+
         this.add(pruebasLabel, constraints);
-        
+
         gruposLabel = new javax.swing.JLabel("Grupos");
         constraints.gridx = 1;
         constraints.gridy = 0;
@@ -73,9 +75,9 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(10,10,10,10);
+        constraints.insets = new Insets(10, 10, 10, 10);
         this.add(gruposLabel, constraints);
-        
+
         jScrollPane1 = new javax.swing.JScrollPane();
         pruebasList = new javax.swing.JList();
         pruebasListModel = new DefaultListModel();
@@ -88,9 +90,9 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0,10,5,0);
+        constraints.insets = new Insets(0, 10, 5, 0);
         this.add(jScrollPane1, constraints);
-        
+
         jScrollPane2 = new javax.swing.JScrollPane();
         gruposList = new javax.swing.JList();
         gruposListModel = new DefaultListModel();
@@ -103,9 +105,9 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0,10,5,0);
+        constraints.insets = new Insets(0, 10, 5, 0);
         this.add(jScrollPane2, constraints);
-        
+
         pruebasCheckBox = new javax.swing.JCheckBox("Todas las pruebas");
         constraints.gridx = 0;
         constraints.gridy = 2;
@@ -113,21 +115,21 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0,10,0,0);
+        constraints.insets = new Insets(0, 10, 0, 0);
         this.add(pruebasCheckBox, constraints);
-        
+
         pruebasCheckBox.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
-                    if(pruebasCheckBox.isSelected()){
-                        pruebasList.clearSelection();
-                        pruebasList.setEnabled(false);
-                    }else{
-                        pruebasList.setEnabled(true);
-                    }
+                if (pruebasCheckBox.isSelected()) {
+                    pruebasList.clearSelection();
+                    pruebasList.setEnabled(false);
+                } else {
+                    pruebasList.setEnabled(true);
                 }
+            }
         });
-        
+
         gruposCheckBox = new javax.swing.JCheckBox("Todos los grupos");
         constraints.gridx = 0;
         constraints.gridy = 3;
@@ -137,19 +139,19 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.anchor = GridBagConstraints.WEST;
         //constraints.insets = new Insets(10,10,10,10);
         this.add(gruposCheckBox, constraints);
-        
+
         gruposCheckBox.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
-                    if(gruposCheckBox.isSelected()){
-                        gruposList.clearSelection();
-                        gruposList.setEnabled(false);
-                    }else{
-                        gruposList.setEnabled(true);
-                    }
+                if (gruposCheckBox.isSelected()) {
+                    gruposList.clearSelection();
+                    gruposList.setEnabled(false);
+                } else {
+                    gruposList.setEnabled(true);
                 }
+            }
         });
-        
+
         listaSalidaCheckBox = new javax.swing.JCheckBox("Generar lista de salida");
         constraints.gridx = 0;
         constraints.gridy = 4;
@@ -157,17 +159,40 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0,10,5,0);
+        constraints.insets = new Insets(0, 10, 5, 0);
         this.add(listaSalidaCheckBox, constraints);
-        
-        imprimirButton = new javax.swing.JButton("Imprimir en PDF");
+
+        participantesAsignadosCheckBox = new JCheckBox("Solo participantes asignados");
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0, 10, 0, 0);
+        this.add(participantesAsignadosCheckBox, constraints);
+
+        listaSalidaCheckBox.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                if (listaSalidaCheckBox.isSelected()) {
+
+                    participantesAsignadosCheckBox.setEnabled(true);
+                } else {
+                    participantesAsignadosCheckBox.setSelected(false);
+                    participantesAsignadosCheckBox.setEnabled(false);
+                }
+            }
+        });
+
+        imprimirButton = new javax.swing.JButton("Crear fichero " + formato);
         constraints.gridx = 0;
         constraints.gridy = 5;
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0,10,0,0);
+        constraints.insets = new Insets(0, 10, 0, 0);
         constraints.weighty = 1.0;
         this.add(imprimirButton, constraints);
 
@@ -181,60 +206,26 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
         //constraints.insets = new Insets(10,10,10,10);
         constraints.weightx = 1.0;
         this.add(cancelarButton, constraints);
-        
-        /*GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(gruposCheckBox)
-                    .addComponent(pruebasCheckBox)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(imprimirButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cancelarButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pruebasLabel)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(gruposLabel)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pruebasLabel)
-                    .addComponent(gruposLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(pruebasCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(gruposCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(imprimirButton)
-                    .addComponent(cancelarButton))
-                .addContainerGap(18, Short.MAX_VALUE))
-        );
 
-        pack();*/
+        if (formato.equals("Excel")) {
+            listaSalidaCheckBox.setVisible(false);
+
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            constraints.gridwidth = 1;
+            constraints.gridheight = 1;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.insets = new Insets(0, 10, 5, 0);
+            this.add(participantesAsignadosCheckBox, constraints);
+        }
     }
 
     @Override
     public void controlador(ActionListener al) {
         imprimirButton.addActionListener(al);
         imprimirButton.setActionCommand(VistaImprimirResultados.OK);
-        
+
         cancelarButton.addActionListener(al);
         cancelarButton.setActionCommand(VistaImprimirResultados.CANCELAR);
     }
@@ -253,9 +244,14 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     public boolean getgruposCheckBox() {
         return gruposCheckBox.isSelected();
     }
-    
+
     @Override
-    public boolean getgenerarListaSalidaCheckBox(){
+    public boolean getparticipantesAsignadosCheckBox() {
+        return participantesAsignadosCheckBox.isSelected();
+    }
+
+    @Override
+    public boolean getgenerarListaSalidaCheckBox() {
         return listaSalidaCheckBox.isSelected();
     }
 
@@ -268,28 +264,33 @@ public class DialogoImprimirResultados extends JDialog implements VistaImprimirR
     public List<String> getgruposList() {
         return gruposList.getSelectedValuesList();
     }
-    
+
     @Override
     public void añadirPrueba(String nombrePrueba) {
         pruebasListModel.add(0, nombrePrueba);
     }
-    
+
     @Override
     public void añadirGrupo(String nombreGrupo) {
         gruposListModel.add(0, nombreGrupo);
     }
-    
+
     @Override
-    public void asignarListaPruebas(List<String> pruebas){
-        for(String prueba: pruebas){
+    public void asignarListaPruebas(List<String> pruebas) {
+        for (String prueba : pruebas) {
             añadirPrueba(prueba);
         }
     }
-    
+
     @Override
-    public void asignarListaGrupos(List<String> grupos){
-        for(String grupo: grupos){
+    public void asignarListaGrupos(List<String> grupos) {
+        for (String grupo : grupos) {
             añadirGrupo(grupo);
         }
+    }
+
+    @Override
+    public String getFormato() {
+        return formato;
     }
 }

@@ -42,9 +42,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JLabel grupoLabel;
     private DefaultComboBoxModel modeloGrupoComboBox;
     private JComboBox grupoComboBox;
-    private JLabel equipoLabel;
     private JComboBox equipoComboBox;
-    private DefaultComboBoxModel modeloEquipoComboBox;
     private JLabel participanteLabel;
     private JComboBox participanteComboBox;
     private DefaultComboBoxModel modeloParticipanteComboBox;
@@ -69,6 +67,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JLabel segundosLabel;
     private JTextField segundosTextField;
     private JButton importarRegistrosButton; 
+    private JButton crearPlantillaButton;
     private JCheckBox soloParticipantesAsignadosCheckBox;
 
     private JPanel filtrosPanel;
@@ -89,8 +88,18 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         
-        importarRegistrosButton = new JButton("Importar desde Excel");
+        crearPlantillaButton = new JButton("Crear plantilla...");
         constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.insets = new Insets(10, 20, 0, 0);
+        constraints.anchor = GridBagConstraints.WEST;
+        this.add(crearPlantillaButton, constraints);
+        
+        importarRegistrosButton = new JButton("Importar desde Excel");
+        constraints.gridx = 1;
         constraints.gridy = 0;
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
@@ -236,46 +245,29 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(10, 20, 0, 20);
         this.add(formularioRegistroPanel, constraints);
-
-        crearRegistroButton = new JButton("Crear");
+        
+        // BOTONERA
+        JPanel botoneraPanel = new JPanel(new FlowLayout()); 
         constraints.gridx = 0;
         constraints.gridy = 2;
-        constraints.gridwidth = 1;
+        constraints.gridwidth = 4;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0, 20, 0, 0);
-        this.add(crearRegistroButton, constraints);
+        this.add(botoneraPanel, constraints);
+
+        crearRegistroButton = new JButton("Crear");
+        botoneraPanel.add(crearRegistroButton);
 
         modificarRegistroButton = new JButton("Modificar");
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0, 10, 0, 0);
-        this.add(modificarRegistroButton, constraints);
+        botoneraPanel.add(modificarRegistroButton);
 
         eliminarRegistroButton = new JButton("Eliminar");
-        constraints.gridx = 2;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0, 10, 0, 0);
-        this.add(eliminarRegistroButton, constraints);
+        botoneraPanel.add(eliminarRegistroButton);
 
         limpiarFormularioRegistroButton = new JButton("Limpiar");
-        constraints.gridx = 3;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0, 10, 0, 0);
-        this.add(limpiarFormularioRegistroButton, constraints);
+        botoneraPanel.add(limpiarFormularioRegistroButton);
 
         listaRegistrosLabel = new JLabel("Lista de Registros");
         listaRegistrosLabel.setFont(new Font("TimesRoman", Font.BOLD, 14));
@@ -470,6 +462,9 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         
         importarRegistrosButton.addActionListener(al);
         importarRegistrosButton.setActionCommand(VistaRegistros.IMPORTARREGISTROS);
+        
+        crearPlantillaButton.addActionListener(al);
+        crearPlantillaButton.setActionCommand(VistaRegistros.CREARPLANTILLA);
     }
 
     @Override

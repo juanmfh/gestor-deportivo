@@ -13,6 +13,7 @@ public interface VistaImprimirResultados {
    
     String CANCELAR = "cancelar";
     
+    
     /**Asocia un listener controlador a elementos de la vista
      * 
      * @param al ActionListener 
@@ -41,6 +42,12 @@ public interface VistaImprimirResultados {
      * @return boolean
      */
     public boolean getgenerarListaSalidaCheckBox();
+    
+    /**Devuelve true si el checkbox de participantes asignados está marcado, false en otro caso
+     * 
+     * @return boolean
+     */
+    public boolean getparticipantesAsignadosCheckBox();
     
     /**Devuelve la lista con los nombres de las pruebas seleccionadas
      * 
@@ -78,5 +85,11 @@ public interface VistaImprimirResultados {
      * @param grupos Lista con los nombres de las grupos
      */
     public void asignarListaGrupos(List<String> grupos);
+    
+    /**Devuelve "Excel" o "PDF" para distinguir desde donde se ha llamado a la vista
+     * 
+     * @return 
+     */
+    public String getFormato();
     
 }

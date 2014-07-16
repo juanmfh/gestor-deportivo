@@ -28,7 +28,11 @@ public class ControlImprimirResultados implements ActionListener {
         String command = ae.getActionCommand();
         switch (command) {
             case VistaImprimirResultados.OK:
-                imprimirResultados();
+                if(vista.getFormato().equals("Excel")){
+                    imprimirPlantillaExcel();
+                }else if(vista.getFormato().equals("PDF")){
+                    imprimirResultadosPDF();
+                }
                 break;
             case VistaImprimirResultados.CANCELAR:
                 vista.cerrar();
@@ -39,25 +43,46 @@ public class ControlImprimirResultados implements ActionListener {
     /**
      * LLama a la clase PDFHelper según las opciones marcadas en la vista
      */
-    private void imprimirResultados() {
+    private void imprimirResultadosPDF() {
 
         try {
+            vista.cerrar();
             if (vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {          // Se ha seleccionado imprimir todo
-                PDFHelper.imprimirResultadosPDF(null, null,vista.getgenerarListaSalidaCheckBox());
+                PDFHelper.imprimirResultadosPDF(null, null,vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
             } else if (vista.getgruposCheckBox() && !vista.getpruebasCheckBox()) {  //Se ha seleccionado imprimir algunas pruebas de todos los grupos
-                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null,vista.getgenerarListaSalidaCheckBox());
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null,vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
             } else if (!vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {   // Se ha seleccionado imprimir todas las pruebas pero solo de algunos grupos
-                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList(),vista.getgenerarListaSalidaCheckBox());
+                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList(),vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
             } else if (vista.getpruebasList().isEmpty() || vista.getgruposList().isEmpty()) {   // No se ha seleccionado ningún grupo o ninguna prueba
                 throw new InputException("Selección no válida");                
             } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
-                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(),vista.getgenerarListaSalidaCheckBox());
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(),vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
             }
-            Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);
-            vista.cerrar();
+            Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);  
         } catch (InputException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         }
+    }
+    
+    private void imprimirPlantillaExcel(){
+        try {
+            vista.cerrar();
+            if (vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {          // Se ha seleccionado imprimir todo
+                PDFHelper.imprimirResultadosPDF(null, null,vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
+            } else if (vista.getgruposCheckBox() && !vista.getpruebasCheckBox()) {  //Se ha seleccionado imprimir algunas pruebas de todos los grupos
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), null,vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
+            } else if (!vista.getgruposCheckBox() && vista.getpruebasCheckBox()) {   // Se ha seleccionado imprimir todas las pruebas pero solo de algunos grupos
+                PDFHelper.imprimirResultadosPDF(null, vista.getgruposList(),vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
+            } else if (vista.getpruebasList().isEmpty() || vista.getgruposList().isEmpty()) {   // No se ha seleccionado ningún grupo o ninguna prueba
+                throw new InputException("Selección no válida");                
+            } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
+                PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(),vista.getgenerarListaSalidaCheckBox(),vista.getparticipantesAsignadosCheckBox());
+            }
+            Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);  
+        } catch (InputException ex) {
+            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+        }
+        
     }
 
 }

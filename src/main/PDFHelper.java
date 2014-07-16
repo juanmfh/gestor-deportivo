@@ -41,7 +41,7 @@ import modelo.Equipo;
  */
 public class PDFHelper {
 
-    public static void imprimirResultadosPDF(List<String> nombrePruebas, List<String> nombreGrupos, Boolean listaSalida) throws InputException {
+    public static void imprimirResultadosPDF(List<String> nombrePruebas, List<String> nombreGrupos, Boolean listaSalida, Boolean participantesAsignados) throws InputException {
         Competicion c = Coordinador.getInstance().getControladorPrincipal().getSeleccionada();
         if (c != null) {
             JFileChooser fc = new JFileChooser();
@@ -50,7 +50,7 @@ public class PDFHelper {
             int res = fc.showSaveDialog(null);
             if (res == JFileChooser.APPROVE_OPTION) {
                 try {
-                    PDFHelper.crearPdf(fc.getSelectedFile().getPath(), c, nombrePruebas, nombreGrupos, listaSalida);
+                    PDFHelper.crearPdf(fc.getSelectedFile().getPath(), c, nombrePruebas, nombreGrupos, listaSalida, participantesAsignados);
                 } catch (FileNotFoundException | DocumentException ex) {
                     throw new InputException("No se pudo crear un archivo en esa ruta. Compruebe que el fichero destino no este abierto");
                 }
@@ -69,10 +69,15 @@ public class PDFHelper {
      * resultados
      * @param nombreGrupos Nombre de los grupos de los que se va a crear los
      * resultados
+     * @param listaSalida Valor booleano que indica si se realizará un documento
+     * en blanco para rellenar o con los resultados registrados.
+     * @param participantesAsignados Valor booleano que indica en caso de que
+     * listaSalida == true que solo ponga los participantes que tiene la prueba
+     * asignada.
      * @throws FileNotFoundException
      * @throws DocumentException
      */
-    public static void crearPdf(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos, boolean listaSalida) throws FileNotFoundException, DocumentException {
+    public static void crearPdf(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos, boolean listaSalida, boolean participantesAsignados) throws FileNotFoundException, DocumentException {
 
         // Se crea un fichero de salida en la ruta seleccionada
         FileOutputStream archivo = new FileOutputStream(path
@@ -158,12 +163,16 @@ public class PDFHelper {
                 if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                     if (nombreGrupos == null) {
                         if (listaSalida) {
-                            // Buscar todos los participantes de una competicion
                             List<Grupo> grupos = grupojpa.findGruposByCompeticion(c);
                             participantes = new ArrayList();
-                            for(Grupo g : grupos){
-                                List<Participante> aux = participanteJpa.findParticipantesByGrupo(g.getId());
-                                for(Participante particip: aux){
+                            for (Grupo g : grupos) {
+                                List<Participante> aux;
+                                if (participantesAsignados) {
+                                    aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), p);
+                                }else{
+                                    aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                }
+                                for (Participante particip : aux) {
                                     participantes.add(particip);
                                 }
                             }
@@ -172,10 +181,16 @@ public class PDFHelper {
                         }
                     } else {
                         if (listaSalida) {
+                            
                             participantes = new ArrayList();
                             for (String nombreGrupo : nombreGrupos) {
                                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, c.getId());
-                                List<Participante> aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                List<Participante> aux;
+                                if(participantesAsignados){
+                                    aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), p);
+                                }else{
+                                    aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                }
                                 for (Participante particip : aux) {
                                     participantes.add(particip);
                                 }
@@ -211,12 +226,16 @@ public class PDFHelper {
                 if (p.getTipo().equals(TipoPrueba.Individual.toString())) {
                     if (nombreGrupos == null) {
                         if (listaSalida) {
-                            // Buscar todos los participantes de una competicion
                             List<Grupo> grupos = grupojpa.findGruposByCompeticion(c);
                             participantes = new ArrayList();
-                            for(Grupo g : grupos){
-                                List<Participante> aux = participanteJpa.findParticipantesByGrupo(g.getId());
-                                for(Participante particip: aux){
+                            for (Grupo g : grupos) {
+                                List<Participante> aux;
+                                if (participantesAsignados) {
+                                    aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), p);
+                                }else{
+                                    aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                }
+                                for (Participante particip : aux) {
                                     participantes.add(particip);
                                 }
                             }
@@ -228,7 +247,12 @@ public class PDFHelper {
                             participantes = new ArrayList();
                             for (String nombreGrupo : nombreGrupos) {
                                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, c.getId());
-                                List<Participante> aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                List<Participante> aux;
+                                if(participantesAsignados){
+                                    aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), p);
+                                }else{
+                                    aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                                }
                                 for (Participante particip : aux) {
                                     participantes.add(particip);
                                 }
@@ -257,11 +281,8 @@ public class PDFHelper {
                         } else {
                             equipos = registrojpa.findEquiposConRegistrosNumByGrupo(c.getId(), p.getId(), nombreGrupos);
                         }
-
                     }
-
                 }
-
             }
 
             List<Registro> registros;
@@ -302,11 +323,11 @@ public class PDFHelper {
                     tabla.addCell(new Phrase(part.getApellidos() + ", " + part.getNombre(), normal));
 
                     tabla.addCell(new Paragraph(g.getNombre(), normal));
-                    if(listaSalida){
-                        for(int i=0; i<5;i++){
+                    if (listaSalida) {
+                        for (int i = 0; i < 5; i++) {
                             tabla.addCell("");
                         }
-                    }else{
+                    } else {
                         registros = registrojpa.findRegistroByParticipantePruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), part.getId());
                         if (registros != null) {
                             if (p.getTiporesultado().equals("Tiempo")) {
@@ -363,11 +384,11 @@ public class PDFHelper {
 
                     tabla.addCell(new Paragraph(g.getNombre(), normal));
 
-                    if(listaSalida){
-                        for(int i=0; i<5;i++){
+                    if (listaSalida) {
+                        for (int i = 0; i < 5; i++) {
                             tabla.addCell("");
                         }
-                    }else{
+                    } else {
                         registros = registrojpa.findRegistroByEquipoPruebaCompeticionOrderByNumIntento(c.getId(), p.getId(), equipo.getId());
                         if (registros != null) {
                             if (p.getTiporesultado().equals("Tiempo")) {

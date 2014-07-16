@@ -851,7 +851,7 @@ public class ControlPrincipal implements ActionListener {
                     @Override
                     public void run() {
                         DialogoImprimirResultados dialog
-                                = new DialogoImprimirResultados(new Frame(), true);
+                                = new DialogoImprimirResultados(new Frame(), true, "PDF");
                         dialog.setMinimumSize(new Dimension(420, 320));
                         Dimension dimension
                                 = Toolkit.getDefaultToolkit().getScreenSize();

@@ -23,6 +23,8 @@ public interface VistaRegistros {
     
     String IMPORTARREGISTROS = "importar";
     
+    String CREARPLANTILLA = "crearplantilla";
+    
     /**Asocia un listener controlador a elementos de la vista
      * 
      * @param al ActionListener 
@@ -197,4 +199,6 @@ public interface VistaRegistros {
      * @return boolean
      */
     public boolean mejoresMarcasCheckBoxIsSelected();
+    
+    
 }

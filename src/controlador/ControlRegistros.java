@@ -23,7 +23,11 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Toolkit;
 import java.util.ArrayList;
+import vista.DialogoImprimirResultados;
 import vista.VistaRegistros;
 
 /**
@@ -75,7 +79,7 @@ public class ControlRegistros implements ActionListener {
                         //Actualizamos la vista
                         añadirRegistroAVista(registro);
                         Coordinador.getInstance().setEstadoLabel("Registro creado correctamente", Color.BLUE);
-                    }else{
+                    } else {
                         Coordinador.getInstance().setEstadoLabel("Prueba no válida", Color.RED);
                     }
                 } catch (NumberFormatException e) {
@@ -155,6 +159,25 @@ public class ControlRegistros implements ActionListener {
                     ImportarRegistros imReg;
                     (imReg = new ImportarRegistros(fc.getSelectedFile().getPath())).execute();
                 }
+                break;
+            case VistaRegistros.CREARPLANTILLA:
+
+                DialogoImprimirResultados dialog
+                        = new DialogoImprimirResultados(new Frame(), true, "Excel");
+                dialog.setMinimumSize(new Dimension(420, 320));
+                Dimension dimension
+                        = Toolkit.getDefaultToolkit().getScreenSize();
+                dialog.setLocation(dimension.width / 2
+                        - dialog.getSize().width / 2, dimension.height / 2 - dialog.getSize().height / 2);
+                ActionListener controladorDialog = new ControlImprimirResultados(dialog);
+                dialog.controlador(controladorDialog);
+                PruebaJpa pruebajpa = new PruebaJpa();
+                GrupoJpa grupojpa = new GrupoJpa();
+                List<String> pruebas = pruebajpa.findNombresPruebasByCompeticon(Coordinador.getInstance().getSeleccionada());
+                List<String> grupos = grupojpa.findNombresGruposByCompeticion(Coordinador.getInstance().getSeleccionada());
+                dialog.asignarListaPruebas(pruebas);
+                dialog.asignarListaGrupos(grupos);
+                dialog.setVisible(true);
                 break;
         }
     }

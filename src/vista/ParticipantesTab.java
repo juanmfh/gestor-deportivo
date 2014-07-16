@@ -55,7 +55,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     private final DefaultComboBoxModel modelEquipoComboBox;
     private final JButton crearParticipanteButton;
     private final JButton modificarParticipanteButton;
-    private final JButton eliminarParticipanteButotn;
+    private final JButton eliminarParticipanteButton;
     private final JTable participantesTable;
     private final DefaultTableModel modeloParticipantesTable;
     private final JScrollPane participantesScrollPane;
@@ -265,44 +265,30 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         constraints.insets = new Insets(10, 20, 0, 0);
         this.add(formularioParticipantePanel, constraints);
         constraints.insets = new Insets(0, 0, 0, 0);
-
-        crearParticipanteButton = new JButton("Crear");
+        
+        //BOTONERA
+        
+        JPanel botoneraPanel = new JPanel(new FlowLayout()); 
         constraints.gridx = 0;
         constraints.gridy = 2;
-        constraints.gridwidth = 1;
+        constraints.gridwidth = 4;
         constraints.gridheight = 1;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0, 20, 0, 0);
-        this.add(crearParticipanteButton, constraints);
+        this.add(botoneraPanel, constraints);
+        
+        crearParticipanteButton = new JButton("Crear");
+        botoneraPanel.add(crearParticipanteButton);
 
         modificarParticipanteButton = new JButton("Modificar");
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.insets = new Insets(0, 10, 0, 0);
-        this.add(modificarParticipanteButton, constraints);
+        botoneraPanel.add(modificarParticipanteButton);
 
-        eliminarParticipanteButotn = new JButton("Eliminar");
-        constraints.gridx = 2;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        this.add(eliminarParticipanteButotn, constraints);
+        eliminarParticipanteButton = new JButton("Eliminar");
+        botoneraPanel.add(eliminarParticipanteButton);
 
         limpiarButton = new JButton("Limpiar");
-        constraints.gridx = 3;
-        constraints.gridy = 2;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
-        this.add(limpiarButton, constraints);
+        botoneraPanel.add(limpiarButton);
 
         listaParticipantesLabel = new JLabel("Lista de Participantes");
         listaParticipantesLabel.setFont(new Font("TimesRoman", Font.BOLD, 14));
@@ -404,12 +390,12 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     public void controlador(ActionListener al) {
         crearParticipanteButton.addActionListener(al);
         modificarParticipanteButton.addActionListener(al);
-        eliminarParticipanteButotn.addActionListener(al);
+        eliminarParticipanteButton.addActionListener(al);
         limpiarButton.addActionListener(al);
         importarButton.addActionListener(al);
         crearParticipanteButton.setActionCommand(CREARPARTICIPANTE);
         modificarParticipanteButton.setActionCommand(MODIFICARPARTICIPANTE);
-        eliminarParticipanteButotn.setActionCommand(ELIMINARPARTICIPANTE);
+        eliminarParticipanteButton.setActionCommand(ELIMINARPARTICIPANTE);
         limpiarButton.setActionCommand(LIMPIARPARTICIPANTE);
         importarButton.setActionCommand(IMPORTAR);
     }
@@ -583,7 +569,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         if(rol.equals(RolUsuario.Invitado)){
             crearParticipanteButton.setEnabled(false);
             modificarParticipanteButton.setEnabled(false);
-            eliminarParticipanteButotn.setEnabled(false);
+            eliminarParticipanteButton.setEnabled(false);
             limpiarButton.setEnabled(false);
         }
         
