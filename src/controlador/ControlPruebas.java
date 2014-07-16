@@ -10,11 +10,15 @@ import modelo.Compuesta;
 import modelo.Prueba;
 import modelo.Registro;
 import dao.CompuestaJpa;
+import dao.GrupoJpa;
+import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modelo.Grupo;
+import modelo.Participante;
 import vista.GeneralTab;
 import vista.VistaPrincipal;
 
@@ -244,6 +248,24 @@ public class ControlPruebas implements ActionListener {
         } catch (NonexistentEntityException ex) {
 
         }
+        
+        // Modificamos los participantes que tienen asignado dicha prueba
+        ParticipanteJpa participanteJpa = new ParticipanteJpa();
+        GrupoJpa grupoJpa = new GrupoJpa();
+        List<Grupo> grupos = grupoJpa.findGruposByCompeticion(Coordinador.getInstance().getSeleccionada());
+        Prueba prueba = pruebajpa.findPrueba(pruebaid);
+        for(Grupo g: grupos){
+            List<Participante> participantes = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
+            for(Participante participante: participantes){
+                participante.setPruebaasignada(null);
+                try {
+                    participanteJpa.edit(participante);
+                } catch (Exception ex) {
+                    
+                }
+            }
+        }
+        
 
         try {
             // Eliminamos la prueba

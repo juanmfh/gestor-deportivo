@@ -1,5 +1,6 @@
 package controlador;
 
+import com.itextpdf.text.DocumentException;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +27,22 @@ import dao.exceptions.NonexistentEntityException;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingWorker;
+import modelo.Competicion;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vista.DialogoImprimirResultados;
 import vista.VistaRegistros;
 
@@ -673,6 +689,184 @@ public class ControlRegistros implements ActionListener {
 
         // Actualizamos la vista
         Coordinador.getInstance().getControladorPrincipal().cargarTablaRegistros(registros);
+    }
+
+    public static void crearPlantillaFileChooser(List<String> nombrePruebas, List<String> nombreGrupos, Boolean participantesAsignados) throws InputException {
+        Competicion c = Coordinador.getInstance().getControladorPrincipal().getSeleccionada();
+        if (c != null) {
+            JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setDialogTitle("Guardar en");
+            int res = fc.showSaveDialog(null);
+            if (res == JFileChooser.APPROVE_OPTION) {
+                CrearPlantillaExcel cPExcel;
+                (cPExcel = new CrearPlantillaExcel(fc.getSelectedFile().getPath(), c, nombrePruebas, nombreGrupos, participantesAsignados)).execute();
+            }
+        } else {
+            throw new InputException("Competición no seleccionada");
+        }
+    }
+
+    public static class CrearPlantillaExcel extends SwingWorker<Void, Void> {
+
+        private String path;
+        private Competicion competicion;
+        private List<String> nombrePruebas;
+        private List<String> nombreGrupos;
+        private boolean participantesAsignados;
+
+        private static final int PRIMERA_FILA = 2;
+        private static final int PRIMERA_COLUMNA_PRUEBA = 2;
+        private static final int PRIMERA_COLUMNA = 1;
+        private static final int NUM_PARAMPRUEBA = 2;
+
+        public CrearPlantillaExcel(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos, boolean participantesAsignados) {
+            this.path = path;
+            this.competicion = c;
+            this.nombrePruebas = nombrePruebas;
+            this.nombreGrupos = nombreGrupos;
+            this.participantesAsignados = participantesAsignados;
+        }
+
+        @Override
+        protected void done() {
+            try {
+                get();
+                Coordinador.getInstance().setEstadoLabel("Plantilla creada correctamente", Color.BLUE);
+
+            } catch (InterruptedException | ExecutionException ex) {
+                Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+            } finally {
+                Coordinador.getInstance().mostrarBarraProgreso(false);
+            }
+
+        }
+
+        @Override
+        protected void process(List chunks) {
+            Coordinador.getInstance().setEstadoLabel("Creando plantilla... ", Color.BLACK);
+            Coordinador.getInstance().mostrarBarraProgreso(true);
+        }
+
+        @Override
+        protected Void doInBackground() throws FileNotFoundException, IOException {
+            // Actualiza la interfaz (muestra la barra de estado)
+            publish((Void) null);
+
+            Workbook wb = new XSSFWorkbook();
+            FileOutputStream fileOut;
+            fileOut = new FileOutputStream(path + "/" + competicion.getNombre() + "_registros.xlsx");
+
+            // Se cargan las Pruebas de las que se van a generar resultados
+            List<Prueba> pruebas = null;
+            PruebaJpa pruebajpa = new PruebaJpa();
+            if (nombrePruebas == null) {
+                pruebas = pruebajpa.findPruebasByCompeticon(Coordinador.getInstance().getSeleccionada());
+            } else {
+                pruebas = new ArrayList();
+                for (String nombrePrueba : nombrePruebas) {
+                    pruebas.add(pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId()));
+                }
+            }
+
+            // Por cada prueba
+            for (Prueba prueba : pruebas) {
+                //Creamos una hoja nueva
+                Sheet hoja = wb.createSheet(prueba.getNombre());
+                
+                // Fila en blanco
+                Row fila = hoja.createRow(0);
+
+                // Fila de Cabeceras
+                fila = hoja.createRow(PRIMERA_FILA - 1);
+                Cell celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
+                celda.setCellValue("Prueba");
+                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 1);
+                celda.setCellValue("Tipo");
+                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 2);
+                celda.setCellValue("Resultado");
+
+                //Datos de la prueba
+                fila = hoja.createRow(PRIMERA_FILA);
+                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
+                celda.setCellValue(prueba.getNombre());
+
+                // Segunda fila de cabeceras
+                fila = hoja.createRow(PRIMERA_FILA + 1);
+                if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
+                    celda = fila.createCell(PRIMERA_COLUMNA - 1);
+                    celda.setCellValue("Participante");
+                    celda = fila.createCell(PRIMERA_COLUMNA);
+                    celda.setCellValue("Dorsal");
+                } else {
+                    celda = fila.createCell(PRIMERA_COLUMNA);
+                    celda.setCellValue("Equipo");
+                }
+                celda = fila.createCell(PRIMERA_COLUMNA + 1);
+                celda.setCellValue("Intento 1");
+                celda = fila.createCell(PRIMERA_COLUMNA + 2);
+                celda.setCellValue("Intento 2");
+                celda = fila.createCell(PRIMERA_COLUMNA + 3);
+                celda.setCellValue("Intento 3");
+
+                int contadorFila = PRIMERA_FILA + 2;
+                // Grupos
+                ParticipanteJpa participanteJpa = new ParticipanteJpa();
+                EquipoJpa equipoJpa = new EquipoJpa();
+                GrupoJpa grupoJpa = new GrupoJpa();
+                List<Grupo> grupos;
+
+                if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
+                    if (nombreGrupos == null) {
+                        grupos = grupoJpa.findGruposByCompeticion(competicion);
+                    } else {
+                        grupos = new ArrayList();
+                        for (String nombreGrupo : nombreGrupos) {
+                            Grupo g = grupoJpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
+                            grupos.add(g);
+                        }
+                    }
+                    for (Grupo g : grupos) {
+                        List<Participante> aux;
+                        if (participantesAsignados) {
+                            aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
+                        } else {
+                            aux = participanteJpa.findParticipantesByGrupo(g.getId());
+                        }
+                        for (Participante particip : aux) {
+                            fila = hoja.createRow(contadorFila++);
+                            celda = fila.createCell(PRIMERA_COLUMNA - 1);
+                            celda.setCellValue(particip.getApellidos() + ", " + particip.getNombre());
+                            celda = fila.createCell(PRIMERA_COLUMNA);
+                            celda.setCellValue(particip.getDorsal());
+                        }
+                    }
+                } else if (prueba.getTipo().equals(TipoPrueba.Equipo.toString())) {
+                    List<Equipo> equipos;
+                    if (nombreGrupos == null) {
+                        equipos = equipoJpa.findByCompeticion(competicion.getId());
+                    } else {
+                        equipos = new ArrayList();
+                        for (String nombreGrupo : nombreGrupos) {
+                            Grupo grupo = grupoJpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
+                            List<Equipo> aux = equipoJpa.findByGrupo(grupo.getId());
+                            for (Equipo e : aux) {
+                                equipos.add(e);
+                            }
+                        }
+                    }
+                    for (Equipo equipo : equipos) {
+                        fila = hoja.createRow(contadorFila++);
+                        celda = fila.createCell(PRIMERA_COLUMNA);
+                        celda.setCellValue(equipo.getNombre());
+                    }
+                }
+            }
+            wb.write(fileOut);
+            fileOut.close();
+            return null;
+        }
+
     }
 
 }

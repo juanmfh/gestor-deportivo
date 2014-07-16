@@ -94,9 +94,13 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                 // Si la hoja es la de Tipos se descarta (hoja donde se encuentran las listas de tipos de prueba)
                 if (!hoja.getSheetName().equals("Tipos")) {
                     Iterator<Row> iteradorFila = hoja.iterator();
-                    Row fila = iteradorFila.next();
+                    
+                    Row fila = null;/* = iteradorFila.next();
                     fila = iteradorFila.next(); //Cabecera, no contiene datos
-                    fila = iteradorFila.next();     //Fila donde se encuentra los datos de las pruebas
+                    fila = iteradorFila.next();*/     //Fila donde se encuentra los datos de las pruebas
+                    for(int i = 0; i<= PRIMERA_FILA - hoja.getFirstRowNum();i++){
+                        fila = iteradorFila.next();
+                    }
                     if (fila.getLastCellNum() < PRIMERA_COLUMNA_PRUEBA + NUM_PARAMPRUEBA + 1) {
                         // Se pasa a la siguiente hoja, parametros no correctos
                     } else {
@@ -115,7 +119,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                 try {
                                     prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
                                 } catch (InputException ex) {
-                                    throw new InputException(ex.getMessage());
+                                    //throw new InputException(ex.getMessage());
                                 }
                             } else {
                                 // Si la prueba ya existe, se modifica
@@ -215,7 +219,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                 if (celda != null) {
                                                     if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
                                                         data = celda.getStringCellValue();
-                                                        System.out.println("Tiempo:" + data);
+                                                        //System.out.println("Tiempo:" + data);
                                                         if (data.length() > 0) {
                                                             try {
                                                                 ControlRegistros.crearRegistro(
