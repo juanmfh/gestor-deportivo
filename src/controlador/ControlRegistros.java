@@ -1,6 +1,5 @@
 package controlador;
 
-import com.itextpdf.text.DocumentException;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,19 +29,23 @@ import java.awt.Toolkit;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import static java.lang.Thread.sleep;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import modelo.Competicion;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FontFamily;
+import org.apache.poi.ss.usermodel.FontScheme;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFontSize;
 import vista.DialogoImprimirResultados;
 import vista.VistaRegistros;
 
@@ -709,11 +712,11 @@ public class ControlRegistros implements ActionListener {
 
     public static class CrearPlantillaExcel extends SwingWorker<Void, Void> {
 
-        private String path;
-        private Competicion competicion;
-        private List<String> nombrePruebas;
-        private List<String> nombreGrupos;
-        private boolean participantesAsignados;
+        private final String path;
+        private final Competicion competicion;
+        private final List<String> nombrePruebas;
+        private final List<String> nombreGrupos;
+        private final boolean participantesAsignados;
 
         private static final int PRIMERA_FILA = 2;
         private static final int PRIMERA_COLUMNA_PRUEBA = 2;
@@ -769,45 +772,79 @@ public class ControlRegistros implements ActionListener {
                 }
             }
 
+            // Estilo de las celdas
+            XSSFCellStyle cs1 = (XSSFCellStyle) wb.createCellStyle();
+            cs1.setFillForegroundColor(IndexedColors.GOLD.getIndex());
+            cs1.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            cs1.setBorderBottom(BorderStyle.MEDIUM);
+            cs1.setBorderLeft(BorderStyle.MEDIUM);
+            cs1.setBorderRight(BorderStyle.MEDIUM);
+            cs1.setBorderTop(BorderStyle.MEDIUM);
+            XSSFFont f = (XSSFFont) wb.createFont();
+            f.setBold(true);
+            f.setColor(IndexedColors.BLACK.getIndex());
+            cs1.setFont(f);
+            
+            XSSFCellStyle cs2 = (XSSFCellStyle) wb.createCellStyle();
+            cs2.setFillForegroundColor(IndexedColors.TAN.getIndex());
+            cs2.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            cs2.setBorderBottom(BorderStyle.THIN);
+            cs2.setBorderLeft(BorderStyle.THIN);
+            cs2.setBorderRight(BorderStyle.THIN);
+            cs2.setBorderTop(BorderStyle.THIN);
+
             // Por cada prueba
             for (Prueba prueba : pruebas) {
                 //Creamos una hoja nueva
                 Sheet hoja = wb.createSheet(prueba.getNombre());
-                
-                // Fila en blanco
-                Row fila = hoja.createRow(0);
 
                 // Fila de Cabeceras
-                fila = hoja.createRow(PRIMERA_FILA - 1);
+                Row fila = hoja.createRow(PRIMERA_FILA - 1);
                 Cell celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
                 celda.setCellValue("Prueba");
+                celda.setCellStyle(cs1);
                 celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 1);
                 celda.setCellValue("Tipo");
+                celda.setCellStyle(cs1);
                 celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 2);
                 celda.setCellValue("Resultado");
+                celda.setCellStyle(cs1);
 
                 //Datos de la prueba
                 fila = hoja.createRow(PRIMERA_FILA);
                 celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
                 celda.setCellValue(prueba.getNombre());
+                celda.setCellStyle(cs2);
+                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 1);
+                celda.setCellValue(prueba.getTipo());
+                celda.setCellStyle(cs2);
+                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 2);
+                celda.setCellValue(prueba.getTiporesultado());
+                celda.setCellStyle(cs2);
 
                 // Segunda fila de cabeceras
                 fila = hoja.createRow(PRIMERA_FILA + 1);
                 if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                     celda = fila.createCell(PRIMERA_COLUMNA - 1);
                     celda.setCellValue("Participante");
+                    celda.setCellStyle(cs1);
                     celda = fila.createCell(PRIMERA_COLUMNA);
                     celda.setCellValue("Dorsal");
+                    celda.setCellStyle(cs1);
                 } else {
                     celda = fila.createCell(PRIMERA_COLUMNA);
                     celda.setCellValue("Equipo");
+                    celda.setCellStyle(cs1);
                 }
                 celda = fila.createCell(PRIMERA_COLUMNA + 1);
                 celda.setCellValue("Intento 1");
+                celda.setCellStyle(cs1);
                 celda = fila.createCell(PRIMERA_COLUMNA + 2);
                 celda.setCellValue("Intento 2");
+                celda.setCellStyle(cs1);
                 celda = fila.createCell(PRIMERA_COLUMNA + 3);
                 celda.setCellValue("Intento 3");
+                celda.setCellStyle(cs1);
 
                 int contadorFila = PRIMERA_FILA + 2;
                 // Grupos
@@ -837,8 +874,15 @@ public class ControlRegistros implements ActionListener {
                             fila = hoja.createRow(contadorFila++);
                             celda = fila.createCell(PRIMERA_COLUMNA - 1);
                             celda.setCellValue(particip.getApellidos() + ", " + particip.getNombre());
+                            celda.setCellStyle(cs2);
                             celda = fila.createCell(PRIMERA_COLUMNA);
                             celda.setCellValue(particip.getDorsal());
+                            celda.setCellStyle(cs2);
+                            
+                            for(int i=1;i<=3;i++){
+                            celda = fila.createCell(PRIMERA_COLUMNA + i);
+                            celda.setCellStyle(cs2);
+                            }
                         }
                     }
                 } else if (prueba.getTipo().equals(TipoPrueba.Equipo.toString())) {
@@ -859,6 +903,12 @@ public class ControlRegistros implements ActionListener {
                         fila = hoja.createRow(contadorFila++);
                         celda = fila.createCell(PRIMERA_COLUMNA);
                         celda.setCellValue(equipo.getNombre());
+                        celda.setCellStyle(cs2);
+                        
+                        for(int i=1;i<=3;i++){
+                            celda = fila.createCell(PRIMERA_COLUMNA + i);
+                            celda.setCellStyle(cs2);
+                        }
                     }
                 }
             }

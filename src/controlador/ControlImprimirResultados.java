@@ -64,7 +64,6 @@ public class ControlImprimirResultados implements ActionListener {
             } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
                 PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(), vista.getgenerarListaSalidaCheckBox(), vista.getparticipantesAsignadosCheckBox());
             }
-            Coordinador.getInstance().setEstadoLabel("Resultados imprimidos correctamente", Color.BLUE);
             vista.cerrar();
         } catch (InputException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
