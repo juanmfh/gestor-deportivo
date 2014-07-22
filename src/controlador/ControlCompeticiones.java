@@ -14,13 +14,10 @@ import dao.CompuestaJpa;
 import dao.GrupoJpa;
 import dao.InscripcionJpa;
 import dao.PruebaJpa;
-import dao.RegistroJpa;
-import java.util.ArrayList;
 import java.util.List;
 import modelo.Compuesta;
 import modelo.Grupo;
 import modelo.Inscripcion;
-import modelo.Registro;
 import vista.VistaCompeticion;
 
 /**
@@ -108,6 +105,7 @@ public class ControlCompeticiones implements ActionListener {
      * @param nombreImagen nombre de la imagen que será su logo.
      * @param organizador organizador de la competición.
      * @return Competicion
+     * @throws controlador.InputException
      */
     public Competicion crearCompeticion(String nombre,
             String lugar,
@@ -155,16 +153,18 @@ public class ControlCompeticiones implements ActionListener {
         }
         return administrado;
     }
-    
+
     /**
      * Modifica una competición a partir de los datos de la vista.
      *
      * @return la Competicion modificada
+     * @throws controlador.InputException
      */
     private Competicion modificarCompeticion() throws InputException {
 
         // Obtenemos la competicion que vamos a modificar
         Competicion c = Coordinador.getInstance().getSeleccionada();
+        String oldpath = c.getImagen();
 
         // Obtenemos los datos necesarios para modificar la competicion
         Date fechaInicio = IOFile.formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
@@ -179,6 +179,12 @@ public class ControlCompeticiones implements ActionListener {
                 nombreImagen,
                 vista.getOrganizador());
 
+        // Si la imagen ha cambiado, hacemos una copia del fichero y ponemos
+        // la nueva imagen.
+        if (!c.getImagen().equals(oldpath)) {
+            IOFile.copiarFichero(vista.getRutaImagen(),
+                    System.getProperty("user.dir") + "/resources/img/");
+        }
         return c;
 
     }
@@ -195,8 +201,9 @@ public class ControlCompeticiones implements ActionListener {
      * @param nombreImagen nombre de la imagen que será su logo.
      * @param organizador organizador de la competición.
      * @return Competicion
+     * @throws controlador.InputException
      */
-    private Competicion modificarCompeticion(Competicion competicion,
+    public Competicion modificarCompeticion(Competicion competicion,
             String nombre,
             String lugar,
             Date fechaInicio,
@@ -206,35 +213,34 @@ public class ControlCompeticiones implements ActionListener {
 
         CompeticionJpa competicionjpa = new CompeticionJpa();
 
-        // Si el nombre es vacio el resultado es null
-        if (nombre.length() > 0) {
-            competicion.setNombre(nombre);
-            competicion.setOrganizador(organizador);
-            competicion.setCiudad(lugar);
-            competicion.setFechainicio(fechaInicio);
-            competicion.setFechafin(fechaFin);
+        // Se comprueba que el nombre tenga una longitud > 0
+        if (nombre != null && nombre.length() > 0) {
 
-            // Si la imagen ha cambiado, hacemos una copia del fichero y ponemos
-            // la nueva imagen.
-            if (!competicion.getImagen().equals(vista.getRutaImagen())) {
+            Competicion c = competicionjpa.findCompeticionByName(nombre);
+            if (c == null || c.equals(competicion)) {
+                competicion.setNombre(nombre);
+                competicion.setOrganizador(organizador);
+                competicion.setCiudad(lugar);
+                competicion.setFechainicio(fechaInicio);
+                competicion.setFechafin(fechaFin);
                 competicion.setImagen(nombreImagen);
-                IOFile.copiarFichero(vista.getRutaImagen(),
-                        System.getProperty("user.dir") + "/resources/img/");
-            }
-            try {
-                // Cargamos la modificación en la base de datos
-                competicionjpa.edit(competicion);
-            } catch (dao.exceptions.NonexistentEntityException ex) {
-                throw new InputException("Competición no encontrada");
-            } catch (Exception ex) {
-                throw new InputException(ex.getMessage());
+                try {
+                    // Cargamos la modificación en la base de datos
+                    competicionjpa.edit(competicion);
+                } catch (dao.exceptions.NonexistentEntityException ex) {
+                    throw new InputException("Competición no encontrada");
+                } catch (Exception ex) {
+                    throw new InputException(ex.getMessage());
+                }
+            } else {
+                throw new InputException("Nombre de competición ocupado");
             }
         } else {
-            throw new InputException("Nombre de competición no válida");
+            throw new InputException("Nombre de competición no válido");
         }
         return competicion;
     }
-    
+
     /**
      * Elimina la Competicion y todo sus datos (grupos, participantes,
      * resultados) dado su nombre
@@ -252,46 +258,22 @@ public class ControlCompeticiones implements ActionListener {
         if (c != null) {
             CompuestaJpa compuestajpa = new CompuestaJpa();
             List<Compuesta> compuesta = compuestajpa.findCompuestaByCompeticion(c.getId());
-            
+
             AdministradoJpa admjpa = new AdministradoJpa();
             List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
-            
-            InscripcionJpa inscripcionjpa = new InscripcionJpa();
-            List<Inscripcion> inscripciones = inscripcionjpa.findInscripcionByCompeticion(c.getId());
 
             try {
                 for (Administrado temp : administra) {
                     admjpa.destroy(temp.getId());
                 }
-                /*RegistroJpa registrosjpa = new RegistroJpa();
-                List<Integer> gruposIds = new ArrayList<>();
-                for (Inscripcion insc : inscripciones) {
-                    gruposIds.add(insc.getGrupoId().getId());
-                    List<Registro> registros = registrosjpa.findByInscripcion(insc.getId());
-                    if (registros != null) {
-                        // Eliminamos todos los registros
-                        for (Registro r : registros) {
-                            registrosjpa.destroy(r.getId());
-                        }
-                    }
-                    inscripcionjpa.destroy(insc.getId());
-                }*/
-                
+
                 // Eliminamos los grupos
                 GrupoJpa grupojpa = new GrupoJpa();
                 List<Grupo> grupos = grupojpa.findGruposRaizByCompeticion(c);
-                for(Grupo grupo: grupos){
-                    ControlGrupos.eliminarGrupo(grupo.getId());
+                for (Grupo grupo : grupos) {
+                    ControlGrupos.eliminarGrupo(c,grupo.getId());
                 }
-                /*for (Integer g : gruposIds) {
-                    Grupo grupo = grupojpa.findGrupo(g);
-                    if (grupo != null) {
-                        if (grupo.getInscripcionCollection().isEmpty()
-                                && grupo.getGrupoId() == null) {
-                            eliminarGrupo(grupo);
-                        }
-                    }
-                }*/
+
                 // Eliminamos las pruebas
                 PruebaJpa pruebajpa = new PruebaJpa();
                 for (Compuesta comp : compuesta) {
@@ -307,6 +289,5 @@ public class ControlCompeticiones implements ActionListener {
         } else {
             throw new InputException("Competición no encontrada");
         }
-
     }
 }

@@ -47,7 +47,7 @@ public class ControlGrupos implements ActionListener {
             case VistaGrupos.CREARGRUPO:
                 Grupo g;
                 try {
-                    g = crearGrupo(vista.getNombreGrupo(),
+                    g = crearGrupo(Coordinador.getInstance().getSeleccionada(),vista.getNombreGrupo(),
                             vista.getSubgrupoDeComboBox().getSelectedItem().toString());
                     //Actualizamos la vista
                     vista.añadirGrupoATabla(new Object[]{
@@ -92,7 +92,7 @@ public class ControlGrupos implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialog == JOptionPane.YES_OPTION) {
                         try {
-                            eliminarGrupo(vista.getGrupoSelected());
+                            eliminarGrupo(Coordinador.getInstance().getSeleccionada(),vista.getGrupoSelected());
                             //Actualizamos la vista
                             vista.limpiarFormularioGrupo();
                             Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();
@@ -114,19 +114,20 @@ public class ControlGrupos implements ActionListener {
     /**
      * Crea un grupo cuyo nombre debe de ser único en la competición
      *
+     * @param competicion
      * @param nombre Nombre del grupo
      * @param subGrupoDe Grupo superior (null si no pertenece a ningún grupo o
      * cadena "Ninguno")
      * @return Grupo creado
      */
-    public static Grupo crearGrupo(String nombre, String subGrupoDe) throws InputException {
+    public static Grupo crearGrupo(Competicion competicion,String nombre, String subGrupoDe) throws InputException {
 
         // Comprobamos el nombre del grupo 
         if (nombre.length() > 0) {
 
             GrupoJpa grupojpa = new GrupoJpa();
             InscripcionJpa inscripcionjpa = new InscripcionJpa();
-            Competicion competicion = Coordinador.getInstance().getSeleccionada();
+            
 
             // Comprobamos que en la competición no haya ningún grupo con el mismo nombre            
             if (inscripcionjpa.findInscripcionByCompeticionByNombreGrupo(competicion.getId(), nombre) == null) {
@@ -207,9 +208,11 @@ public class ControlGrupos implements ActionListener {
      * Elimina al grupo, participantes del grupo y registros de los
      * participantes cuyo id es grupoid
      *
+     * @param c
      * @param grupoid Id del grupo a eliminar
+     * @throws controlador.InputException
      */
-    public static void eliminarGrupo(Integer grupoid) throws InputException {
+    public static void eliminarGrupo(Competicion c,Integer grupoid) throws InputException {
 
         GrupoJpa grupojpa = new GrupoJpa();
         Grupo g = grupojpa.findGrupo(grupoid);
@@ -222,10 +225,10 @@ public class ControlGrupos implements ActionListener {
         // Obtenemos la lista de subgrupos y los eliminamos
         List<Grupo> subgrupos = grupojpa.findGrupoByGrupoId(g.getId());
         for (Grupo subgrupo : subgrupos) {
-            eliminarGrupo(subgrupo.getId());
+            eliminarGrupo(c,subgrupo.getId());
         }
         try {
-            Inscripcion i = inscrjpa.findInscripcionByCompeticionByGrupo(Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+            Inscripcion i = inscrjpa.findInscripcionByCompeticionByGrupo(c.getId(), g.getId());
             if (i != null) {
                 // Obtenemos los registros de este grupo y los eliminamos
                 List<Registro> registros = registrosjpa.findByInscripcion(i.getId());

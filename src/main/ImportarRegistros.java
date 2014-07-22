@@ -113,7 +113,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                             prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId());
                             if (prueba == null) {
                                 try {
-                                    prueba = ControlPruebas.crearPrueba(nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
+                                    prueba = ControlPruebas.crearPrueba(Coordinador.getInstance().getSeleccionada(),nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
                                 } catch (InputException ex) {
                                     //throw new InputException(ex.getMessage());
                                 }

@@ -47,7 +47,8 @@ public class ControlPruebas implements ActionListener {
                 if (Coordinador.getInstance().getSeleccionada() != null) {
                     Prueba prueba;
                     try {
-                        prueba = crearPrueba(vista.getNombrePrueba(),
+                        prueba = crearPrueba(Coordinador.getInstance().getSeleccionada(),
+                                vista.getNombrePrueba(),
                                 vista.getTipoPrueba(), vista.getTipoResultado());
                         // Actualizamos la vista
                         vista.añadirPruebaATabla(new Object[]{
@@ -122,7 +123,7 @@ public class ControlPruebas implements ActionListener {
      * @return la Prueba creada
      * @throws controlador.InputException
      */
-    public static Prueba crearPrueba(String nombre, String tipoPrueba,
+    public static Prueba crearPrueba(Competicion competicion, String nombre, String tipoPrueba,
             String tipoResultado) throws InputException {
 
         Prueba p = null;
@@ -135,8 +136,7 @@ public class ControlPruebas implements ActionListener {
 
             // Comprueba que el nombre de la prueba esté disponible
             // en la competicion seleccionada
-            if (!existePrueba(nombre,
-                    Coordinador.getInstance().getSeleccionada())) {
+            if (!existePrueba(nombre,competicion)) {
 
                 // Creamos una prueba con sus datos correspondientes
                 p = new Prueba();
@@ -160,7 +160,7 @@ public class ControlPruebas implements ActionListener {
 
                 // Asociamos la prueba con la competición
                 Compuesta compuesta = new Compuesta();
-                compuesta.setCompeticionId(Coordinador.getInstance().getSeleccionada());
+                compuesta.setCompeticionId(competicion);
                 // El orden las pruebas no se utiliza actualmente
                 compuesta.setOrden(1);
                 compuesta.setPruebaId(p);

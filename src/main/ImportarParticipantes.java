@@ -116,7 +116,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                 try {
                                     // Se crea una nueva prueba en caso de que no exista, por defecto se crea de tipo individual y con un resultado numérico.
                                     // Se podrá modificar luego manualmente en el programa o al importar registros
-                                    ControlPruebas.crearPrueba(celda.getStringCellValue(), TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+                                    ControlPruebas.crearPrueba(Coordinador.getInstance().getSeleccionada(),celda.getStringCellValue(), TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
                                 } catch (InputException ex) {
 
                                 }
@@ -165,7 +165,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                     if (data != null) {
                                         grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                         if (grupo == null) {
-                                            grupo = ControlGrupos.crearGrupo(data, null);
+                                            grupo = ControlGrupos.crearGrupo(Coordinador.getInstance().getSeleccionada(),data, null);
                                         }
                                         participante.setGrupoId(grupo);
                                         columna++;
