@@ -24,7 +24,7 @@ import javax.swing.filechooser.FileFilter;
  *
  * @author JuanM
  */
-public class DialogoCrearCompeticion extends JDialog implements VistaCrearCompeticion {
+public class DialogoCompeticion extends JDialog implements VistaCompeticion {
 
     private final JLabel nombreLabel;
     private final JTextField nombreTextField;
@@ -55,10 +55,14 @@ public class DialogoCrearCompeticion extends JDialog implements VistaCrearCompet
     private final JTextField añoFinTextField;
     private final JPanel fechaInicioPanel;
     private final JPanel fechaFinPanel;
+    
+    private final boolean modificarCompeticion;
 
-    public DialogoCrearCompeticion(String titulo, java.awt.Frame parent, boolean modal) {
+    public DialogoCompeticion(String titulo, java.awt.Frame parent, boolean modal,boolean modificarCompeticion) {
         super(parent, modal);
         initComponents();
+        this.modificarCompeticion = modificarCompeticion;
+        
         this.setTitle(titulo);
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -289,10 +293,10 @@ public class DialogoCrearCompeticion extends JDialog implements VistaCrearCompet
     @Override
     public void controlador(ActionListener al) {
         okButton.addActionListener(al);
-        okButton.setActionCommand(VistaCrearCompeticion.OK);
+        okButton.setActionCommand(VistaCompeticion.OK);
 
         cancelarButton.addActionListener(al);
-        cancelarButton.setActionCommand(VistaCrearCompeticion.CANCELAR);
+        cancelarButton.setActionCommand(VistaCompeticion.CANCELAR);
     }
 
     @Override
@@ -379,6 +383,11 @@ public class DialogoCrearCompeticion extends JDialog implements VistaCrearCompet
     @Override
     public String getRutaImagen(){
         return logoTextField.getText().toString();
+    }
+
+    @Override
+    public boolean getVistaModificarCompeticion() {
+        return modificarCompeticion;
     }
 
 }

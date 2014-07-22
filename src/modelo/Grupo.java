@@ -31,7 +31,8 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Grupo.findById", query = "SELECT g FROM Grupo g WHERE g.id = :id"),
     @NamedQuery(name = "Grupo.findByNombre", query = "SELECT g FROM Grupo g WHERE g.nombre = :nombre"),
     
-    @NamedQuery(name = "Grupo.findByCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :id"), 
+    @NamedQuery(name = "Grupo.findByCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :id"),
+    @NamedQuery(name = "Grupo.findRaizByCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :id AND g.grupoId is NULL"), 
     @NamedQuery(name = "Grupo.findNombresByCompeticion", query = "SELECT g.nombre FROM Grupo g JOIN g.inscripcionCollection i WHERE i.competicionId.id = :id"), 
     @NamedQuery(name = "Grupo.findByGrupoId", query = "SELECT g FROM Grupo g WHERE g.grupoId.id = :id"),
     @NamedQuery(name = "Grupo.findByNombreAndCompeticion", query = "SELECT g FROM Grupo g JOIN g.inscripcionCollection i WHERE g.nombre = :nombre and i.competicionId.id = :competicionid "),

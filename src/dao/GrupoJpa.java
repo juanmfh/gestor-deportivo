@@ -463,6 +463,30 @@ public class GrupoJpa implements Serializable {
             return res;
         }
     }
+    
+    /** Devuelve una lista con los grupos que hay en una competición c.
+     * 
+     * @param c Objeto Competicion
+     * @return List<Grupo>
+     */
+    public List<Grupo> findGruposRaizByCompeticion(Competicion c) {
+        EntityManager em = getEntityManager();
+        List<Grupo> res;
+        if (c == null) {
+            return null;
+        } else {
+            try {
+                Query q = em.createNamedQuery("Grupo.findRaizByCompeticion");
+                q.setParameter("id", c.getId());
+                res = q.getResultList();
+            } catch (NoResultException e) {
+                return null;
+            } finally {
+                em.close();
+            }
+            return res;
+        }
+    }
 
     /**Devuelve un objeto Grupo a partir del nombre de este y la competición 
      * donde se encuentra (ya que puede haber grupos con igual nombre en distintas

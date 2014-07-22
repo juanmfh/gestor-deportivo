@@ -8,7 +8,7 @@ import modelo.Competicion;
  *
  * @author JuanM
  */
-public interface VistaCrearCompeticion {
+public interface VistaCompeticion {
        
     String OK = "ok";
    
@@ -100,4 +100,6 @@ public interface VistaCrearCompeticion {
      */
     public String getDiaFin();
     
+    
+    public boolean getVistaModificarCompeticion();
 }
