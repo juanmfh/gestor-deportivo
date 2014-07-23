@@ -42,7 +42,7 @@ public class Coordinador {
     private JFrame jf;
     private VistaLogin login;
     private PanelPrincipal panelPrincipal;
-    private static Coordinador coordinador = new Coordinador();
+    private static final Coordinador coordinador = new Coordinador();
     private ControlPrincipal controladorPrincipal;
     private ControlLogin controladorLogin;
     private Usuario usuario;
@@ -51,12 +51,17 @@ public class Coordinador {
         return coordinador;
     }
 
+    
+    private Coordinador() {
+
+        
+    }
+    
     /**
      * Inicializa la base de datos y carga la pantalla de login
      *
      */
-    private Coordinador() {
-
+    public void inicializar(){
         DataBaseHelper dbhelper = null;
         try {
             // Inicializa la base de datos
@@ -82,7 +87,6 @@ public class Coordinador {
         }
 
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 // Cargamos la pantalla de Login

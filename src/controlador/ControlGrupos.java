@@ -119,6 +119,7 @@ public class ControlGrupos implements ActionListener {
      * @param subGrupoDe Grupo superior (null si no pertenece a ningún grupo o
      * cadena "Ninguno")
      * @return Grupo creado
+     * @throws controlador.InputException
      */
     public static Grupo crearGrupo(Competicion competicion,String nombre, String subGrupoDe) throws InputException {
 

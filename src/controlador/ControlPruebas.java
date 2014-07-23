@@ -15,8 +15,6 @@ import dao.ParticipanteJpa;
 import dao.PruebaJpa;
 import dao.RegistroJpa;
 import dao.exceptions.NonexistentEntityException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import modelo.Grupo;
 import modelo.Participante;
 import vista.GeneralTab;
@@ -117,6 +115,7 @@ public class ControlPruebas implements ActionListener {
     /**
      * Crea una prueba con los datos de la vista
      *
+     * @param competicion Competicion donde se creará la prueba
      * @param nombre Nombre de la prueba
      * @param tipoResultado Tipo de resultado (Distancia, Tiempo, Numerica)
      * @param tipoPrueba Individual o Equipo
@@ -129,42 +128,53 @@ public class ControlPruebas implements ActionListener {
         Prueba p = null;
 
         // Comprueba que el nombre de la prueba es no vacío
-        if (nombre.length() > 0) {
+        if (nombre != null && nombre.length() > 0) {
 
             CompuestaJpa compujpa = new CompuestaJpa();
             PruebaJpa prujpa = new PruebaJpa();
 
             // Comprueba que el nombre de la prueba esté disponible
             // en la competicion seleccionada
-            if (!existePrueba(nombre,competicion)) {
+            if (!existePrueba(nombre, competicion)) {
 
-                // Creamos una prueba con sus datos correspondientes
-                p = new Prueba();
-                p.setNombre(nombre);
+                if (tipoPrueba != null) {
 
-                TipoResultado tresultado;
-                TipoPrueba tprueba;
-                try {
-                    tresultado = TipoResultado.valueOf(tipoResultado);
-                } catch (IllegalArgumentException ie) {
-                    throw new InputException("Tipo de resultado no válido");
-                }
-                try {
-                    tprueba = TipoPrueba.valueOf(tipoPrueba);
-                } catch (IllegalArgumentException ie) {
+                    if (tipoResultado != null) {
+
+                        // Creamos una prueba con sus datos correspondientes
+                        p = new Prueba();
+                        p.setNombre(nombre);
+
+                        TipoResultado tresultado;
+                        TipoPrueba tprueba;
+                        try {
+                            tresultado = TipoResultado.valueOf(tipoResultado);
+                        } catch (IllegalArgumentException ie) {
+                            throw new InputException("Tipo de resultado no válido");
+                        }
+                        try {
+                            tprueba = TipoPrueba.valueOf(tipoPrueba);
+                        } catch (IllegalArgumentException ie) {
+                            throw new InputException("Tipo de prueba no válido");
+                        }
+                        p.setTipo(tprueba.toString());
+                        p.setTiporesultado(tresultado.toString());
+                        prujpa.create(p);
+
+                        // Asociamos la prueba con la competición
+                        Compuesta compuesta = new Compuesta();
+                        compuesta.setCompeticionId(competicion);
+                        // El orden las pruebas no se utiliza actualmente
+                        compuesta.setOrden(1);
+                        compuesta.setPruebaId(p);
+                        compujpa.create(compuesta);
+
+                    } else {
+                        throw new InputException("Tipo de resultado no válido");
+                    }
+                } else {
                     throw new InputException("Tipo de prueba no válido");
                 }
-                p.setTipo(tprueba.toString());
-                p.setTiporesultado(tresultado.toString());
-                prujpa.create(p);
-
-                // Asociamos la prueba con la competición
-                Compuesta compuesta = new Compuesta();
-                compuesta.setCompeticionId(competicion);
-                // El orden las pruebas no se utiliza actualmente
-                compuesta.setOrden(1);
-                compuesta.setPruebaId(p);
-                compujpa.create(compuesta);
             } else {
                 throw new InputException("Nombre de prueba ocupado");
             }
@@ -174,53 +184,79 @@ public class ControlPruebas implements ActionListener {
         return p;
     }
 
-    private Prueba modificarPrueba(Integer pruebaid, Integer competicionid, String nombrePrueba, TipoResultado tipoResultado, TipoPrueba tipoPrueba) throws InputException {
+    public Prueba modificarPrueba(Integer pruebaid, Integer competicionid, String nombrePrueba, TipoResultado tipoResultado, TipoPrueba tipoPrueba) throws InputException {
 
-        PruebaJpa pruebajpa = new PruebaJpa();
+        if (pruebaid != null) {
 
-        // Comprobamos que se ha seleccionado una prueba válida
-        Prueba prueba = pruebajpa.findPrueba(pruebaid);
+            // Comprobamos que se ha seleccionado una prueba válida
+            PruebaJpa pruebajpa = new PruebaJpa();
+            Prueba prueba = pruebajpa.findPrueba(pruebaid);
+            if (prueba != null) {
 
-        if (prueba != null) {
+                if (competicionid != null) {
 
-            //Comprobamos que el nombre de la prueba es válido
-            if (nombrePrueba.length() > 0) {
+                    prueba = pruebajpa.findPruebaByNombreCompeticion(prueba.getNombre(), competicionid);
 
-                // Comprobamos que el nombre de la prueba no esta cogido
-                Prueba pruebaMod = pruebajpa.findPruebaByNombreCompeticion(
-                        nombrePrueba.toString(),
-                        competicionid);
-                if (pruebaMod == null || pruebaMod.getId() == prueba.getId()) {
+                    if (prueba != null) {
 
-                    // Establecemos los atributos a partir de los datos de la vista
-                    prueba.setNombre(nombrePrueba.toString());
+                        //Comprobamos que el nombre de la prueba es válido
+                        if (nombrePrueba.length() > 0) {
 
-                    // Comprobamos que la prueba no tiene registros asocidados
-                    // En caso de tener registros no se podrá modificar 
-                    if (pruebajpa.countRegistrosByPrueba(pruebaid) <= 0) {
-                        prueba.setTiporesultado(tipoResultado.toString());
-                        prueba.setTipo(tipoPrueba.toString());
+                            // Comprobamos que el nombre de la prueba no esta cogido
+                            Prueba pruebaMod = pruebajpa.findPruebaByNombreCompeticion(
+                                    nombrePrueba.toString(),
+                                    competicionid);
+                            if (pruebaMod == null || pruebaMod.getId() == prueba.getId()) {
 
+                                // Establecemos los atributos a partir de los datos de la vista
+                                prueba.setNombre(nombrePrueba.toString());
+
+                                if (tipoPrueba != null) {
+
+                                    if (tipoResultado != null) {
+
+                                        // Comprobamos que la prueba no tiene registros asocidados
+                                        // En caso de tener registros no se podrá modificar 
+                                        if (pruebajpa.countRegistrosByPrueba(pruebaid) <= 0) {
+                                            prueba.setTiporesultado(tipoResultado.toString());
+                                            prueba.setTipo(tipoPrueba.toString());
+
+                                        } else {
+                                            throw new InputException("No se puede modificar una prueba con registros asociados");
+                                        }
+                                        try {
+                                            pruebajpa.edit(prueba);
+                                        } catch (NonexistentEntityException ex) {
+                                            throw new InputException("Prueba no encontrada");
+                                        } catch (Exception ex) {
+                                            throw new InputException(ex.getMessage());
+                                        }
+                                    } else {
+                                        throw new InputException("Tipo de resultado no válido");
+                                    }
+                                } else {
+                                    throw new InputException("Tipo de prueba no válido");
+                                }
+                            } else {
+                                throw new InputException("Nombre de prueba ocupado");
+                            }
+                        } else {
+                            throw new InputException("Nombre de prueba no válido");
+                        }
                     } else {
-                        throw new InputException("No se puede modificar una prueba con registros asociados");
-                    }
-                    try {
-                        pruebajpa.edit(prueba);
-                    } catch (NonexistentEntityException ex) {
-                        throw new InputException("Prueba no encontrada");
-                    } catch (Exception ex) {
-                        throw new InputException(ex.getMessage());
+                        throw new InputException("Prueba no registrada en la competición");
                     }
                 } else {
-                    throw new InputException("Nombre de prueba ocupado");
+                    throw new InputException("Competición no válida");
                 }
             } else {
-                throw new InputException("Nombre de prueba no válido");
+                throw new InputException("Prueba no encontrada");
             }
+            return prueba;
         } else {
-            throw new InputException("Prueba no encontrada");
+            throw new InputException("Prueba no válida");
         }
-        return prueba;
+
     }
 
     /**
@@ -248,24 +284,23 @@ public class ControlPruebas implements ActionListener {
         } catch (NonexistentEntityException ex) {
 
         }
-        
+
         // Modificamos los participantes que tienen asignado dicha prueba
         ParticipanteJpa participanteJpa = new ParticipanteJpa();
         GrupoJpa grupoJpa = new GrupoJpa();
         List<Grupo> grupos = grupoJpa.findGruposByCompeticion(Coordinador.getInstance().getSeleccionada());
         Prueba prueba = pruebajpa.findPrueba(pruebaid);
-        for(Grupo g: grupos){
+        for (Grupo g : grupos) {
             List<Participante> participantes = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
-            for(Participante participante: participantes){
+            for (Participante participante : participantes) {
                 participante.setPruebaasignada(null);
                 try {
                     participanteJpa.edit(participante);
                 } catch (Exception ex) {
-                    
+
                 }
             }
         }
-        
 
         try {
             // Eliminamos la prueba

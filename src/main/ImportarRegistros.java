@@ -160,6 +160,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         if (tiempo.length() > 0) {
                                                             try {
                                                                 ControlRegistros.crearRegistro(
+                                                                        Coordinador.getInstance().getSeleccionada(),
                                                                         dorsal,
                                                                         prueba.getNombre(),
                                                                         null,
@@ -175,6 +176,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         String marca = celda.toString();
                                                         try {
                                                             ControlRegistros.crearRegistro(
+                                                                    Coordinador.getInstance().getSeleccionada(),
                                                                     dorsal,
                                                                     prueba.getNombre(),
                                                                     null,
@@ -219,6 +221,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         if (data.length() > 0) {
                                                             try {
                                                                 ControlRegistros.crearRegistro(
+                                                                        Coordinador.getInstance().getSeleccionada(),
                                                                         null,
                                                                         prueba.getNombre(),
                                                                         nombreEquipo,
@@ -234,6 +237,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         String marca = celda.toString();
                                                         try {
                                                             ControlRegistros.crearRegistro(
+                                                                    Coordinador.getInstance().getSeleccionada(),
                                                                     null,
                                                                     prueba.getNombre(),
                                                                     nombreEquipo,

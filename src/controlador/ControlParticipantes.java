@@ -50,6 +50,7 @@ public class ControlParticipantes implements ActionListener {
                 Participante p;
                 try {
                     p = crearParticipante(
+                            Coordinador.getInstance().getSeleccionada(),
                             vista.getNombreParticipante(),
                             vista.getApellidosParticipante(),
                             vista.getDorsalParticipante(),
@@ -147,6 +148,7 @@ public class ControlParticipantes implements ActionListener {
     /**
      * Crea un participante nuevo
      *
+     * @param competicion
      * @param nombre Nombre del participante
      * @param apellidos Apellidos del participante
      * @param dorsal Dorsal del participante. Debe de ser único en la
@@ -158,8 +160,9 @@ public class ControlParticipantes implements ActionListener {
      * @param pruebaAsignada Nombre de la prueba asignada o "Ninguno"
      * @return Participante si ha sido correctamente creado correctamente, null
      * en otro caso
+     * @throws controlador.InputException
      */
-    public static Participante crearParticipante(String nombre, String apellidos,
+    public static Participante crearParticipante(Competicion competicion,String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
             String nombreEquipo, String pruebaAsignada) throws InputException {
 
@@ -167,7 +170,7 @@ public class ControlParticipantes implements ActionListener {
         // Comprobamos que el nombre, apellidos, dorsal y grupo del participante
         // son válidos
         if (nombre != null && apellidos != null && dorsal != null && nombreGrupo != null) {
-            if (dorsalLibre(dorsal, Coordinador.getInstance().getSeleccionada())) {
+            if (dorsalLibre(dorsal, competicion)) {
                 ParticipanteJpa participantejpa = new ParticipanteJpa();
                 GrupoJpa grupojpa = new GrupoJpa();
 
@@ -176,7 +179,7 @@ public class ControlParticipantes implements ActionListener {
 
                 // Buscamos el grupo por el nombre
                 Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
-                        Coordinador.getInstance().getSeleccionada().getId());
+                       competicion.getId());
 
                 participante.setNombre(nombre);
                 participante.setApellidos(apellidos);
@@ -189,7 +192,7 @@ public class ControlParticipantes implements ActionListener {
                 if (pruebaAsignada != null && !pruebaAsignada.equals("Ninguna")) {
                     PruebaJpa pruebajpa = new PruebaJpa();
                     participante.setPruebaasignada(pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada,
-                            Coordinador.getInstance().getSeleccionada().getId()));
+                            competicion.getId()));
                 }
 
                 // Si se ha seleccionado un equipo
@@ -197,7 +200,7 @@ public class ControlParticipantes implements ActionListener {
                     EquipoJpa equipojpa = new EquipoJpa();
                     participante.setEquipoId(equipojpa.findByNombreAndCompeticion(
                             nombreEquipo.toString(),
-                            Coordinador.getInstance().getSeleccionada().getId()));
+                            competicion.getId()));
                 }
                 participantejpa.create(participante);
             } else {

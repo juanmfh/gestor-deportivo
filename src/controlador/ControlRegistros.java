@@ -78,6 +78,7 @@ public class ControlRegistros implements ActionListener {
                     if (prueba != null) {
                         if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                             registro = crearRegistro(
+                                    Coordinador.getInstance().getSeleccionada(),
                                     vista.getDorsalParticipante(),
                                     vista.getPrueba(),
                                     null,
@@ -87,6 +88,7 @@ public class ControlRegistros implements ActionListener {
                                     vista.getHoras() == null ? null : Integer.parseInt(vista.getHoras()));
                         } else {
                             registro = crearRegistro(
+                                    Coordinador.getInstance().getSeleccionada(),
                                     null,
                                     vista.getPrueba(),
                                     vista.getEquipo(),
@@ -204,6 +206,7 @@ public class ControlRegistros implements ActionListener {
     /**
      * Crea un registro nuevo
      *
+     * @param competicion
      * @param dorsal dorsal del participante, si es un equipo null
      * @param nombrePrueba nombre de la prueba
      * @param nombreEquipo Nombre del equipo si el registro es de un equipo,
@@ -216,7 +219,7 @@ public class ControlRegistros implements ActionListener {
      * @return Registro si ha sido creado correctamente
      * @throws controlador.InputException
      */
-    public static Registro crearRegistro(Integer dorsal,
+    public static Registro crearRegistro(Competicion competicion,Integer dorsal,
             String nombrePrueba, String nombreEquipo, Boolean sorteo,
             Double segundos, Integer minutos, Integer horas) throws InputException {
 
@@ -228,8 +231,7 @@ public class ControlRegistros implements ActionListener {
         PruebaJpa pruebajpa = new PruebaJpa();
 
         // Obtenemos la prueba a partir del nombre
-        Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba,
-                Coordinador.getInstance().getSeleccionada().getId());
+        Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba,competicion.getId());
 
         // Comprobamos que los parámetros son correctos
         if (prueba != null) {
@@ -243,22 +245,21 @@ public class ControlRegistros implements ActionListener {
                     // Si se ha seleccionado un participante individual
                     if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
                         // Obtenemos el participante
-                        participante = participantejpa.findByDorsalAndCompeticion(dorsal, Coordinador.getInstance().getSeleccionada().getId());
-                        g = grupojpa.findByParticipanteCompeticion(Coordinador.getInstance().getSeleccionada().getId(), participante.getId());
+                        participante = participantejpa.findByDorsalAndCompeticion(dorsal, competicion.getId());
+                        g = grupojpa.findByParticipanteCompeticion(competicion.getId(), participante.getId());
                         registro.setParticipanteId(participante);
                         i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                                Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                                competicion.getId(), g.getId());
                         registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
                                 prueba.getId(), participante.getId()) + 1);
                     } else {
                         // Obtenemosel equipo
                         EquipoJpa equipojpa = new EquipoJpa();
                         Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
-                                Coordinador.getInstance().getSeleccionada().getId());
-                        g = grupojpa.findByEquipoCompeticion(Coordinador.getInstance().getSeleccionada().getId(), equipo.getId());
+                                competicion.getId());
+                        g = grupojpa.findByEquipoCompeticion(competicion.getId(), equipo.getId());
                         registro.setEquipoId(equipo);
-                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                                Coordinador.getInstance().getSeleccionada().getId(), g.getId());
+                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(competicion.getId(), g.getId());
                         registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
                                 prueba.getId(), equipo.getId()) + 1);
                     }
