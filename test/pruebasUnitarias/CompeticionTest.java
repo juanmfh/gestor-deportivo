@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import static junit.framework.Assert.fail;
 import modelo.Competicion;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -103,6 +104,7 @@ public class CompeticionTest {
         Competicion c = null;
         try {
             c = ctrCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
         } finally {
@@ -117,6 +119,7 @@ public class CompeticionTest {
     public void modificarCompeticionTodoNull() throws InputException {
         try {
             Competicion c = ctrCompeticiones.modificarCompeticion(null, null, null, null, null, null, null);
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
         }
@@ -130,6 +133,7 @@ public class CompeticionTest {
         Competicion c2 = null;
         try {
             c2 = ctrCompeticiones.modificarCompeticion(c, null, null, null, null, null, null);
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
         } finally {
@@ -146,6 +150,7 @@ public class CompeticionTest {
         Competicion c2 = null;
         try {
             c2 = ctrCompeticiones.modificarCompeticion(c, "comp5", null, null, null, null, null);
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición ocupado", ex.getMessage());
         } finally {
@@ -243,6 +248,7 @@ public class CompeticionTest {
     public void eliminarCompeticionNull() {
         try {
             ControlCompeticiones.eliminarCompeticion(null);
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Competición no encontrada", ex.getMessage());
         }
@@ -253,6 +259,7 @@ public class CompeticionTest {
     public void eliminarCompeticionNoEncontrada() {
         try {
             ControlCompeticiones.eliminarCompeticion("comp15");
+            fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Competición no encontrada", ex.getMessage());
         }

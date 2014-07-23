@@ -264,51 +264,76 @@ public class ControlPruebas implements ActionListener {
      *
      * @param pruebaid Identificador de la prueba a eliminar
      * @param competicionid Identificador de la competicion
+     * @throws controlador.InputException
      */
-    private void eliminarPrueba(Integer pruebaid, Integer competicionid) throws InputException {
+    public void eliminarPrueba(Integer pruebaid, Integer competicionid) throws InputException {
 
         CompuestaJpa compuestajpa = new CompuestaJpa();
         PruebaJpa pruebajpa = new PruebaJpa();
         RegistroJpa registrojpa = new RegistroJpa();
 
-        // Eliminamos la prueba de la competición
-        Compuesta c = compuestajpa.findCompuestaByPrueba_Competicion(
-                pruebaid, competicionid);
-        try {
-            compuestajpa.destroy(c.getId());
-            // Eliminamos todos los registros de esa prueba
-            List<Registro> registros = registrojpa.findByPrueba(pruebaid);
-            for (Registro r : registros) {
-                registrojpa.destroy(r.getId());
-            }
-        } catch (NonexistentEntityException ex) {
+        if (pruebaid != null) {
 
-        }
+            Prueba prueba = pruebajpa.findPrueba(pruebaid);
 
-        // Modificamos los participantes que tienen asignado dicha prueba
-        ParticipanteJpa participanteJpa = new ParticipanteJpa();
-        GrupoJpa grupoJpa = new GrupoJpa();
-        List<Grupo> grupos = grupoJpa.findGruposByCompeticion(Coordinador.getInstance().getSeleccionada());
-        Prueba prueba = pruebajpa.findPrueba(pruebaid);
-        for (Grupo g : grupos) {
-            List<Participante> participantes = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
-            for (Participante participante : participantes) {
-                participante.setPruebaasignada(null);
-                try {
-                    participanteJpa.edit(participante);
-                } catch (Exception ex) {
+            if (competicionid != null) {
 
+                if (prueba != null) {
+
+                    // Eliminamos la prueba de la competición
+                    Compuesta c = compuestajpa.findCompuestaByPrueba_Competicion(
+                            pruebaid, competicionid);
+
+                    if (c != null) {
+                        try {
+                            compuestajpa.destroy(c.getId());
+                            // Eliminamos todos los registros de esa prueba
+                            List<Registro> registros = registrojpa.findByPrueba(pruebaid);
+                            for (Registro r : registros) {
+                                registrojpa.destroy(r.getId());
+                            }
+                        } catch (NonexistentEntityException ex) {
+
+                        }
+
+                        // Modificamos los participantes que tienen asignado dicha prueba
+                        ParticipanteJpa participanteJpa = new ParticipanteJpa();
+                        GrupoJpa grupoJpa = new GrupoJpa();
+                        List<Grupo> grupos = grupoJpa.findGruposByCompeticion(Coordinador.getInstance().getSeleccionada());
+                        if (grupos != null) {
+                            for (Grupo g : grupos) {
+                                List<Participante> participantes = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
+                                for (Participante participante : participantes) {
+                                    participante.setPruebaasignada(null);
+                                    try {
+                                        participanteJpa.edit(participante);
+                                    } catch (Exception ex) {
+
+                                    }
+                                }
+                            }
+                        }
+
+                        try {
+                            // Eliminamos la prueba
+                            pruebajpa.destroy(pruebaid);
+                        } catch (dao.exceptions.NonexistentEntityException ex) {
+                            throw new InputException(ex.getMessage());
+                        } catch (dao.exceptions.IllegalOrphanException ex) {
+                            throw new InputException("Prueba no encontrada");
+                        }
+
+                    } else {
+                        throw new InputException("Prueba no registrada en Competición");
+                    }
+                } else {
+                    throw new InputException("Prueba no encontrada");
                 }
+            } else {
+                throw new InputException("Identificador de competición no válido");
             }
-        }
-
-        try {
-            // Eliminamos la prueba
-            pruebajpa.destroy(pruebaid);
-        } catch (dao.exceptions.NonexistentEntityException ex) {
-            throw new InputException(ex.getMessage());
-        } catch (dao.exceptions.IllegalOrphanException ex) {
-            throw new InputException("Prueba no encontrada");
+        } else {
+            throw new InputException("Identificador de prueba no válido");
         }
     }
 
