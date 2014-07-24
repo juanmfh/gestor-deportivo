@@ -47,7 +47,7 @@ public class GruposTest {
     @AfterClass
     public static void tearDown() {
         // Elimina las competiciones que han sido creadas en las pruebas
-        for (int i = 1; i <= 15; i++) {
+        for (int i = 1; i <= 24; i++) {
             Competicion c = competicionJpa.findCompeticionByName("comp" + i);
             if (c != null) {
                 try {
@@ -129,19 +129,30 @@ public class GruposTest {
         g2 = ControlGrupos.crearGrupo(c, "grupo2", "grupo1");
         assertEquals(g2.getGrupoId().getId(), g.getId());
     }
-    
+
     @Test
-    public void crearSubGrupoSiMismo() throws InputException{
+    public void crearSubGrupoSiMismo() throws InputException {
         Competicion c = ctrCompeticiones.crearCompeticion("comp12", null, null, null, null, null);
-        Grupo g, g2 = null;
         try {
-            g2 = ControlGrupos.crearGrupo(c, "grupo1", "grupo1");
+            ControlGrupos.crearGrupo(c, "grupo1", "grupo1");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
-            assertEquals("Subgrupo no válido", ex.getMessage());
+            assertEquals("Campo Subgrupo De no válido", ex.getMessage());
         }
-        
     }
+    
+    @Test
+    public void crearGrupoSubGrupodeNoValido() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp24", null, null, null, null, null);
+        try {
+            ControlGrupos.crearGrupo(c, "grupo1", "grupoA");
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals("Campo Subgrupo De no válido", ex.getMessage());
+        }
+    }
+    
+    
 
     // PRUEBAS SOBRE GETSUBGRUPOS
     @Test
@@ -221,7 +232,7 @@ public class GruposTest {
         ControlGrupos.eliminarGrupo(c, g.getId());
         assertNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo2", c.getId()));
     }
-    
+
     @Test
     public void eliminarGrupoConParticipantes() throws InputException {
         Competicion c = ctrCompeticiones.crearCompeticion("comp13", null, null, null, null, null);
@@ -231,18 +242,18 @@ public class GruposTest {
         ControlGrupos.eliminarGrupo(c, g.getId());
         assertNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo1", c.getId()));
     }
-    
+
     @Test
     public void eliminarGrupoConEquipos() throws InputException {
         Competicion c = ctrCompeticiones.crearCompeticion("comp14", null, null, null, null, null);
         Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
         Grupo g2 = ControlGrupos.crearGrupo(c, "grupo2", "grupo1");
-        ControlEquipos.crearEquipo(c,"e1", "grupo1");
-        ControlEquipos.crearEquipo(c,"e2", "grupo1");
+        ControlEquipos.crearEquipo(c, "e1", "grupo1");
+        ControlEquipos.crearEquipo(c, "e2", "grupo1");
         ControlGrupos.eliminarGrupo(c, g.getId());
         assertNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo1", c.getId()));
     }
-    
+
     @Test
     public void eliminarGrupoConEquiposYParticipantes() throws InputException {
         Competicion c = ctrCompeticiones.crearCompeticion("comp15", null, null, null, null, null);
@@ -250,11 +261,111 @@ public class GruposTest {
         Grupo g2 = ControlGrupos.crearGrupo(c, "grupo2", "grupo1");
         ControlParticipantes.crearParticipante(c, "n", "a", 1, g.getNombre(), null, null, null, null);
         ControlParticipantes.crearParticipante(c, "n2", "a2", 2, g2.getNombre(), null, null, null, null);
-        ControlEquipos.crearEquipo(c,"e1", "grupo1");
-        ControlEquipos.crearEquipo(c,"e2", "grupo2");
+        ControlEquipos.crearEquipo(c, "e1", "grupo1");
+        ControlEquipos.crearEquipo(c, "e2", "grupo2");
         ControlGrupos.eliminarGrupo(c, g.getId());
         assertNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo1", c.getId()));
     }
-    
 
+    // PRUEBAS SOBRE MODIFICAR GRUPOS
+    @Test
+    public void modificarGrupoTodoNull() throws InputException {
+        try {
+            ctrGrupos.modificarGrupo(null, null, null, null);
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Competición no válida");
+        }
+    }
+
+    @Test
+    public void modificarGrupoNull() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp16", null, null, null, null, null);
+        try {
+            ctrGrupos.modificarGrupo(c, null, null, null);
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Identificador de grupo no válido");
+        }
+    }
+
+    @Test
+    public void modificarGrupoNombreNull() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp17", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        try {
+            ctrGrupos.modificarGrupo(c, g.getId(), null, null);
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Nombre de grupo no válido");
+        }
+    }
+
+    @Test
+    public void modificarGrupoNombre() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp18", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        ctrGrupos.modificarGrupo(c, g.getId(), "grupo2", null);
+        assertNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo1", c.getId()));
+        assertNotNull(grupoJpa.findGrupoByNombreAndCompeticion("grupo2", c.getId()));
+    }
+
+    @Test
+    public void modificarGrupoSubGrupoDeNoValido() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp19", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        try {
+            ctrGrupos.modificarGrupo(c, g.getId(), "grupo2", "grupoA");
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Campo Subgrupo De no válido");
+        }
+    }
+
+    @Test
+    public void modificarGrupoNombreVacio() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp20", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        try {
+            ctrGrupos.modificarGrupo(c, g.getId(), "", null);
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Nombre de grupo no válido");
+        }
+    }
+
+    @Test
+    public void modificarGrupoNombreOcupado() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp21", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        Grupo g2 = ControlGrupos.crearGrupo(c, "grupo2", null);
+        try {
+            ctrGrupos.modificarGrupo(c, g.getId(), "grupo2", null);
+            fail("Debería haber lanzado InputException");
+        } catch (InputException ex) {
+            assertEquals(ex.getMessage(), "Nombre de grupo ocupado");
+        }
+    }
+
+    @Test
+    public void modificarGrupoSubGrupoValido() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp22", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        Grupo g2 = ControlGrupos.crearGrupo(c, "grupo2", null);
+        ctrGrupos.modificarGrupo(c, g.getId(), "grupo1", "grupo2");
+        Grupo modificado = grupoJpa.findGrupoByNombreAndCompeticion("grupo1", c.getId());
+        assertNotNull(modificado);
+        assertEquals(modificado.getGrupoId().getId(), g2.getId());
+    }
+
+    @Test
+    public void modificarGrupoSubGrupoValidoNull() throws InputException {
+        Competicion c = ctrCompeticiones.crearCompeticion("comp23", null, null, null, null, null);
+        Grupo g = ControlGrupos.crearGrupo(c, "grupo1", null);
+        Grupo g2 = ControlGrupos.crearGrupo(c, "grupo2", "grupo1");
+        ctrGrupos.modificarGrupo(c, g2.getId(), "grupo2", null);
+        Grupo modificado = grupoJpa.findGrupoByNombreAndCompeticion("grupo2", c.getId());
+        assertNotNull(modificado);
+        assertNull(modificado.getGrupoId());
+    }
 }
