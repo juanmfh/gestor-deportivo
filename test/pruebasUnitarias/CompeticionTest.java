@@ -32,7 +32,7 @@ public class CompeticionTest {
 
     // PRUEBAS SOBRE CREAR COMPETICION
     @BeforeClass
-    public static void ini() throws InputException {
+    public static void setUp() throws InputException {
         vista = Mockito.mock(VistaCompeticion.class);
         ctrCompeticiones = new ControlCompeticiones(vista);
         competicionJpa = new CompeticionJpa();
@@ -40,7 +40,7 @@ public class CompeticionTest {
     }
 
     @AfterClass
-    public static void destroy() {
+    public static void tearDown() {
         // Elimina las competiciones que han sido creadas en las pruebas
         for (int i = 1; i <= 15; i++) {
             Competicion c = competicionJpa.findCompeticionByName("comp" + i);

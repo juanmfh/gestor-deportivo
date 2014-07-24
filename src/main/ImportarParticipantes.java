@@ -177,7 +177,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                             Equipo equipo;
                                             equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                             if (equipo == null) {
-                                                equipo = ControlEquipos.crearEquipo(data, grupo.getNombre());
+                                                equipo = ControlEquipos.crearEquipo(Coordinador.getInstance().getSeleccionada(),data, grupo.getNombre());
                                             }
                                             participante.setEquipoId(equipo);
                                         }

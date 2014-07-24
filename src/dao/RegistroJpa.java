@@ -417,6 +417,26 @@ public class RegistroJpa implements Serializable {
         return res;
     }
     
+    /**Devuelve la lista de registros de un equipo (de todas las pruebas)
+     * 
+     * @param equipoid    Identificador del equipo
+     * @return List<Registro>
+     */
+    public List<Registro> findByEquipo(Integer equipoid) {
+        EntityManager em = getEntityManager();
+        List<Registro> res;
+        try {
+            Query q = em.createNamedQuery("Registro.findByEquipo");
+            q.setParameter("equipoid", equipoid);
+            res = q.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+        return res;
+    }
+    
     /**Devuelve la lista de registros de equipos filtrada por competición,
      * grupo y prueba.
      * 

@@ -14,13 +14,13 @@ import dao.RegistroJpa;
 import dao.exceptions.IllegalOrphanException;
 import dao.exceptions.NonexistentEntityException;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Participante;
 import modelo.Registro;
-import vista.GruposTab;
 import vista.VistaGrupos;
 
 /**
@@ -36,7 +36,7 @@ public class ControlGrupos implements ActionListener {
      *
      * @param vista Vista del controlador (Interfaz)
      */
-    public ControlGrupos(GruposTab vista) {
+    public ControlGrupos(VistaGrupos vista) {
         this.vista = vista;
     }
 
@@ -47,7 +47,7 @@ public class ControlGrupos implements ActionListener {
             case VistaGrupos.CREARGRUPO:
                 Grupo g;
                 try {
-                    g = crearGrupo(Coordinador.getInstance().getSeleccionada(),vista.getNombreGrupo(),
+                    g = crearGrupo(Coordinador.getInstance().getSeleccionada(), vista.getNombreGrupo(),
                             vista.getSubgrupoDeComboBox().getSelectedItem().toString());
                     //Actualizamos la vista
                     vista.añadirGrupoATabla(new Object[]{
@@ -92,7 +92,7 @@ public class ControlGrupos implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialog == JOptionPane.YES_OPTION) {
                         try {
-                            eliminarGrupo(Coordinador.getInstance().getSeleccionada(),vista.getGrupoSelected());
+                            eliminarGrupo(Coordinador.getInstance().getSeleccionada(), vista.getGrupoSelected());
                             //Actualizamos la vista
                             vista.limpiarFormularioGrupo();
                             Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();
@@ -121,44 +121,53 @@ public class ControlGrupos implements ActionListener {
      * @return Grupo creado
      * @throws controlador.InputException
      */
-    public static Grupo crearGrupo(Competicion competicion,String nombre, String subGrupoDe) throws InputException {
+    public static Grupo crearGrupo(Competicion competicion, String nombre, String subGrupoDe) throws InputException {
 
-        // Comprobamos el nombre del grupo 
-        if (nombre.length() > 0) {
+        if (competicion != null) {
 
-            GrupoJpa grupojpa = new GrupoJpa();
-            InscripcionJpa inscripcionjpa = new InscripcionJpa();
-            
+            // Comprobamos el nombre del grupo 
+            if (nombre != null && nombre.length() > 0) {
 
-            // Comprobamos que en la competición no haya ningún grupo con el mismo nombre            
-            if (inscripcionjpa.findInscripcionByCompeticionByNombreGrupo(competicion.getId(), nombre) == null) {
+                GrupoJpa grupojpa = new GrupoJpa();
+                InscripcionJpa inscripcionjpa = new InscripcionJpa();
 
-                // Establecemos el nombre del grupo
-                Grupo g = new Grupo();
-                g.setNombre(nombre);
+                // Comprobamos que en la competición no haya ningún grupo con el mismo nombre            
+                if (inscripcionjpa.findInscripcionByCompeticionByNombreGrupo(competicion.getId(), nombre) == null) {
 
-                // Establecemos el subgrupo al cual pertenece
-                if (subGrupoDe != null && !subGrupoDe.equals("Ninguno")) {
-                    g.setGrupoId(grupojpa.findGrupoByNombreAndCompeticion(subGrupoDe, competicion.getId()));
+                    // Establecemos el nombre del grupo
+                    Grupo g = new Grupo();
+                    g.setNombre(nombre);
+
+                    // Establecemos el subgrupo al cual pertenece
+                    if (subGrupoDe != null && !subGrupoDe.equals("Ninguno")) {
+                        Grupo aux = grupojpa.findGrupoByNombreAndCompeticion(subGrupoDe, competicion.getId());
+                        if (aux == null || aux.getNombre().equals(nombre)) {
+                            throw new InputException("Subgrupo no válido");
+                        } else {
+                            g.setGrupoId(aux);
+                        }
+
+                    }
+
+                    // Creamos el grupo
+                    grupojpa.create(g);
+
+                    // Inscribimos el grupo en la competición
+                    Inscripcion i = new Inscripcion();
+                    i.setCompeticionId(competicion);
+                    i.setGrupoId(g);
+                    inscripcionjpa.create(i);
+
+                    return g;
+                } else {
+                    throw new InputException("Nombre de Grupo ocupado");
                 }
-
-                // Creamos el grupo
-                grupojpa.create(g);
-
-                // Inscribimos el grupo en la competición
-                Inscripcion i = new Inscripcion();
-                i.setCompeticionId(competicion);
-                i.setGrupoId(g);
-                inscripcionjpa.create(i);
-
-                return g;
             } else {
-                throw new InputException("Nombre de Grupo ocupado");
+                throw new InputException("Nombre de Grupo no válido");
             }
         } else {
-            throw new InputException("Nombre de Grupo no válido");
+            throw new InputException("Competición no válida");
         }
-
     }
 
     /**
@@ -213,60 +222,76 @@ public class ControlGrupos implements ActionListener {
      * @param grupoid Id del grupo a eliminar
      * @throws controlador.InputException
      */
-    public static void eliminarGrupo(Competicion c,Integer grupoid) throws InputException {
+    public static void eliminarGrupo(Competicion c, Integer grupoid) throws InputException {
 
-        GrupoJpa grupojpa = new GrupoJpa();
-        Grupo g = grupojpa.findGrupo(grupoid);
+        if (c != null) {
+            if (grupoid != null) {
 
-        // Comprobamos que el grupo es válido
-        if (g != null) {          
-        InscripcionJpa inscrjpa = new InscripcionJpa();
-        RegistroJpa registrosjpa = new RegistroJpa();
+                GrupoJpa grupojpa = new GrupoJpa();
+                Grupo g = grupojpa.findGrupo(grupoid);
 
-        // Obtenemos la lista de subgrupos y los eliminamos
-        List<Grupo> subgrupos = grupojpa.findGrupoByGrupoId(g.getId());
-        for (Grupo subgrupo : subgrupos) {
-            eliminarGrupo(c,subgrupo.getId());
+                // Comprobamos que el grupo es válido
+                if (g != null) {
+
+                    // Obtenemos la lista de subgrupos y los eliminamos
+                    List<Grupo> subgrupos = grupojpa.findGrupoByGrupoId(g.getId());
+                    for (Grupo subgrupo : subgrupos) {
+                        eliminarGrupo(c, subgrupo.getId());
+                    }
+                    try {
+                        // Elimiina las inscripciones
+                        eliminarInscripciones(c, g);
+                        // Elimina los equipos
+                        eliminarEquiposGrupo(g);
+                        // Eliminamos los participantes
+                        eliminarParticipantes(g);
+                        // Eliminamos el grupo
+                        grupojpa.destroy(g.getId());
+                    } catch (IllegalOrphanException | NonexistentEntityException | InputException ex) {
+                        throw new InputException(ex.getMessage());
+                    }
+                } else {
+                    throw new InputException("Grupo no encontrado");
+                }
+            } else {
+                throw new InputException("Identificador de grupo no válido");
+            }
+        } else {
+            throw new InputException("Competición no válida");
         }
+    }
+
+    private static void eliminarInscripciones(Competicion c, Grupo g) throws InputException {
         try {
+            InscripcionJpa inscrjpa = new InscripcionJpa();
             Inscripcion i = inscrjpa.findInscripcionByCompeticionByGrupo(c.getId(), g.getId());
             if (i != null) {
-                // Obtenemos los registros de este grupo y los eliminamos
-                List<Registro> registros = registrosjpa.findByInscripcion(i.getId());
-                if (registros != null) {
-                    for (Registro r : registros) {
-                        registrosjpa.destroy(r.getId());
-                    }
-                }
                 // Eliminamos la inscripción en este grupo
                 inscrjpa.destroy(i.getId());
             }
-            // Elimina los equipos
-            eliminarEquiposGrupo(g);
-            // Eliminamos los participantes
-            eliminarParticipantes(g);
-            // Eliminamos el grupo
-            grupojpa.destroy(g.getId());
-        } catch (IllegalOrphanException | NonexistentEntityException | InputException ex) {
+        } catch (NonexistentEntityException | IllegalOrphanException ex) {
             throw new InputException(ex.getMessage());
         }
-        } else {
-            throw new InputException("Grupo no encontrado");
-        }
     }
-    
+
     /**
-     * Elimina los participantes de un grupo g (No elimina los registros)
+     * Elimina los participantes de un grupo g
      *
      * @param g Grupo al que pertenecen los participantes
      */
-    public static void eliminarParticipantes(Grupo g) throws InputException {
+    private static void eliminarParticipantes(Grupo g) throws InputException {
 
         ParticipanteJpa participantejpa = new ParticipanteJpa();
+        RegistroJpa registrosjpa = new RegistroJpa();
 
         List<Participante> participantes = participantejpa.findParticipantesByGrupo(g.getId());
         try {
             for (Participante participante : participantes) {
+                // Eliminamos sus registros
+                List<Registro> registros = registrosjpa.findByParticipante(participante.getId());
+                for(Registro r: registros){
+                    registrosjpa.destroy(r.getId());
+                }
                 // Eliminamos el participante
                 participantejpa.destroy(participante.getId());
             }
@@ -276,24 +301,48 @@ public class ControlGrupos implements ActionListener {
     }
 
     /**
-     * Elimina todos los equipos de un grupo g (No sus participantes)
+     * Elimina todos los equipos de un grupo g (No sus participantes) 
      *
      * @param g Grupo al que pertenecen los equipos
      * @throws controlador.InputException
      */
-    public static void eliminarEquiposGrupo(Grupo g) throws InputException {
+    private static void eliminarEquiposGrupo(Grupo g) throws InputException {
 
         EquipoJpa equipojpa = new EquipoJpa();
+        RegistroJpa registrosjpa = new RegistroJpa();
 
         // Obtenemos la lista de equipos que participan en el grupo g
         List<Equipo> equipos = equipojpa.findByGrupo(g.getId());
         try {
-            // Por cada participacion de un equipo
+            // Por cada equipo
             for (Equipo e : equipos) {
+                // Eliminamos sus registros
+                List<Registro> registros = registrosjpa.findByEquipo(e.getId());
+                for(Registro r: registros){
+                    registrosjpa.destroy(r.getId());
+                }
+                // Eliminamos al equipo
                 equipojpa.destroy(e.getId());
             }
         } catch (NonexistentEntityException ex) {
             throw new InputException("Equipo no encontrado");
         }
+    }
+
+    public List<Grupo> getSubGrupos(Grupo grupo) {
+        List<Grupo> res = new CopyOnWriteArrayList();
+        GrupoJpa grupoJpa = new GrupoJpa();
+        List<Grupo> aux = grupoJpa.findGrupoByGrupoId(grupo.getId());
+        for (Grupo g1 : aux) {
+            res.add(g1);
+        }
+        for (Grupo g : res) {
+            List<Grupo> aux2 = getSubGrupos(g);
+            for (Grupo g2 : aux2) {
+                res.add(g2);
+            }
+        }
+        return res;
+
     }
 }

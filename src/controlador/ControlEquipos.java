@@ -9,6 +9,7 @@ import modelo.Grupo;
 import dao.EquipoJpa;
 import dao.GrupoJpa;
 import dao.exceptions.NonexistentEntityException;
+import modelo.Competicion;
 import vista.VistaEquipos;
 
 /**
@@ -35,7 +36,7 @@ public class ControlEquipos implements ActionListener {
             case VistaEquipos.AÑADIREQUIPO:
                 Equipo equipo;
                 try {
-                    equipo = crearEquipo(vista.getNombreEquipo(),
+                    equipo = crearEquipo(Coordinador.getInstance().getSeleccionada(),vista.getNombreEquipo(),
                             vista.getGrupo());
                     // Actualizamos la vista
                     vista.añadirEquipoATabla(new Object[]{
@@ -102,12 +103,13 @@ public class ControlEquipos implements ActionListener {
     /**
      * Crea un equipo nuevo
      *
+     * @param competicion Competicion donde se creará el equipo
      * @param nombre Nombre del equipo
      * @param nombreGrupo Nombre del grupo al que pertenece el equipo
      * @return Equipo si se ha podido crear el equipo
      * @throws controlador.InputException
      */
-    public static Equipo crearEquipo(String nombre, String nombreGrupo) throws InputException {
+    public static Equipo crearEquipo(Competicion competicion,String nombre, String nombreGrupo) throws InputException {
 
         EquipoJpa equipojpa = new EquipoJpa();
         GrupoJpa grupojpa = new GrupoJpa();
@@ -116,10 +118,10 @@ public class ControlEquipos implements ActionListener {
         // Se comprueba que el grupo es válido
         // y el nombre del equipo es único en la competición
         if (nombre != null && nombre.length() > 0
-                && equipojpa.findByNombreAndCompeticion(nombre, Coordinador.getInstance().getSeleccionada().getId()) == null) {
+                && equipojpa.findByNombreAndCompeticion(nombre, competicion.getId()) == null) {
 
             // Obtenemos el grupo a partir del nombre de este
-            Grupo grupo = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, Coordinador.getInstance().getSeleccionada().getId());
+            Grupo grupo = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
             if (grupo != null) {
                 // Creamos el equipo
                 equipo = new Equipo();

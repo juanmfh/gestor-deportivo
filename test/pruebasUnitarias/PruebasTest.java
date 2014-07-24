@@ -41,7 +41,7 @@ public class PruebasTest {
     private static CompeticionJpa competicionJpa;
 
     @BeforeClass
-    public static void ini() throws InputException {
+    public static void setUp() throws InputException {
         vistaCompeticiones = Mockito.mock(VistaCompeticion.class);
         ctrCompeticiones = new ControlCompeticiones(vistaCompeticiones);
         vistaPruebas = Mockito.mock(GeneralTab.class);
@@ -51,7 +51,7 @@ public class PruebasTest {
     }
 
     @AfterClass
-    public static void destroy() {
+    public static void tearDown() {
         // Elimina las competiciones que han sido creadas en las pruebas
         for (int i = 1; i <= 25; i++) {
             Competicion c = competicionJpa.findCompeticionByName("comp" + i);
@@ -63,7 +63,6 @@ public class PruebasTest {
                 }
             }
         }
-
     }
 
     // PRUEBAS SOBRE CREAR PRUEBA
