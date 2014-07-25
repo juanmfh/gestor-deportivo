@@ -12,12 +12,10 @@ import dao.AdministradoJpa;
 import dao.CompeticionJpa;
 import dao.CompuestaJpa;
 import dao.GrupoJpa;
-import dao.InscripcionJpa;
 import dao.PruebaJpa;
 import java.util.List;
 import modelo.Compuesta;
 import modelo.Grupo;
-import modelo.Inscripcion;
 import vista.VistaCompeticion;
 
 /**
@@ -107,7 +105,7 @@ public class ControlCompeticiones implements ActionListener {
      * @return Competicion
      * @throws controlador.InputException
      */
-    public Competicion crearCompeticion(String nombre,
+    public static Competicion crearCompeticion(String nombre,
             String lugar,
             Date fechaInicio,
             Date fechaFin,
@@ -118,17 +116,21 @@ public class ControlCompeticiones implements ActionListener {
 
         // Se comprueba que el nombre es no vacío y que no hay una competición ya creada
         // con dicho nombre
-        if (nombre != null && nombre.length() > 0 && competicionjpa.findCompeticionByName(nombre) == null) {
-            Competicion competicion = new Competicion();
-            competicion.setNombre(nombre);
-            competicion.setCiudad(lugar);
-            competicion.setFechainicio(fechaInicio);
-            competicion.setFechafin(fechaFin);
-            competicion.setImagen(nombreImagen);
-            competicion.setOrganizador(organizador);
-            competicion.setPais(null);
-            competicionjpa.create(competicion);
-            return competicion;
+        if (nombre != null && nombre.length() > 0) {
+            if (competicionjpa.findCompeticionByName(nombre) == null) {
+                Competicion competicion = new Competicion();
+                competicion.setNombre(nombre);
+                competicion.setCiudad(lugar);
+                competicion.setFechainicio(fechaInicio);
+                competicion.setFechafin(fechaFin);
+                competicion.setImagen(nombreImagen);
+                competicion.setOrganizador(organizador);
+                competicion.setPais(null);
+                competicionjpa.create(competicion);
+                return competicion;
+            } else {
+                throw new InputException("Nombre de competición ocupado");
+            }
         } else {
             throw new InputException("Nombre de competición no válido");
         }
@@ -203,7 +205,7 @@ public class ControlCompeticiones implements ActionListener {
      * @return Competicion
      * @throws controlador.InputException
      */
-    public Competicion modificarCompeticion(Competicion competicion,
+    public static Competicion modificarCompeticion(Competicion competicion,
             String nombre,
             String lugar,
             Date fechaInicio,
@@ -263,15 +265,16 @@ public class ControlCompeticiones implements ActionListener {
             List<Administrado> administra = admjpa.findAdministradoByCompeticion(c);
 
             try {
-                for (Administrado temp : administra) {
-                    admjpa.destroy(temp.getId());
-                }
-
                 // Eliminamos los grupos
                 GrupoJpa grupojpa = new GrupoJpa();
                 List<Grupo> grupos = grupojpa.findGruposRaizByCompeticion(c);
                 for (Grupo grupo : grupos) {
-                    ControlGrupos.eliminarGrupo(c,grupo.getId());
+                    ControlGrupos.eliminarGrupo(c, grupo.getId());
+                }
+                
+                // Eliminamos los permisos de acceso
+                for (Administrado temp : administra) {
+                    admjpa.destroy(temp.getId());
                 }
 
                 // Eliminamos las pruebas

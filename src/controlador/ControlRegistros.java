@@ -501,45 +501,6 @@ public class ControlRegistros implements ActionListener {
                 // Si es de tipo Tiempo formateamos la hora, minutos y segundos
             } else if (registro.getPruebaId().getTiporesultado().equals("Tiempo")) {
                 Date date = getTiempo(Double.parseDouble(vista.getSegundos()), Integer.parseInt(vista.getMinutos()), Integer.parseInt(vista.getHoras()));
-                /*try {
-                 String horas = vista.getHoras();
-                 if (horas.length() == 0) {
-                 horas = "00";
-                 } else if (horas.length() == 1) {
-                 horas = "0" + horas;
-                 }
-                 String minutos = vista.getMinutos();
-                 if (minutos.length() == 0) {
-                 minutos = "00";
-                 } else if (minutos.length() == 1) {
-                 minutos = "0" + minutos;
-                 }
-                 String segundos = vista.getSegundos();
-                 if (segundos.length() == 0) {
-                 segundos = "00.0";
-                 } else {
-                 segundos = Double.toString(Double.parseDouble(segundos));
-                 if (Double.parseDouble(segundos) > 59.999) {
-                 return false;
-                 }
-                 if (segundos.charAt(2) == '.') {
-                 String decimales = segundos.substring(2);
-                 //System.out.println(decimales);
-
-                 for (int j = 2; j < decimales.length(); j++) {
-                 formatDate += "S";
-                 }
-                 }
-                 }
-                 date = new SimpleDateFormat(formatDate).parse(
-                 horas + ":" + minutos + ":" + segundos);
-
-                 } catch (ParseException ex) {
-                 System.out.println("ParseException");
-                 return false;
-                 } catch (NumberFormatException e) {
-                 return false;
-                 }*/
                 if (date != null) {
                     // Establecemos el tiempo formateado
                     registro.setTiempo(date);

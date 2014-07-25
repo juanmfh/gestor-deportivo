@@ -17,8 +17,6 @@ import modelo.Competicion;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
-import vista.VistaCompeticion;
 
 /**
  *
@@ -27,14 +25,10 @@ import vista.VistaCompeticion;
 public class CompeticionTest {
 
     private static CompeticionJpa competicionJpa;
-    private static VistaCompeticion vista;     // Mock
-    private static ControlCompeticiones ctrCompeticiones;
 
     // PRUEBAS SOBRE CREAR COMPETICION
     @BeforeClass
     public static void setUp() throws InputException {
-        vista = Mockito.mock(VistaCompeticion.class);
-        ctrCompeticiones = new ControlCompeticiones(vista);
         competicionJpa = new CompeticionJpa();
 
     }
@@ -58,20 +52,20 @@ public class CompeticionTest {
     // Crea una competicion con todos los atributos null
     @Test(expected = InputException.class)
     public void crearCompeticionNombreNull() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion(null, null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion(null, null, null, null, null, null);
     }
 
     // Crea una competicion con un nombre de longitud 0.
     @Test(expected = InputException.class)
     public void crearCompeticionNombreVacio() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("", null, null, null, null, null);
     }
 
     // Crea una competicion solo con el nombre
     @Test
     public void crearCompeticionNombre() throws InputException {
         String nombreCompeticion = "comp1";
-        Competicion c = ctrCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
     }
@@ -85,7 +79,7 @@ public class CompeticionTest {
         Date fechaFin = new Date(12 / 07 / 2010);
         String nombreImagen = "logo1";
         String organizador = "organizador1";
-        Competicion c = ctrCompeticiones.crearCompeticion(nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
+        Competicion c = ControlCompeticiones.crearCompeticion(nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
 
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
@@ -100,13 +94,13 @@ public class CompeticionTest {
     @Test
     public void crearCompeticionNombreOcupado() throws InputException {
         String nombreCompeticion = "comp3";
-        ctrCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+        ControlCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
         Competicion c = null;
         try {
-            c = ctrCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+            c = ControlCompeticiones.crearCompeticion(nombreCompeticion, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
-            Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
+            Assert.assertEquals("Nombre de competición ocupado", ex.getMessage());
         } finally {
             Assert.assertNull(c);
         }
@@ -118,7 +112,7 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionTodoNull() throws InputException {
         try {
-            Competicion c = ctrCompeticiones.modificarCompeticion(null, null, null, null, null, null, null);
+            Competicion c = ControlCompeticiones.modificarCompeticion(null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
@@ -129,10 +123,10 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionSinParametros() throws InputException {
 
-        Competicion c = ctrCompeticiones.crearCompeticion("comp8", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp8", null, null, null, null, null);
         Competicion c2 = null;
         try {
-            c2 = ctrCompeticiones.modificarCompeticion(c, null, null, null, null, null, null);
+            c2 = ControlCompeticiones.modificarCompeticion(c, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
@@ -145,11 +139,11 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionNombreOcupado() throws InputException {
 
-        Competicion c = ctrCompeticiones.crearCompeticion("comp4", null, null, null, null, null);
-        ctrCompeticiones.crearCompeticion("comp5", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp4", null, null, null, null, null);
+        ControlCompeticiones.crearCompeticion("comp5", null, null, null, null, null);
         Competicion c2 = null;
         try {
-            c2 = ctrCompeticiones.modificarCompeticion(c, "comp5", null, null, null, null, null);
+            c2 = ControlCompeticiones.modificarCompeticion(c, "comp5", null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición ocupado", ex.getMessage());
@@ -161,14 +155,14 @@ public class CompeticionTest {
     // Modifica todos los parámetros de una competición y se comprueban.
     @Test
     public void modificarCompeticion() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp6", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp6", null, null, null, null, null);
         String nombreCompeticion = "comp7";
         String lugar = "lugar1";
         Date fechaInicio = new Date(12 / 12 / 2010);
         Date fechaFin = new Date(12 / 07 / 2010);
         String nombreImagen = "logo1";
         String organizador = "organizador1";
-        c = ctrCompeticiones.modificarCompeticion(c, nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
+        c = ControlCompeticiones.modificarCompeticion(c, nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
 
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
@@ -184,7 +178,7 @@ public class CompeticionTest {
     // Elimina una competición que no tiene ni pruebas ni grupos
     @Test
     public void eliminarCompeticionVacia() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp9", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp9", null, null, null, null, null);
         ControlCompeticiones.eliminarCompeticion(c.getNombre());
         Assert.assertNull(competicionJpa.findCompeticionByName("comp9"));
     }
@@ -192,7 +186,7 @@ public class CompeticionTest {
     // Elimina una competición que tiene una prueba
     @Test
     public void eliminarCompeticionConPrueba() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp10", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp10", null, null, null, null, null);
         ControlPruebas.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         ControlCompeticiones.eliminarCompeticion("comp10");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp10"));
@@ -201,7 +195,7 @@ public class CompeticionTest {
     // Elimina una competición que tiene varias pruebas
     @Test
     public void eliminarCompeticionConVariasPrueba() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp11", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp11", null, null, null, null, null);
         ControlPruebas.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         ControlPruebas.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         ControlPruebas.crearPrueba(c, "prueba3", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
@@ -212,7 +206,7 @@ public class CompeticionTest {
     // Elimina una competición que tiene un grupo
     @Test
     public void eliminarCompeticionConGrupo() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp12", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp12", null, null, null, null, null);
         ControlGrupos.crearGrupo(c, "grupoA", null);
         ControlCompeticiones.eliminarCompeticion("comp12");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp12"));
@@ -221,7 +215,7 @@ public class CompeticionTest {
     // Elimina una competición que tiene varios grupos
     @Test
     public void eliminarCompeticionConVariosGrupo() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp13", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp13", null, null, null, null, null);
         ControlGrupos.crearGrupo(c, "grupoA", null);
         ControlGrupos.crearGrupo(c, "grupoB", "grupoA");
         ControlGrupos.crearGrupo(c, "grupoC", null);
@@ -232,7 +226,7 @@ public class CompeticionTest {
     // Elimina una competición compuesta por varias pruebas y varios grupos
     @Test
     public void eliminarCompeticionConGruposYPruebas() throws InputException {
-        Competicion c = ctrCompeticiones.crearCompeticion("comp14", null, null, null, null, null);
+        Competicion c = ControlCompeticiones.crearCompeticion("comp14", null, null, null, null, null);
         ControlPruebas.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         ControlPruebas.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         ControlGrupos.crearGrupo(c, "grupoA", null);

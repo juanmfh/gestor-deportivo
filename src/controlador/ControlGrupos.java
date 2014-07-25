@@ -181,7 +181,7 @@ public class ControlGrupos implements ActionListener {
      * @return Grupo modificado
      * @throws controlador.InputException
      */
-    public Grupo modificarGrupo(Competicion competicion, Integer grupoid, String nombreGrupo, String nombreSubGrupoDe) throws InputException {
+    public static Grupo modificarGrupo(Competicion competicion, Integer grupoid, String nombreGrupo, String nombreSubGrupoDe) throws InputException {
 
         if (competicion != null) {
             if (grupoid != null) {
@@ -293,8 +293,16 @@ public class ControlGrupos implements ActionListener {
     private static void eliminarInscripciones(Competicion c, Grupo g) throws InputException {
         try {
             InscripcionJpa inscrjpa = new InscripcionJpa();
+            RegistroJpa registrosjpa = new RegistroJpa();
             Inscripcion i = inscrjpa.findInscripcionByCompeticionByGrupo(c.getId(), g.getId());
             if (i != null) {
+                // Obtenemos los registros de este grupo y los eliminamos
+                List<Registro> registros = registrosjpa.findByInscripcion(i.getId());
+                if (registros != null) {
+                    for (Registro r : registros) {
+                        registrosjpa.destroy(r.getId());
+                    }
+                }
                 // Eliminamos la inscripción en este grupo
                 inscrjpa.destroy(i.getId());
             }
@@ -358,7 +366,7 @@ public class ControlGrupos implements ActionListener {
         }
     }
 
-    public List<Grupo> getSubGrupos(Grupo grupo) {
+    public static List<Grupo> getSubGrupos(Grupo grupo) {
         List<Grupo> res = new CopyOnWriteArrayList();
         GrupoJpa grupoJpa = new GrupoJpa();
         List<Grupo> aux = grupoJpa.findGrupoByGrupoId(grupo.getId());
@@ -375,7 +383,7 @@ public class ControlGrupos implements ActionListener {
 
     }
 
-    private boolean esHijoDe(Grupo g, Grupo grupoPadre) {
+    private static boolean esHijoDe(Grupo g, Grupo grupoPadre) {
         List<Grupo> hijos = getSubGrupos(grupoPadre);
         return hijos.contains(g);
     }

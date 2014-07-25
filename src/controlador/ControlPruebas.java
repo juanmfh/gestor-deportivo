@@ -184,7 +184,7 @@ public class ControlPruebas implements ActionListener {
         return p;
     }
 
-    public Prueba modificarPrueba(Integer pruebaid, Integer competicionid, String nombrePrueba, TipoResultado tipoResultado, TipoPrueba tipoPrueba) throws InputException {
+    public static Prueba modificarPrueba(Integer pruebaid, Integer competicionid, String nombrePrueba, TipoResultado tipoResultado, TipoPrueba tipoPrueba) throws InputException {
 
         if (pruebaid != null) {
 
@@ -266,7 +266,7 @@ public class ControlPruebas implements ActionListener {
      * @param competicionid Identificador de la competicion
      * @throws controlador.InputException
      */
-    public void eliminarPrueba(Integer pruebaid, Integer competicionid) throws InputException {
+    public static void eliminarPrueba(Integer pruebaid, Integer competicionid) throws InputException {
 
         CompuestaJpa compuestajpa = new CompuestaJpa();
         PruebaJpa pruebajpa = new PruebaJpa();
