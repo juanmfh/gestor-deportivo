@@ -385,6 +385,6 @@ public class ControlGrupos implements ActionListener {
 
     private static boolean esHijoDe(Grupo g, Grupo grupoPadre) {
         List<Grupo> hijos = getSubGrupos(grupoPadre);
-        return hijos.contains(g);
+        return hijos.contains(g) || g.equals(grupoPadre);
     }
 }

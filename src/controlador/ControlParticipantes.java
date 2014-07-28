@@ -73,35 +73,39 @@ public class ControlParticipantes implements ActionListener {
                 }
                 break;
             case VistaParticipantes.MODIFICARPARTICIPANTE:
-                try {
-                    p = modificarParticipante(vista.getParticipanteSeleccionado(),
-                            vista.getNombreParticipante(),
-                            vista.getApellidosParticipante(),
-                            vista.getDorsalParticipante(),
-                            vista.getGrupoParticipante(),
-                            vista.getEdadParticipante(),
-                            vista.getSexoParticipante(),
-                            vista.getEquipoParticipante(),
-                            vista.getPruebaAsignadaParticipante()
-                    );
-                    // Actualizamos la vista
-                    vista.eliminarParticipanteDeTabla();
-                    vista.añadirParticipanteATabla(new Object[]{
-                        p.getId(),
-                        p.getDorsal(),
-                        p.getApellidos(),
-                        p.getNombre(),
-                        p.getGrupoId().getNombre(),
-                        p.getEquipoId() == null
-                        ? "Ninguno"
-                        : p.getEquipoId().getNombre(),
-                        p.getPruebaasignada() != null ? p.getPruebaasignada().getNombre() : ""});
-                    Coordinador.getInstance().setEstadoLabel(
-                            "Participante modificado correctamente", Color.BLUE);
-                    vista.limpiarFormularioParticipante();
-                } catch (InputException ex) {
-                    Coordinador.getInstance().setEstadoLabel(
-                            ex.getMessage(), Color.RED);
+                if (vista.getParticipanteSeleccionado() != -1) {
+                    try {
+                        p = modificarParticipante(
+                                Coordinador.getInstance().getSeleccionada(),
+                                vista.getParticipanteSeleccionado(),
+                                vista.getNombreParticipante(),
+                                vista.getApellidosParticipante(),
+                                vista.getDorsalParticipante(),
+                                vista.getGrupoParticipante(),
+                                vista.getEdadParticipante(),
+                                vista.getSexoParticipante(),
+                                vista.getEquipoParticipante(),
+                                vista.getPruebaAsignadaParticipante()
+                        );
+                        // Actualizamos la vista
+                        vista.eliminarParticipanteDeTabla();
+                        vista.añadirParticipanteATabla(new Object[]{
+                            p.getId(),
+                            p.getDorsal(),
+                            p.getApellidos(),
+                            p.getNombre(),
+                            p.getGrupoId().getNombre(),
+                            p.getEquipoId() == null
+                            ? "Ninguno"
+                            : p.getEquipoId().getNombre(),
+                            p.getPruebaasignada() != null ? p.getPruebaasignada().getNombre() : ""});
+                        Coordinador.getInstance().setEstadoLabel(
+                                "Participante modificado correctamente", Color.BLUE);
+                        vista.limpiarFormularioParticipante();
+                    } catch (InputException ex) {
+                        Coordinador.getInstance().setEstadoLabel(
+                                ex.getMessage(), Color.RED);
+                    }
                 }
                 break;
             case VistaParticipantes.ELIMINARPARTICIPANTE:
@@ -163,9 +167,9 @@ public class ControlParticipantes implements ActionListener {
             String nombreEquipo, String pruebaAsignada) throws InputException {
 
         if (competicion != null) {
-            if (nombre != null) {
-                if (apellidos != null) {
-                    if (nombreGrupo != null) {
+            if (nombre != null && nombre.length() > 0) {
+                if (apellidos != null && apellidos.length() > 0) {
+                    if (nombreGrupo != null && nombreGrupo.length() > 0) {
                         Participante participante = null;
                         if (dorsal != null) {
                             if (dorsalLibre(dorsal, competicion)) {
@@ -271,6 +275,7 @@ public class ControlParticipantes implements ActionListener {
     /**
      * Modifica los datos del participante cuyo id es "participanteid"
      *
+     * @param competicion
      * @param participanteid Identificador del participante a modificar
      * @param nombre Nombre del participante
      * @param apellidos Apellidos del participante
@@ -283,85 +288,113 @@ public class ControlParticipantes implements ActionListener {
      * @return el Participante modificado
      * @throws controlador.InputException
      */
-    public static Participante modificarParticipante(Integer participanteid, String nombre, String apellidos,
+    public static Participante modificarParticipante(Competicion competicion, Integer participanteid, String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
             String nombreEquipo, String pruebaAsignada) throws InputException {
 
-        Participante participante = null;
+        if (competicion != null) {
+            if (participanteid != null) {
+                if (nombre != null && nombre.length() > 0) {
+                    if (apellidos != null && nombre.length() > 0) {
+                        if (nombreGrupo != null && nombre.length() > 0) {
+                            Participante participante = null;
+                            if (dorsal != null) {
+                                if (dorsalLibreOMio(competicion, dorsal, participanteid)) {
+                                    ParticipanteJpa participantejpa = new ParticipanteJpa();
+                                    GrupoJpa grupojpa = new GrupoJpa();
 
-        // Comprueba que los datos de la vista sean válidos y el dorsal esté
-        // disponible
-        if (participanteid != null && nombre != null && apellidos != null
-                && dorsal != null && nombreGrupo != null) {
+                                    try {
+                                        participante = participantejpa.findParticipante(participanteid);
 
-            if (dorsalLibreOMio(dorsal, participanteid)) {
+                                        if (participante != null) {
+                                            participante.setNombre(nombre);
+                                            participante.setApellidos(apellidos);
+                                            participante.setDorsal(dorsal);
+                                            participante.setEdad(edad);
+                                            participante.setSexo(sexo);
 
-                ParticipanteJpa participantejpa = new ParticipanteJpa();
-                GrupoJpa grupojpa = new GrupoJpa();
+                                            // Buscamos el grupo por el nombre
+                                            Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
 
-                try {
-                    participante = participantejpa.findParticipante(participanteid);
-                    participante.setNombre(nombre);
-                    participante.setApellidos(apellidos);
-                    participante.setDorsal(dorsal);
-                    participante.setEdad(edad);
-                    participante.setSexo(sexo);
-                    participantejpa.edit(participante);
+                                            if (g != null) {
+                                                // Cambia el grupo al que pertenece el participante
+                                                participante.setGrupoId(g);
 
-                    // Cambia el grupo al que pertenece el participante
-                    Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
-                            Coordinador.getInstance().getSeleccionada().getId());
-                    participante.setGrupoId(g);
-                    // Si el participante tiene registros, se cambia la inscripción del registro
-                    RegistroJpa registrojpa = new RegistroJpa();
-                    List<Registro> registros = registrojpa.findByParticipante(participanteid);
-                    if (registros != null) {
-                        InscripcionJpa inscripcionjpa = new InscripcionJpa();
-                        Inscripcion inscripcion = inscripcionjpa.findInscripcionByCompeticionByGrupo(Coordinador.getInstance().getSeleccionada().getId(),
-                                g.getId());
-                        for (Registro r : registros) {
-                            r.setInscripcionId(inscripcion);
-                            registrojpa.edit(r);
-                        }
-                    }
+                                                // Si el participante tiene registros, se cambia la inscripción del registro
+                                                RegistroJpa registrojpa = new RegistroJpa();
+                                                List<Registro> registros = registrojpa.findByParticipante(participanteid);
+                                                if (registros != null) {
+                                                    InscripcionJpa inscripcionjpa = new InscripcionJpa();
+                                                    Inscripcion inscripcion = inscripcionjpa.findInscripcionByCompeticionByGrupo(competicion.getId(),
+                                                            g.getId());
+                                                    for (Registro r : registros) {
+                                                        r.setInscripcionId(inscripcion);
+                                                        registrojpa.edit(r);
+                                                    }
+                                                }
 
-                    // Si se ha seleccionado una prueba
-                    if (!pruebaAsignada.equals("Ninguna")) {
-                        PruebaJpa pruebajpa = new PruebaJpa();
-                        Prueba p = pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada,
-                                Coordinador.getInstance().getSeleccionada().getId());
-                        if (p != null) {
-                            participante.setPruebaasignada(p);
+                                                // Si se ha seleccionado una prueba
+                                                if (pruebaAsignada != null && !pruebaAsignada.equals("Ninguna")) {
+                                                    PruebaJpa pruebajpa = new PruebaJpa();
+                                                    Prueba p = pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada,
+                                                            competicion.getId());
+                                                    if (p != null) {
+                                                        participante.setPruebaasignada(p);
+                                                    } else {
+                                                        throw new InputException("Prueba no encontrada");
+                                                    }
+                                                } else {
+                                                    participante.setPruebaasignada(null);
+                                                }
+
+                                                // Si se ha seleccionado un equipo
+                                                if (nombreEquipo != null && !nombreEquipo.equals("Ninguno")) {
+                                                    // Buscamos el equipo y ponemos al participante como miembro
+                                                    EquipoJpa equipojpa = new EquipoJpa();
+                                                    Equipo equiponuevo = equipojpa.findByNombreAndCompeticion(nombreEquipo, competicion.getId());
+                                                    if (equiponuevo != null) {
+                                                        participante.setEquipoId(equiponuevo);
+                                                    } else {
+                                                        throw new InputException("Equipo no encontrado");
+                                                    }
+                                                } else {
+                                                    participante.setEquipoId(null);
+                                                }
+                                                participantejpa.edit(participante);
+                                            } else {
+                                                throw new InputException("Grupo no encontrado");
+                                            }
+                                        } else {
+                                            throw new InputException("Participante no encontrado");
+                                        }
+                                    } catch (NonexistentEntityException ex) {
+                                        throw new InputException("Participante no encontrado");
+                                    } catch (Exception ex) {
+                                        throw new InputException(ex.getMessage());
+                                    }
+                                    return participante;
+
+                                } else {
+                                    throw new InputException("Dorsal ocupado");
+                                }
+                            } else {
+                                throw new InputException("Dorsal no válido");
+                            }
+                        } else {
+                            throw new InputException("Nombre de grupo no válido");
                         }
                     } else {
-                        participante.setPruebaasignada(null);
+                        throw new InputException("Apellidos no válido");
                     }
-
-                    // Si se ha seleccionado un equipo
-                    if (nombreEquipo != null && !nombreEquipo.equals("Ninguno")) {
-                        // Buscamos el equipo y ponemos al participante como miembro
-                        EquipoJpa equipojpa = new EquipoJpa();
-                        Equipo equiponuevo = equipojpa.findByNombreAndCompeticion(
-                                nombreEquipo,
-                                Coordinador.getInstance().getSeleccionada().getId());
-                        participante.setEquipoId(equiponuevo);
-                    } else {
-                        participante.setEquipoId(null);
-                    }
-                    participantejpa.edit(participante);
-
-                } catch (NonexistentEntityException ex) {
-                    throw new InputException("Participante no encontrado");
-                } catch (Exception ex) {
-                    throw new InputException(ex.getMessage());
+                } else {
+                    throw new InputException("Nombre no válido");
                 }
             } else {
-                throw new InputException("Dorsal ocupado");
+                throw new InputException("Participante no válido");
             }
         } else {
-            throw new InputException("Datos obligatorios faltantes");
+            throw new InputException("Competición no válida");
         }
-        return participante;
     }
 
     /**
@@ -407,10 +440,10 @@ public class ControlParticipantes implements ActionListener {
      * @return true si el dorsal está libre o es el del participante cuyo id es
      * participanteid
      */
-    private static boolean dorsalLibreOMio(Integer dorsal, Integer participanteid) {
+    private static boolean dorsalLibreOMio(Competicion c, Integer dorsal, Integer participanteid) {
         ParticipanteJpa participantejpa = new ParticipanteJpa();
         Participante participante = participantejpa.findByDorsalAndCompeticion(dorsal,
-                Coordinador.getInstance().getSeleccionada().getId());
+                c.getId());
         return (participante == null || participante.getId() == participanteid);
     }
 }
