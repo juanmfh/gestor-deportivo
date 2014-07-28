@@ -1,8 +1,8 @@
 package vista;
 
 import controlador.Coordinador;
-import controlador.RolUsuario;
-import controlador.TipoResultado;
+import modelo.RolUsuario;
+import modelo.TipoResultado;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

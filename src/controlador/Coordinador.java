@@ -1,5 +1,8 @@
 package controlador;
 
+import modelo.RolUsuario;
+import modelo.TipoResultado;
+import modelo.TipoPrueba;
 import dao.AdministradoJpa;
 import java.awt.Color;
 import java.awt.Dimension;

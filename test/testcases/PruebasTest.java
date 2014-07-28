@@ -1,4 +1,4 @@
-package pruebasUnitarias;
+package testcases;
 
 import controlador.ControlCompeticiones;
 import controlador.ControlGrupos;
@@ -6,8 +6,8 @@ import controlador.ControlParticipantes;
 import controlador.ControlPruebas;
 import controlador.ControlRegistros;
 import controlador.InputException;
-import controlador.TipoPrueba;
-import controlador.TipoResultado;
+import modelo.TipoPrueba;
+import modelo.TipoResultado;
 import dao.CompeticionJpa;
 import dao.PruebaJpa;
 import java.util.List;

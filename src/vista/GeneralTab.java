@@ -2,8 +2,8 @@
 package vista;
 
 import controlador.Coordinador;
-import controlador.TipoPrueba;
-import controlador.TipoResultado;
+import modelo.TipoPrueba;
+import modelo.TipoResultado;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;

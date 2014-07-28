@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import main.ImportarParticipantes;
@@ -135,11 +133,9 @@ public class ControlParticipantes implements ActionListener {
                 fc.setDialogTitle("Abrir");
                 int res = fc.showOpenDialog(null);
                 if (res == JFileChooser.APPROVE_OPTION) {
-
                     Coordinador.getInstance().setEstadoLabel("Importando participantes ...", Color.BLACK);
                     ImportarParticipantes inPart;
                     (inPart = new ImportarParticipantes(fc.getSelectedFile().getPath())).execute();
-
                 }
 
         }
@@ -162,54 +158,83 @@ public class ControlParticipantes implements ActionListener {
      * en otro caso
      * @throws controlador.InputException
      */
-    public static Participante crearParticipante(Competicion competicion,String nombre, String apellidos,
+    public static Participante crearParticipante(Competicion competicion, String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
             String nombreEquipo, String pruebaAsignada) throws InputException {
 
-        Participante participante = null;
-        // Comprobamos que el nombre, apellidos, dorsal y grupo del participante
-        // son válidos
-        if (nombre != null && apellidos != null && dorsal != null && nombreGrupo != null) {
-            if (dorsalLibre(dorsal, competicion)) {
-                ParticipanteJpa participantejpa = new ParticipanteJpa();
-                GrupoJpa grupojpa = new GrupoJpa();
+        if (competicion != null) {
+            if (nombre != null) {
+                if (apellidos != null) {
+                    if (nombreGrupo != null) {
+                        Participante participante = null;
+                        if (dorsal != null) {
+                            if (dorsalLibre(dorsal, competicion)) {
+                                ParticipanteJpa participantejpa = new ParticipanteJpa();
+                                GrupoJpa grupojpa = new GrupoJpa();
 
-                // Creamos un objeto Participante y establecemos sus atributos
-                participante = new Participante();
+                                // Creamos un objeto Participante y establecemos sus atributos
+                                participante = new Participante();
 
-                // Buscamos el grupo por el nombre
-                Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
-                       competicion.getId());
+                                // Buscamos el grupo por el nombre
+                                Grupo g = grupojpa.findGrupoByNombreAndCompeticion(nombreGrupo,
+                                        competicion.getId());
 
-                participante.setNombre(nombre);
-                participante.setApellidos(apellidos);
-                participante.setDorsal(dorsal);
-                participante.setEdad(edad);
-                participante.setSexo(sexo);
-                participante.setGrupoId(g);
+                                if (g != null) {
 
-                // Si se ha seleccionado alguna prueba se la asignamos al participante
-                if (pruebaAsignada != null && !pruebaAsignada.equals("Ninguna")) {
-                    PruebaJpa pruebajpa = new PruebaJpa();
-                    participante.setPruebaasignada(pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada,
-                            competicion.getId()));
+                                    participante.setNombre(nombre);
+                                    participante.setApellidos(apellidos);
+                                    participante.setDorsal(dorsal);
+                                    participante.setEdad(edad);
+                                    participante.setSexo(sexo);
+                                    participante.setGrupoId(g);
+
+                                    // Si se ha seleccionado alguna prueba se la asignamos al participante
+                                    if (pruebaAsignada != null && !pruebaAsignada.equals("Ninguna")) {
+                                        PruebaJpa pruebajpa = new PruebaJpa();
+                                        Prueba p = pruebajpa.findPruebaByNombreCompeticion(pruebaAsignada,
+                                                competicion.getId());
+                                        if (p != null) {
+                                            participante.setPruebaasignada(p);
+                                        } else {
+                                            throw new InputException("Prueba no encontrada");
+                                        }
+                                    }
+
+                                    // Si se ha seleccionado un equipo
+                                    if (nombreEquipo != null && !nombreEquipo.equals("Ninguno")) {
+                                        EquipoJpa equipojpa = new EquipoJpa();
+                                        Equipo equipo = equipojpa.findByNombreAndCompeticion(
+                                                nombreEquipo.toString(),
+                                                competicion.getId());
+                                        if (equipo != null) {
+                                            participante.setEquipoId(equipo);
+                                        } else {
+                                            throw new InputException("Equipo no encontrado");
+                                        }
+                                    }
+                                    participantejpa.create(participante);
+                                } else {
+                                    throw new InputException("Grupo no encontrado");
+                                }
+                            } else {
+                                throw new InputException("Dorsal ocupado");
+                            }
+                        } else {
+                            throw new InputException("Dorsal no válido");
+                        }
+                        return participante;
+                    } else {
+                        throw new InputException("Nombre de grupo no válido");
+                    }
+                } else {
+                    throw new InputException("Apellidos no válido");
                 }
-
-                // Si se ha seleccionado un equipo
-                if (nombreEquipo != null && !nombreEquipo.equals("Ninguno")) {
-                    EquipoJpa equipojpa = new EquipoJpa();
-                    participante.setEquipoId(equipojpa.findByNombreAndCompeticion(
-                            nombreEquipo.toString(),
-                            competicion.getId()));
-                }
-                participantejpa.create(participante);
             } else {
-                throw new InputException("Dorsal ocupado");
+                throw new InputException("Nombre no válido");
             }
         } else {
-            throw new InputException("Datos obligatorios faltantes");
+            throw new InputException("Competición no válida");
         }
-        return participante;
     }
 
     /**
@@ -218,23 +243,28 @@ public class ControlParticipantes implements ActionListener {
      * @param participanteid Id del participante
      * @throws controlador.InputException
      */
-    public void eliminarParticipante(Integer participanteid) throws InputException {
+    public static void eliminarParticipante(Integer participanteid) throws InputException {
 
         // Comprobamos que el id es válido
-        ParticipanteJpa participantejpa = new ParticipanteJpa();
+        if (participanteid != null) {
 
-        //Buscamos el participante a partid del ID
-        Participante participante = participantejpa.findParticipante(participanteid);
+            ParticipanteJpa participantejpa = new ParticipanteJpa();
 
-        if (participante != null) {
-            eliminarRegistros(participante);
-            try {
-                participantejpa.destroy(participante.getId());
-            } catch (NonexistentEntityException ex) {
+            //Buscamos el participante a partid del ID
+            Participante participante = participantejpa.findParticipante(participanteid);
+
+            if (participante != null) {
+                eliminarRegistros(participante);
+                try {
+                    participantejpa.destroy(participante.getId());
+                } catch (NonexistentEntityException ex) {
+                    throw new InputException("Participante no encontrado");
+                }
+            } else {
                 throw new InputException("Participante no encontrado");
             }
         } else {
-            throw new InputException("Participante no encontrado");
+            throw new InputException("Participante no válido");
         }
     }
 
@@ -253,7 +283,7 @@ public class ControlParticipantes implements ActionListener {
      * @return el Participante modificado
      * @throws controlador.InputException
      */
-    public Participante modificarParticipante(Integer participanteid, String nombre, String apellidos,
+    public static Participante modificarParticipante(Integer participanteid, String nombre, String apellidos,
             Integer dorsal, String nombreGrupo, Integer edad, Integer sexo,
             String nombreEquipo, String pruebaAsignada) throws InputException {
 
@@ -263,15 +293,13 @@ public class ControlParticipantes implements ActionListener {
         // disponible
         if (participanteid != null && nombre != null && apellidos != null
                 && dorsal != null && nombreGrupo != null) {
-            
+
             if (dorsalLibreOMio(dorsal, participanteid)) {
-                
+
                 ParticipanteJpa participantejpa = new ParticipanteJpa();
                 GrupoJpa grupojpa = new GrupoJpa();
 
                 try {
-                    // Busca a la persona identificada por el participante
-                    // y modifica sus atributos con los datos de la vista
                     participante = participantejpa.findParticipante(participanteid);
                     participante.setNombre(nombre);
                     participante.setApellidos(apellidos);
@@ -341,7 +369,7 @@ public class ControlParticipantes implements ActionListener {
      *
      * @param participante Participante asociado a esos registros
      */
-    private void eliminarRegistros(Participante participante) throws InputException {
+    private static void eliminarRegistros(Participante participante) throws InputException {
 
         RegistroJpa registrosjpa = new RegistroJpa();
         // Buscamos todos los registros de "participante"
@@ -379,7 +407,7 @@ public class ControlParticipantes implements ActionListener {
      * @return true si el dorsal está libre o es el del participante cuyo id es
      * participanteid
      */
-    private boolean dorsalLibreOMio(Integer dorsal, Integer participanteid) {
+    private static boolean dorsalLibreOMio(Integer dorsal, Integer participanteid) {
         ParticipanteJpa participantejpa = new ParticipanteJpa();
         Participante participante = participantejpa.findByDorsalAndCompeticion(dorsal,
                 Coordinador.getInstance().getSeleccionada().getId());

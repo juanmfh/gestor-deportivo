@@ -1,6 +1,6 @@
 package vista;
 
-import controlador.RolUsuario;
+import modelo.RolUsuario;
 import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;

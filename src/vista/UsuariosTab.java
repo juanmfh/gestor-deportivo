@@ -1,7 +1,7 @@
 package vista;
 
 import controlador.Coordinador;
-import controlador.RolUsuario;
+import modelo.RolUsuario;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;

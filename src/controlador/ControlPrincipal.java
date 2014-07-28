@@ -1,5 +1,7 @@
 package controlador;
 
+import modelo.RolUsuario;
+import modelo.TipoPrueba;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;

@@ -1,6 +1,6 @@
 package dao;
 
-import controlador.RolUsuario;
+import modelo.RolUsuario;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;

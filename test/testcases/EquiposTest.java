@@ -1,4 +1,4 @@
-package pruebasUnitarias;
+package testcases;
 
 import controlador.ControlCompeticiones;
 import controlador.ControlEquipos;

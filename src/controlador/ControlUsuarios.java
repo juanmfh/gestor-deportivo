@@ -1,5 +1,6 @@
 package controlador;
 
+import modelo.RolUsuario;
 import dao.AdministradoJpa;
 import dao.CompeticionJpa;
 import dao.UsuarioJpa;

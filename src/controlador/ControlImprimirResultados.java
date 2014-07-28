@@ -1,14 +1,9 @@
 package controlador;
 
-import controlador.ControlRegistros.CrearPlantillaExcel;
-import dao.PruebaJpa;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 import main.PDFHelper;
-import modelo.Prueba;
 import vista.VistaImprimirResultados;
 
 /**
@@ -88,7 +83,6 @@ public class ControlImprimirResultados implements ActionListener {
         } catch (InputException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         }
-
     }
 
 }

@@ -1,12 +1,12 @@
-package pruebasUnitarias;
+package testcases;
 
 
 import controlador.ControlCompeticiones;
 import controlador.ControlGrupos;
 import controlador.ControlPruebas;
 import controlador.InputException;
-import controlador.TipoPrueba;
-import controlador.TipoResultado;
+import modelo.TipoPrueba;
+import modelo.TipoResultado;
 import dao.CompeticionJpa;
 import java.util.Date;
 import java.util.logging.Level;
@@ -26,7 +26,7 @@ public class CompeticionTest {
 
     private static CompeticionJpa competicionJpa;
 
-    // PRUEBAS SOBRE CREAR COMPETICION
+    
     @BeforeClass
     public static void setUp() throws InputException {
         competicionJpa = new CompeticionJpa();
@@ -48,6 +48,8 @@ public class CompeticionTest {
         }
 
     }
+    
+    // PRUEBAS SOBRE CREAR COMPETICION
 
     // Crea una competicion con todos los atributos null
     @Test(expected = InputException.class)
