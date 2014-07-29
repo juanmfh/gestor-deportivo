@@ -38,8 +38,6 @@ import modelo.Competicion;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FontFamily;
-import org.apache.poi.ss.usermodel.FontScheme;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -47,7 +45,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFontSize;
 import vista.DialogoImprimirResultados;
 import vista.VistaRegistros;
 
@@ -115,7 +112,10 @@ public class ControlRegistros implements ActionListener {
             case VistaRegistros.MODIFICARREGISTRO:
                 Registro registro = null;
                 try {
-                    registro = modificarRegistro(vista.getRegistroSeleccionado());
+                    registro = modificarRegistro(vista.getRegistroSeleccionado(),
+                            Double.valueOf(vista.getSegundos()),
+                            Integer.parseInt(vista.getMinutos()),
+                            Integer.parseInt(vista.getHoras()));
                 } catch (InputException ex) {
                     Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                 }
@@ -205,6 +205,22 @@ public class ControlRegistros implements ActionListener {
         }
     }
 
+    public static Registro crearRegistroIndividualNum(Competicion competicion, Integer dorsal, String nombrePrueba, Boolean sorteo, Double marca) throws InputException {
+        return crearRegistro(competicion, dorsal, nombrePrueba, null, sorteo, marca, null, null);
+    }
+
+    public static Registro crearRegistroIndividualTiempo(Competicion competicion, Integer dorsal, String nombrePrueba, Boolean sorteo, Double segundos, Integer minutos, Integer horas) throws InputException {
+        return crearRegistro(competicion, dorsal, nombrePrueba, null, sorteo, segundos, minutos, horas);
+    }
+
+    public static Registro crearRegistroEquipoNum(Competicion competicion, String nombreEquipo, String nombrePrueba, Boolean sorteo, Double marca) throws InputException {
+        return crearRegistro(competicion, null, nombrePrueba, nombreEquipo, sorteo, marca, null, null);
+    }
+
+    public static Registro crearRegistroEquipoTiempo(Competicion competicion, String nombreEquipo, String nombrePrueba, Boolean sorteo, Double segundos, Integer minutos, Integer horas) throws InputException {
+        return crearRegistro(competicion, null, nombrePrueba, nombreEquipo, sorteo, segundos, minutos, horas);
+    }
+
     /**
      * Crea un registro nuevo
      *
@@ -221,84 +237,91 @@ public class ControlRegistros implements ActionListener {
      * @return Registro si ha sido creado correctamente
      * @throws controlador.InputException
      */
-    public static Registro crearRegistro(Competicion competicion,Integer dorsal,
+    public static Registro crearRegistro(Competicion competicion, Integer dorsal,
             String nombrePrueba, String nombreEquipo, Boolean sorteo,
             Double segundos, Integer minutos, Integer horas) throws InputException {
 
-        Registro registro = null;
-        RegistroJpa registrojpa = new RegistroJpa();
-        InscripcionJpa inscripcionjpa = new InscripcionJpa();
-        GrupoJpa grupojpa = new GrupoJpa();
-        ParticipanteJpa participantejpa = new ParticipanteJpa();
-        PruebaJpa pruebajpa = new PruebaJpa();
+        if (competicion != null) {
+            if (nombrePrueba != null) {
+                Registro registro = null;
+                PruebaJpa pruebajpa = new PruebaJpa();
+                // Obtenemos la prueba a partir del nombre
+                Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, competicion.getId());
+                // Comprobamos que los parámetros son correctos
+                if (prueba != null) {
+                    if (!(dorsal == null && prueba.getTipo().equals(TipoPrueba.Individual.toString()))) {
+                        if (!(nombreEquipo == null && prueba.getTipo().equals(TipoPrueba.Equipo.toString()))) {
 
-        // Obtenemos la prueba a partir del nombre
-        Prueba prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba,competicion.getId());
+                            Participante participante;
+                            Grupo g;
+                            registro = new Registro();
+                            Inscripcion i;
+                            GrupoJpa grupojpa = new GrupoJpa();
+                            InscripcionJpa inscripcionjpa = new InscripcionJpa();
+                            RegistroJpa registrojpa = new RegistroJpa();
+                            // Si se ha seleccionado un participante individual
+                            if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
+                                // Obtenemos el participante
+                                ParticipanteJpa participantejpa = new ParticipanteJpa();
+                                participante = participantejpa.findByDorsalAndCompeticion(dorsal, competicion.getId());
+                                g = grupojpa.findByParticipanteCompeticion(competicion.getId(), participante.getId());
+                                registro.setParticipanteId(participante);
+                                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
+                                        competicion.getId(), g.getId());
+                                registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
+                                        prueba.getId(), participante.getId()) + 1);
+                            } else {
+                                // Obtenemos el equipo
+                                EquipoJpa equipojpa = new EquipoJpa();
+                                Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
+                                        competicion.getId());
+                                g = grupojpa.findByEquipoCompeticion(competicion.getId(), equipo.getId());
+                                registro.setEquipoId(equipo);
+                                i = inscripcionjpa.findInscripcionByCompeticionByGrupo(competicion.getId(), g.getId());
+                                registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
+                                        prueba.getId(), equipo.getId()) + 1);
+                            }
 
-        // Comprobamos que los parámetros son correctos
-        if (prueba != null) {
-            if (!(dorsal == null && prueba.getTipo().equals(TipoPrueba.Individual.toString()))) {
-                if (!(nombreEquipo == null && prueba.getTipo().equals(TipoPrueba.Equipo.toString()))) {
-
-                    Participante participante;
-                    Grupo g;
-                    registro = new Registro();
-                    Inscripcion i;
-                    // Si se ha seleccionado un participante individual
-                    if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                        // Obtenemos el participante
-                        participante = participantejpa.findByDorsalAndCompeticion(dorsal, competicion.getId());
-                        g = grupojpa.findByParticipanteCompeticion(competicion.getId(), participante.getId());
-                        registro.setParticipanteId(participante);
-                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(
-                                competicion.getId(), g.getId());
-                        registro.setNumIntento(registrojpa.findMaxNumIntentoParticipante(i.getId(),
-                                prueba.getId(), participante.getId()) + 1);
+                            // Establecemos los datos del registro comunes
+                            registro.setInscripcionId(i);
+                            registro.setPruebaId(prueba);
+                            if (sorteo != null) {
+                                registro.setSorteo(sorteo ? 1 : 0);
+                            }
+                            // Comprueba que la prueba no es de tipo tiempo
+                            if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
+                                    || prueba.getTiporesultado().equals(TipoResultado.Numerica.toString())) {
+                                if (segundos == null) {
+                                    throw new InputException("Formato del registro no válido");
+                                }
+                                registro.setNum(segundos);
+                                // Si es de tipo Tiempo formateamos la hora, minutos y segundos    
+                            } else if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
+                                // Obtenemos un objeto Date a partir de los parámetros
+                                Date date = getTiempo(segundos, minutos, horas);
+                                if (date == null) {
+                                    throw new InputException("Formato de tiempo no válido");
+                                }
+                                registro.setTiempo(date);
+                            }
+                            // Creamos el registro en la base de datos
+                            registrojpa.create(registro);
+                        } else {
+                            throw new InputException("Equipo no válido");
+                        }
                     } else {
-                        // Obtenemosel equipo
-                        EquipoJpa equipojpa = new EquipoJpa();
-                        Equipo equipo = equipojpa.findByNombreAndCompeticion(nombreEquipo,
-                                competicion.getId());
-                        g = grupojpa.findByEquipoCompeticion(competicion.getId(), equipo.getId());
-                        registro.setEquipoId(equipo);
-                        i = inscripcionjpa.findInscripcionByCompeticionByGrupo(competicion.getId(), g.getId());
-                        registro.setNumIntento(registrojpa.findMaxNumIntentoEquipo(i.getId(),
-                                prueba.getId(), equipo.getId()) + 1);
+                        throw new InputException("Participante no válido");
                     }
-
-                    // Establecemos los datos del registro comunes
-                    registro.setInscripcionId(i);
-                    registro.setPruebaId(prueba);
-                    registro.setSorteo(sorteo ? 1 : 0);
-
-                    // Comprueba que la prueba no es de tipo tiempo
-                    if (prueba.getTiporesultado().equals(TipoResultado.Distancia.toString())
-                            || prueba.getTiporesultado().equals(TipoResultado.Numerica.toString())) {
-                        if (segundos == null) {
-                            throw new InputException("Formato del registro no válido");
-                        }
-                        registro.setNum(segundos);
-                        // Si es de tipo Tiempo formateamos la hora, minutos y segundos    
-                    } else if (prueba.getTiporesultado().equals(TipoResultado.Tiempo.toString())) {
-                        // Obtenemos un objeto Date a partir de los parámetros
-                        Date date = getTiempo(segundos, minutos, horas);
-                        if (date == null) {
-                            throw new InputException("Formato de tiempo no válido");
-                        }
-                        registro.setTiempo(date);
-                    }
-                    // Creamos el registro en la base de datos
-                    registrojpa.create(registro);
                 } else {
-                    throw new InputException("Equipo no válido");
+                    throw new InputException("Prueba no encontrada");
                 }
+                return registro;
             } else {
-                throw new InputException("Participante no válido");
+                throw new InputException("Nombre de prueba no válido");
             }
         } else {
-            throw new InputException("Prueba no válida");
+            throw new InputException("Competición no válida");
         }
-        return registro;
     }
 
     private void añadirRegistroAVista(Registro r) {
@@ -407,57 +430,59 @@ public class ControlRegistros implements ActionListener {
 
     public static Date getTiempo(Double segundos, Integer minutos, Integer horas) {
         Date res = null;
-        try {
-            String formatDate = "HH:mm:ss.S";
-            String horasSt;
-            if (horas == null) {
-                horasSt = "00";
-            } else {
-                horasSt = Integer.toString(horas);
-                if (horasSt.length() == 0) {
+        if (segundos == null && minutos == null & horas == null) {
+            return res;
+        } else {
+            try {
+                String formatDate = "HH:mm:ss.S";
+                String horasSt;
+                if (horas == null) {
                     horasSt = "00";
-                } else if (horasSt.length() == 1) {
-                    horasSt = "0" + horasSt;
+                } else {
+                    horasSt = Integer.toString(horas);
+                    if (horasSt.length() == 0) {
+                        horasSt = "00";
+                    } else if (horasSt.length() == 1) {
+                        horasSt = "0" + horasSt;
+                    }
                 }
-            }
-            String minutosSt;
-            if (minutos == null) {
-                minutosSt = "00";
-            } else {
-                minutosSt = Integer.toString(minutos);
-                if (minutosSt.length() == 0) {
+                String minutosSt;
+                if (minutos == null) {
                     minutosSt = "00";
-                } else if (minutosSt.length() == 1) {
-                    minutosSt = "0" + minutosSt;
+                } else {
+                    minutosSt = Integer.toString(minutos);
+                    if (minutosSt.length() == 0) {
+                        minutosSt = "00";
+                    } else if (minutosSt.length() == 1) {
+                        minutosSt = "0" + minutosSt;
+                    }
                 }
-            }
-            String segundosSt;
-            if (segundos == null) {
-                segundosSt = "00.0";
-            } else {
-                segundosSt = Double.toString(segundos);
-                if (segundosSt.length() == 0) {
+                String segundosSt;
+                if (segundos == null) {
                     segundosSt = "00.0";
                 } else {
-                    segundosSt = Double.toString(Double.parseDouble(segundosSt));
-                    if (Double.parseDouble(segundosSt) > 59.999) {
-                        return null;
-                    }
-                    if (segundosSt.charAt(2) == '.') {
-                        String decimales = segundosSt.substring(2);
-                        for (int j = 2; j < decimales.length(); j++) {
-                            formatDate += "S";
+                    segundosSt = Double.toString(segundos);
+                    if (segundosSt.length() == 0) {
+                        segundosSt = "00.0";
+                    } else {
+                        segundosSt = Double.toString(Double.parseDouble(segundosSt));
+                        if (Double.parseDouble(segundosSt) > 59.999) {
+                            return null;
+                        }
+                        if (segundosSt.charAt(2) == '.') {
+                            String decimales = segundosSt.substring(2);
+                            for (int j = 2; j < decimales.length(); j++) {
+                                formatDate += "S";
+                            }
                         }
                     }
                 }
+                res = new SimpleDateFormat(formatDate).parse(horasSt + ":" + minutosSt + ":" + segundosSt);
+            } catch (ParseException | NumberFormatException ex) {
+                return res;
             }
-            res = new SimpleDateFormat(formatDate).parse(
-                    horasSt + ":" + minutosSt + ":" + segundosSt);
-
-        } catch (ParseException | NumberFormatException ex) {
             return res;
         }
-        return res;
     }
 
     /**
@@ -466,13 +491,17 @@ public class ControlRegistros implements ActionListener {
      * @param registroid Id del registro a eliminar
      * @throws controlador.InputException
      */
-    public void eliminarRegistro(Integer registroid) throws InputException {
+    public static void eliminarRegistro(Integer registroid) throws InputException {
 
-        RegistroJpa registrojpa = new RegistroJpa();
-        try {
-            registrojpa.destroy(registroid);
-        } catch (NonexistentEntityException ex) {
-            throw new InputException("Registro no encontrado");
+        if (registroid != null) {
+            RegistroJpa registrojpa = new RegistroJpa();
+            try {
+                registrojpa.destroy(registroid);
+            } catch (NonexistentEntityException ex) {
+                throw new InputException("Registro no encontrado");
+            }
+        } else {
+            throw new InputException("Registro no válido");
         }
     }
 
@@ -480,46 +509,53 @@ public class ControlRegistros implements ActionListener {
      * Modifica la marca del registro cuyo id es "registroid"
      *
      * @param registroid Id del registro que se va a modificar
+     * @param segundos
+     * @param minutos
+     * @param horas
      *
      * @return el Registro modificado
      * @throws controlador.InputException
      */
-    public Registro modificarRegistro(Integer registroid) throws InputException {
+    public static Registro modificarRegistro(Integer registroid, Double segundos, Integer minutos, Integer horas) throws InputException {
 
-        RegistroJpa registrojpa = new RegistroJpa();
+        if (registroid != null) {
 
-        // Obtenemos el objeto Registro a partir de su Id
-        Registro registro = registrojpa.findRegistro(registroid);
-        if (registro != null) {
-            String formatDate = "HH:mm:ss.S";
-            // Si no es de tipo Tiempo
-            if (registro.getPruebaId().getTiporesultado().equals("Distancia")
-                    || registro.getPruebaId().getTiporesultado().equals("Numérica")) {
-                if (vista.getSegundos().length() == 0) {
-                    throw new InputException("Formato del registro no válido");
+            RegistroJpa registrojpa = new RegistroJpa();
+            // Obtenemos el objeto Registro a partir de su Id
+            Registro registro = registrojpa.findRegistro(registroid);
+
+            if (registro != null) {
+                // Si el registro es de Tipo Numerica o Distancia
+                if (registro.getPruebaId().getTiporesultado().equals(TipoResultado.Distancia.toString())
+                        || registro.getPruebaId().getTiporesultado().equals(TipoResultado.Numerica.toString())) {
+                    if (segundos == null) {
+                        throw new InputException("Formato del registro no válido");
+                    }
+                    // Establecemos el nuevo registro
+                    registro.setNum(segundos);
+
+                } else if (registro.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())) { // Si el registro es de Tipo Tiempo
+                    Date date = getTiempo(segundos, minutos, horas);
+                    if (date != null) {
+                        // Establecemos el tiempo formateado
+                        registro.setTiempo(date);
+                    } else {
+                        throw new InputException("Formato de tiempo no válido");
+                    }
                 }
-                // Establecemos el nuevo registro
-                registro.setNum(Double.valueOf(vista.getSegundos()));
-                // Si es de tipo Tiempo formateamos la hora, minutos y segundos
-            } else if (registro.getPruebaId().getTiporesultado().equals("Tiempo")) {
-                Date date = getTiempo(Double.parseDouble(vista.getSegundos()), Integer.parseInt(vista.getMinutos()), Integer.parseInt(vista.getHoras()));
-                if (date != null) {
-                    // Establecemos el tiempo formateado
-                    registro.setTiempo(date);
-                } else {
-                    throw new InputException("Formato de tiempo no válido");
+                try {
+                    // Guardamos los cambios en la base de datos
+                    registrojpa.edit(registro);
+                } catch (Exception ex) {
+                    throw new InputException(ex.getMessage());
                 }
+                return registro;
+            }
+            throw new InputException("Registro no encontrado");
 
-            }
-            try {
-                // Guardamos los cambios en la base de datos
-                registrojpa.edit(registro);
-            } catch (Exception ex) {
-                throw new InputException(ex.getMessage());
-            }
-            return registro;
+        } else {
+            throw new InputException("Registro no válido");
         }
-        throw new InputException("Registro no encontrado");
     }
 
     /**
@@ -671,6 +707,7 @@ public class ControlRegistros implements ActionListener {
             }
         } else {
             throw new InputException("Competición no seleccionada");
+
         }
     }
 
@@ -748,7 +785,7 @@ public class ControlRegistros implements ActionListener {
             f.setBold(true);
             f.setColor(IndexedColors.BLACK.getIndex());
             cs1.setFont(f);
-            
+
             XSSFCellStyle cs2 = (XSSFCellStyle) wb.createCellStyle();
             cs2.setFillForegroundColor(IndexedColors.TAN.getIndex());
             cs2.setFillPattern(CellStyle.SOLID_FOREGROUND);
@@ -842,10 +879,10 @@ public class ControlRegistros implements ActionListener {
                             celda = fila.createCell(PRIMERA_COLUMNA);
                             celda.setCellValue(particip.getDorsal());
                             celda.setCellStyle(cs2);
-                            
-                            for(int i=1;i<=3;i++){
-                            celda = fila.createCell(PRIMERA_COLUMNA + i);
-                            celda.setCellStyle(cs2);
+
+                            for (int i = 1; i <= 3; i++) {
+                                celda = fila.createCell(PRIMERA_COLUMNA + i);
+                                celda.setCellStyle(cs2);
                             }
                         }
                     }
@@ -868,8 +905,8 @@ public class ControlRegistros implements ActionListener {
                         celda = fila.createCell(PRIMERA_COLUMNA);
                         celda.setCellValue(equipo.getNombre());
                         celda.setCellStyle(cs2);
-                        
-                        for(int i=1;i<=3;i++){
+
+                        for (int i = 1; i <= 3; i++) {
                             celda = fila.createCell(PRIMERA_COLUMNA + i);
                             celda.setCellStyle(cs2);
                         }
