@@ -24,7 +24,7 @@ import vista.VistaUsuarios;
  */
 public class ControlUsuarios implements ActionListener {
 
-    private VistaUsuarios vista;
+    private final VistaUsuarios vista;
 
     /**
      * Constructor que asocia la vista al controlador
@@ -132,42 +132,52 @@ public class ControlUsuarios implements ActionListener {
     public static Usuario crearUsuario(String nick, String password, RolUsuario rol, List<Object> competicionesConAcceso) throws InputException {
         Usuario usuario = null;
 
-        if (nick != null && nick.length() > 0 && password != null && password.length() > 0) {
-            UsuarioJpa usuariojpa = new UsuarioJpa();
+        if (nick != null && nick.length() > 0) {
+            if (password != null && password.length() > 0) {
+                if (rol != null) {
 
-            // Buscamos que el nick no este ya en uso
-            usuario = usuariojpa.findUsuariobyNick(nick);
+                    UsuarioJpa usuariojpa = new UsuarioJpa();
 
-            // Si no existe un usuario con ese nick se puede crear
-            if (usuario == null) {
-                usuario = new Usuario();
-                usuario.setNick(nick);
-                usuario.setPassword(password);
-                usuario.setRol(rol.ordinal());
-                usuariojpa.create(usuario);
-                
-                //Le damos permiso al usuario en las competiciones
-                if (competicionesConAcceso != null) {
-                    
-                    AdministradoJpa administradoJpa = new AdministradoJpa();
-                    CompeticionJpa competicionJpa = new CompeticionJpa();
-                    for (Object competicionString : competicionesConAcceso) {
-                        Administrado administrado = new Administrado();
-                        administrado.setCompeticionId(competicionJpa.findCompeticionByName(competicionString.toString()));
-                        administrado.setUsuarioId(usuario);
-                        administradoJpa.create(administrado);
+                    // Buscamos que el nick no este ya en uso
+                    usuario = usuariojpa.findUsuariobyNick(nick);
+
+                    // Si no existe un usuario con ese nick se puede crear
+                    if (usuario == null) {
+                        usuario = new Usuario();
+                        usuario.setNick(nick);
+                        usuario.setPassword(password);
+                        usuario.setRol(rol.ordinal());
+                        usuariojpa.create(usuario);
+
+                        //Le damos permiso al usuario en las competiciones
+                        if (competicionesConAcceso != null) {
+
+                            AdministradoJpa administradoJpa = new AdministradoJpa();
+                            CompeticionJpa competicionJpa = new CompeticionJpa();
+                            for (Object competicionString : competicionesConAcceso) {
+                                Administrado administrado = new Administrado();
+                                administrado.setCompeticionId(competicionJpa.findCompeticionByName(competicionString.toString()));
+                                administrado.setUsuarioId(usuario);
+                                administradoJpa.create(administrado);
+                            }
+                        }
+                    } else {
+                        throw new InputException("Nombre de usuario ocupado");
                     }
+                    return usuario;
+                } else {
+                    throw new InputException("Rol no válido");
                 }
             } else {
-                throw new InputException("Nombre de usuario ocupado");
+                throw new InputException("Contraseña no válida");
             }
         } else {
-            throw new InputException("Nombre de usuario o contraseña no válidos");
+            throw new InputException("Nombre de usuario no válido");
         }
-        return usuario;
+
     }
 
-    private void eliminarUsuario(Integer usuarioSeleccionado) throws InputException {
+    public static void eliminarUsuario(Integer usuarioSeleccionado) throws InputException {
         UsuarioJpa usuarioJpa = new UsuarioJpa();
         Usuario usuario = usuarioJpa.findUsuario(usuarioSeleccionado);
 
@@ -201,40 +211,54 @@ public class ControlUsuarios implements ActionListener {
         }
     }
 
-    private Usuario modificarUsuario(Integer usuarioSeleccionado, String nuevoNick, String nuevaPassword, RolUsuario nuevoRol) throws InputException {
+    public static Usuario modificarUsuario(Integer usuarioId, String nuevoNick, String nuevaPassword, RolUsuario nuevoRol) throws InputException {
 
-        UsuarioJpa usuariojpa = new UsuarioJpa();
-        Usuario usuario = usuariojpa.findUsuario(usuarioSeleccionado);
+        if (usuarioId != null) {
 
-        if (usuario != null) {
-            //Comprobamos que el nick y la contraseña son válidos
-            if (nuevoNick != null && nuevoNick.length() > 0 && nuevaPassword != null && nuevaPassword.length() > 0) {
-                Usuario temp = usuariojpa.findUsuariobyNick(nuevoNick);
-                if (temp != null && temp.getId() != usuario.getId()) {
-                    throw new InputException("Nombre de usuario ocupado");
-                } else {
-                    usuario.setNick(nuevoNick);
-                    usuario.setPassword(nuevaPassword);
+            UsuarioJpa usuariojpa = new UsuarioJpa();
+            Usuario usuario = usuariojpa.findUsuario(usuarioId);
 
-                    //Miramos a ver si es el único usuario con rol de admin
-                    List<Usuario> usuarios = usuariojpa.findByRol(RolUsuario.Administrador);
-                    if (nuevoRol == null || (RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1) && !nuevoRol.equals(RolUsuario.Administrador))) {
-                        throw new InputException("No se puede eliminar el último administrador del sistema");
+            if (usuario != null) {
+                //Comprobamos que el nick y la contraseña son válidos
+                if (nuevoNick != null && nuevoNick.length() > 0) {
+                    if (nuevaPassword != null && nuevaPassword.length() > 0) {
+
+                        Usuario temp = usuariojpa.findUsuariobyNick(nuevoNick);
+                        if (temp != null && temp.getId() != usuario.getId()) {
+                            throw new InputException("Nombre de usuario ocupado");
+                        } else {
+                            usuario.setNick(nuevoNick);
+                            usuario.setPassword(nuevaPassword);
+
+                            if (nuevoRol != null) {
+                                //Miramos a ver si es el único usuario con rol de admin
+                                List<Usuario> usuarios = usuariojpa.findByRol(RolUsuario.Administrador);
+                                if ((RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1) && !nuevoRol.equals(RolUsuario.Administrador))) {
+                                    throw new InputException("No se puede eliminar el último administrador del sistema");
+                                } else {
+                                    usuario.setRol(nuevoRol.ordinal());
+                                }
+                                try {
+                                    usuariojpa.edit(usuario);
+                                    return usuario;
+                                } catch (Exception ex) {
+                                    throw new InputException("No se pudo modificar el usuario seleccionado");
+                                }
+                            } else {
+                                throw new InputException("Rol no válido");
+                            }
+                        }
                     } else {
-                        usuario.setRol(nuevoRol.ordinal());
+                        throw new InputException("Contraseña no válida");
                     }
-                    try {
-                        usuariojpa.edit(usuario);
-                        return usuario;
-                    } catch (Exception ex) {
-                        throw new InputException("No se pudo modificar el usuario seleccionado");
-                    }
+                } else {
+                    throw new InputException("Nombre de usuario no válido");
                 }
             } else {
-                throw new InputException("Nombre de usuario o contraseña no válidos");
+                throw new InputException("Usuario no encontrado");
             }
         } else {
-            throw new InputException("No se ha seleccionado un usuario válido");
+            throw new InputException("Usuario no válido");
         }
     }
 
@@ -244,7 +268,7 @@ public class ControlUsuarios implements ActionListener {
      * @param usuariodId Identificador del usuario
      * @param nombreCompeticion Nombre de la competicion
      */
-    private void darAccesoACompeticion(Integer usuariodId, String nombreCompeticion) {
+    public static void darAccesoACompeticion(Integer usuariodId, String nombreCompeticion) {
         AdministradoJpa administradoJpa = new AdministradoJpa();
         Administrado administrado = new Administrado();
 
@@ -265,10 +289,10 @@ public class ControlUsuarios implements ActionListener {
      * Elimina el permiso para administrar/ver una competición determinada a un
      * usuario
      *
-     * @param usuariodId Identificador del usuario
+     * @param usuarioId
      * @param nombreCompeticion Nombre de la competicion
      */
-    private void quitarAccesoACompeticion(Integer usuarioId, String nombreCompeticion) throws InputException {
+    public static void quitarAccesoACompeticion(Integer usuarioId, String nombreCompeticion) throws InputException {
         AdministradoJpa administradoJpa = new AdministradoJpa();
 
         Administrado administrado = administradoJpa.findByCompeticionAndUsuario(usuarioId, nombreCompeticion);
