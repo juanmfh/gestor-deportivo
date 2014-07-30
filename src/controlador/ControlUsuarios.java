@@ -97,7 +97,11 @@ public class ControlUsuarios implements ActionListener {
                     vista.añadirCompeticionConAcceso(s);
                     vista.eliminarCompeticion(s);
                     if (vista.getUsuarioSeleccionado() != -1) {
-                        darAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
+                        try {
+                            darAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
+                        } catch (InputException ex) {
+                            Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+                        }
                     }
                 }
                 break;
@@ -177,37 +181,42 @@ public class ControlUsuarios implements ActionListener {
 
     }
 
-    public static void eliminarUsuario(Integer usuarioSeleccionado) throws InputException {
-        UsuarioJpa usuarioJpa = new UsuarioJpa();
-        Usuario usuario = usuarioJpa.findUsuario(usuarioSeleccionado);
+    public static void eliminarUsuario(Integer usuarioId) throws InputException {
 
-        if (usuario != null) {
+        if (usuarioId != null) {
+            UsuarioJpa usuarioJpa = new UsuarioJpa();
+            Usuario usuario = usuarioJpa.findUsuario(usuarioId);
 
-            //Miramos a ver si es el único usuario con rol de admin
-            List<Usuario> usuarios = usuarioJpa.findByRol(RolUsuario.Administrador);
-            if (RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1)) {
-                throw new InputException("No se puede eliminar el último administrador del sistema");
-            } else {
-                //Buscamos todas las competiciones que administra el usuario seleccionado
-                AdministradoJpa administradoJpa = new AdministradoJpa();
-                List<Administrado> administrados = administradoJpa.findByUsuario(usuarioSeleccionado);
-                if (administrados != null) {
-                    for (Administrado a : administrados) {
-                        try {
-                            administradoJpa.destroy(a.getId());
-                        } catch (NonexistentEntityException ex) {
-                            Logger.getLogger(ControlUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+            if (usuario != null) {
+
+                //Miramos a ver si es el único usuario con rol de admin
+                List<Usuario> usuarios = usuarioJpa.findByRol(RolUsuario.Administrador);
+                if (RolUsuario.values()[usuario.getRol()].toString().equals(RolUsuario.Administrador.toString()) && (usuarios == null || usuarios.size() <= 1)) {
+                    throw new InputException("No se puede eliminar el último administrador del sistema");
+                } else {
+                    //Buscamos todas las competiciones que administra el usuario seleccionado
+                    AdministradoJpa administradoJpa = new AdministradoJpa();
+                    List<Administrado> administrados = administradoJpa.findByUsuario(usuarioId);
+                    if (administrados != null) {
+                        for (Administrado a : administrados) {
+                            try {
+                                administradoJpa.destroy(a.getId());
+                            } catch (NonexistentEntityException ex) {
+                                Logger.getLogger(ControlUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 }
-            }
-            try {
-                usuarioJpa.destroy(usuarioSeleccionado);
-            } catch (IllegalOrphanException | NonexistentEntityException ex) {
-                throw new InputException("No se pudo eliminar el usuario seleccionado");
+                try {
+                    usuarioJpa.destroy(usuarioId);
+                } catch (IllegalOrphanException | NonexistentEntityException ex) {
+                    throw new InputException("No se pudo eliminar el usuario seleccionado");
+                }
+            } else {
+                throw new InputException("Usuario no encontrado");
             }
         } else {
-            throw new InputException("No se ha seleccionado un usuario válido");
+            throw new InputException("Usuario no válido");
         }
     }
 
@@ -265,23 +274,40 @@ public class ControlUsuarios implements ActionListener {
     /**
      * Da permiso para administrar/ver una competición determinada a un usuario
      *
-     * @param usuariodId Identificador del usuario
+     * @param usuarioId Identificador del usuario
      * @param nombreCompeticion Nombre de la competicion
+     * @throws controlador.InputException
      */
-    public static void darAccesoACompeticion(Integer usuariodId, String nombreCompeticion) {
-        AdministradoJpa administradoJpa = new AdministradoJpa();
-        Administrado administrado = new Administrado();
+    public static void darAccesoACompeticion(Integer usuarioId, String nombreCompeticion) throws InputException {
 
-        UsuarioJpa usuarioJpa = new UsuarioJpa();
-        Usuario usuario = usuarioJpa.findUsuario(usuariodId);
+        if (usuarioId != null) {
+            if (nombreCompeticion != null) {
+                AdministradoJpa administradoJpa = new AdministradoJpa();
+                Administrado administrado = new Administrado();
 
-        CompeticionJpa competicionJpa = new CompeticionJpa();
-        Competicion competicion = competicionJpa.findCompeticionByName(nombreCompeticion);
+                UsuarioJpa usuarioJpa = new UsuarioJpa();
+                Usuario usuario = usuarioJpa.findUsuario(usuarioId);
 
-        if (usuario != null && competicion != null) {
-            administrado.setUsuarioId(usuario);
-            administrado.setCompeticionId(competicion);
-            administradoJpa.create(administrado);
+                CompeticionJpa competicionJpa = new CompeticionJpa();
+                Competicion competicion = competicionJpa.findCompeticionByName(nombreCompeticion);
+
+                if (usuario != null) {
+                    if (competicion != null) {
+
+                        administrado.setUsuarioId(usuario);
+                        administrado.setCompeticionId(competicion);
+                        administradoJpa.create(administrado);
+                    } else {
+                        throw new InputException("Competición no encontrada");
+                    }
+                } else {
+                    throw new InputException("Usuario no encontrado");
+                }
+            } else {
+                throw new InputException("Competición no válida");
+            }
+        } else {
+            throw new InputException("Usuario no válido");
         }
     }
 
@@ -291,18 +317,29 @@ public class ControlUsuarios implements ActionListener {
      *
      * @param usuarioId
      * @param nombreCompeticion Nombre de la competicion
+     * @throws controlador.InputException
      */
     public static void quitarAccesoACompeticion(Integer usuarioId, String nombreCompeticion) throws InputException {
-        AdministradoJpa administradoJpa = new AdministradoJpa();
 
-        Administrado administrado = administradoJpa.findByCompeticionAndUsuario(usuarioId, nombreCompeticion);
+        if (usuarioId != null) {
+            if (nombreCompeticion != null) {
+                AdministradoJpa administradoJpa = new AdministradoJpa();
+                Administrado administrado = administradoJpa.findByCompeticionAndUsuario(usuarioId, nombreCompeticion);
 
-        if (administrado != null) {
-            try {
-                administradoJpa.destroy(administrado.getId());
-            } catch (NonexistentEntityException ex) {
-                throw new InputException("No se puede quitar el acceso a esa competición");
+                if (administrado != null) {
+                    try {
+                        administradoJpa.destroy(administrado.getId());
+                    } catch (NonexistentEntityException ex) {
+                        throw new InputException("No se puede quitar el acceso a esa competición");
+                    }
+                }else{
+                    throw new InputException("El usuario no tiene permiso en esta competición");
+                }
+            } else {
+                throw new InputException("Competición no válida");
             }
+        } else {
+            throw new InputException("Usuario no válido");
         }
     }
 
