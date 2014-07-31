@@ -10,17 +10,16 @@ import vista.VistaImprimirResultados;
  *
  * @author JuanM
  */
-public class ControlImprimirResultados implements ActionListener {
+public class ControlCrearFicheros implements ActionListener {
 
     private final VistaImprimirResultados vista;
 
     /**
      * Constructor que asocia la vista al controlador
      *
-     *
      * @param vista Vista del controlador (Interfaz)
      */
-    public ControlImprimirResultados(VistaImprimirResultados vista) {
+    public ControlCrearFicheros(VistaImprimirResultados vista) {
         this.vista = vista;
     }
 
@@ -29,10 +28,15 @@ public class ControlImprimirResultados implements ActionListener {
         String command = ae.getActionCommand();
         switch (command) {
             case VistaImprimirResultados.OK:
-                if (vista.getFormato().equals("Excel")) {
-                    crearPlantillaExcel();
-                } else if (vista.getFormato().equals("PDF")) {
-                    imprimirResultadosPDF();
+                switch (vista.getFormato()) {
+                    case "Excel":
+                        crearPlantillaExcel();
+                        vista.cerrar();
+                        break;
+                    case "PDF":
+                        imprimirResultadosPDF();
+                        vista.cerrar();
+                        break;
                 }
                 break;
             case VistaImprimirResultados.CANCELAR:
@@ -59,7 +63,6 @@ public class ControlImprimirResultados implements ActionListener {
             } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
                 PDFHelper.imprimirResultadosPDF(vista.getpruebasList(), vista.getgruposList(), vista.getgenerarListaSalidaCheckBox(), vista.getparticipantesAsignadosCheckBox());
             }
-            vista.cerrar();
         } catch (InputException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         }
@@ -79,7 +82,6 @@ public class ControlImprimirResultados implements ActionListener {
             } else {                                                                            // Se ha seleccionado varios grupos y varias pruebas
                 ControlRegistros.crearPlantillaFileChooser(vista.getpruebasList(), vista.getgruposList(), vista.getparticipantesAsignadosCheckBox());
             }
-            vista.cerrar();
         } catch (InputException ex) {
             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
         }

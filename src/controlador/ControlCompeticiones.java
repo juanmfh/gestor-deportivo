@@ -13,6 +13,8 @@ import dao.CompeticionJpa;
 import dao.CompuestaJpa;
 import dao.GrupoJpa;
 import dao.PruebaJpa;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import modelo.Compuesta;
 import modelo.Grupo;
@@ -71,8 +73,8 @@ public class ControlCompeticiones implements ActionListener {
         Competicion competicion;
 
         // Datos no obligatorios para crear la competicion
-        Date fechaInicio = IOFile.formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
-        Date fechaFin = IOFile.formatearFecha(vista.getDiaFin(), String.valueOf(vista.getMesFin()), vista.getAñoFin());
+        Date fechaInicio = formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
+        Date fechaFin = formatearFecha(vista.getDiaFin(), String.valueOf(vista.getMesFin()), vista.getAñoFin());
         String nombreImagen = IOFile.getNombreFichero(vista.getRutaImagen());
 
         // Creamos la competicion a partir de los datos recogidos de la vista
@@ -122,6 +124,9 @@ public class ControlCompeticiones implements ActionListener {
                 competicion.setNombre(nombre);
                 competicion.setCiudad(lugar);
                 competicion.setFechainicio(fechaInicio);
+                if(fechaInicio!=null && fechaFin!=null && fechaInicio.after(fechaFin)){
+                    throw new InputException("La fecha de fin es posterior a la fecha de inicio");
+                }
                 competicion.setFechafin(fechaFin);
                 competicion.setImagen(nombreImagen);
                 competicion.setOrganizador(organizador);
@@ -169,8 +174,8 @@ public class ControlCompeticiones implements ActionListener {
         String oldpath = c.getImagen();
 
         // Obtenemos los datos necesarios para modificar la competicion
-        Date fechaInicio = IOFile.formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
-        Date fechaFin = IOFile.formatearFecha(vista.getDiaFin(), String.valueOf(vista.getMesFin()), vista.getAñoFin());
+        Date fechaInicio = formatearFecha(vista.getDiaInicio(), String.valueOf(vista.getMesInicio()), vista.getAñoInicio());
+        Date fechaFin = formatearFecha(vista.getDiaFin(), String.valueOf(vista.getMesFin()), vista.getAñoFin());
         String nombreImagen = IOFile.getNombreFichero(vista.getRutaImagen());
 
         // Modificamos la competicion "c" con los datos de la vista
@@ -223,6 +228,9 @@ public class ControlCompeticiones implements ActionListener {
                 competicion.setNombre(nombre);
                 competicion.setOrganizador(organizador);
                 competicion.setCiudad(lugar);
+                if(fechaInicio!=null && fechaFin!=null && fechaInicio.after(fechaFin)){
+                    throw new InputException("La fecha de fin es posterior a la fecha de inicio");
+                }
                 competicion.setFechainicio(fechaInicio);
                 competicion.setFechafin(fechaFin);
                 competicion.setImagen(nombreImagen);
@@ -291,6 +299,40 @@ public class ControlCompeticiones implements ActionListener {
             }
         } else {
             throw new InputException("Competición no encontrada");
+        }
+    }
+    
+    /**
+     * Devuelve en un objeto Date la fecha pasada como parámetros en String o
+     * null si los parámetros no son correctos.
+     *
+     * @param dia numero del dia en String.
+     * @param mes numero del mes en String.
+     * @param año numero del año en String.
+     * @return Date
+     */
+    public static Date formatearFecha(String dia, String mes, String año) {
+        String fecha = null;
+        try {
+            Date res = null;
+            if (año.length() == 4) {
+                fecha = String.valueOf(Integer.parseInt(año)) + "-";
+                if (mes.length() == 1) {
+                    fecha += "0" + mes + "-";
+                } else {
+                    fecha += mes + "-";
+                }
+                if (dia.length() == 1) {
+                    fecha += "0" + dia;
+                } else {
+                    fecha += dia;
+                }
+                SimpleDateFormat textFormat = new SimpleDateFormat("yyyy-MM-dd");
+                res = textFormat.parse(fecha);
+            }
+            return res;
+        } catch (NumberFormatException | ParseException exception) {
+            return null;
         }
     }
 }

@@ -54,30 +54,29 @@ public class Coordinador {
         return coordinador;
     }
 
-    
     private Coordinador() {
 
-        
     }
-    
+
     /**
      * Inicializa la base de datos y carga la pantalla de login
      *
      */
-    public void inicializar(){
+    public void inicializar() {
         DataBaseHelper dbhelper = null;
         try {
             // Inicializa la base de datos
             dbhelper = new DataBaseHelper();
             dbhelper.iniDB();
 
-        } catch (SQLException ex) {
+        } catch (SQLException ex) { 
             // Error al conectar con la base de datos. Mensaje de error
             JOptionPane optionPane = new JOptionPane("La aplicación ya está abierta. Cierra e inténtalo de nuevo.", JOptionPane.ERROR_MESSAGE);
             JDialog dialog = optionPane.createDialog("Error al inicializar la base de datos");
             dialog.setAlwaysOnTop(true);
             dialog.setVisible(true);
             System.exit(0);
+
         } finally {
             try {
                 // Cerramos la conexión

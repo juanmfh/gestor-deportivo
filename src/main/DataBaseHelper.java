@@ -28,7 +28,7 @@ public class DataBaseHelper {
     public void iniDB() throws SQLException {
         try {
             connection.setAutoCommit(false);
-
+            
             s.execute("CREATE table USUARIO (\n"
                     + "    id          INTEGER NOT NULL \n"
                     + "                PRIMARY KEY GENERATED ALWAYS AS IDENTITY \n"
@@ -148,6 +148,7 @@ public class DataBaseHelper {
 
         } catch (SQLException ex) {
             if (ex.getErrorCode() != DATABASEEXIST) {
+                System.out.println(ex.getErrorCode());
                 throw new SQLException(ex);
             }
         } finally {

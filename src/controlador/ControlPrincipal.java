@@ -698,7 +698,7 @@ public class ControlPrincipal implements ActionListener {
                                 = Toolkit.getDefaultToolkit().getScreenSize();
                         dialog.setLocation(dimension.width / 2
                                 - dialog.getSize().width / 2, dimension.height / 2 - dialog.getSize().height / 2);
-                        ActionListener controladorDialog = new ControlImprimirResultados(dialog);
+                        ActionListener controladorDialog = new ControlCrearFicheros(dialog);
                         dialog.controlador(controladorDialog);
                         PruebaJpa pruebajpa = new PruebaJpa();
                         GrupoJpa grupojpa = new GrupoJpa();

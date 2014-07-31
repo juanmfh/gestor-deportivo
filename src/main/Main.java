@@ -7,9 +7,7 @@ import controlador.Coordinador;
  */
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main(String[] args) {
 
         Coordinador c = Coordinador.getInstance();

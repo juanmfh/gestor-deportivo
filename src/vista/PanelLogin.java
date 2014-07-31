@@ -71,7 +71,7 @@ public class PanelLogin extends JPanel implements VistaLogin {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        Color color1 = getBackground();
+        Color color1 = getBackground().brighter();
         Color color2 = color1.darker();
         int ancho = this.getWidth();
         int alto = this.getHeight();
