@@ -1,4 +1,4 @@
-package dao.exceptions;
+package modelo.dao.exceptions;
 
 public class NonexistentEntityException extends Exception {
     public NonexistentEntityException(String message, Throwable cause) {

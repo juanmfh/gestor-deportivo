@@ -1,16 +1,15 @@
 package testcases;
 
-import controlador.ControlCompeticiones;
-import controlador.ControlEquipos;
-import controlador.ControlGrupos;
 import controlador.ControlParticipantes;
 import controlador.InputException;
-import dao.EquipoJpa;
-import dao.ParticipanteJpa;
+import modelo.dao.CompeticionJpa;
+import modelo.dao.EquipoJpa;
+import modelo.dao.ParticipanteJpa;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Grupo;
 import modelo.Participante;
+import modelo.dao.GrupoJpa;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,12 +32,12 @@ public class EquiposTest {
 
     @Before
     public void ini() throws InputException {
-        competicion = ControlCompeticiones.crearCompeticion("comp1", null, null, null, null, null);
+        competicion = CompeticionJpa.crearCompeticion("comp1", null, null, null, null, null);
     }
 
     @After
     public void destroy() throws InputException {
-        ControlCompeticiones.eliminarCompeticion("comp1");
+        CompeticionJpa.eliminarCompeticion("comp1");
     }
 
     // PRUEBAS SOBRE CREAR EQUIPO
@@ -46,7 +45,7 @@ public class EquiposTest {
     public void crearEquipoTodoNull() {
         Equipo e = null;
         try {
-            e = ControlEquipos.crearEquipo(null, null, null);
+            e = EquipoJpa.crearEquipo(null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de competición no válido");
@@ -58,7 +57,7 @@ public class EquiposTest {
     public void crearEquipoNombreNull() {
         Equipo e = null;
         try {
-            e = ControlEquipos.crearEquipo(competicion, null, null);
+            e = EquipoJpa.crearEquipo(competicion, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de equipo no válido");
@@ -70,7 +69,7 @@ public class EquiposTest {
     public void crearEquipoNombreVacio() {
         Equipo e = null;
         try {
-            e = ControlEquipos.crearEquipo(competicion, "", null);
+            e = EquipoJpa.crearEquipo(competicion, "", null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de equipo no válido");
@@ -82,7 +81,7 @@ public class EquiposTest {
     public void crearEquipoGrupoNull() {
         Equipo e = null;
         try {
-            e = ControlEquipos.crearEquipo(competicion, "a", null);
+            e = EquipoJpa.crearEquipo(competicion, "a", null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Grupo no válido");
@@ -94,7 +93,7 @@ public class EquiposTest {
     public void crearEquipoGrupoNoValido() {
         Equipo e = null;
         try {
-            e = ControlEquipos.crearEquipo(competicion, "a", "b");
+            e = EquipoJpa.crearEquipo(competicion, "a", "b");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Grupo no encontrado");
@@ -105,8 +104,8 @@ public class EquiposTest {
     @Test
     public void crearEquipoValido() throws InputException {
         Equipo e = null;
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         assertNotNull(e);
         assertNotNull(equipoJpa.findByNombreAndCompeticion(e.getNombre(), competicion.getId()));
     }
@@ -114,10 +113,10 @@ public class EquiposTest {
     @Test
     public void crearEquipoNombreOcupado() throws InputException {
         Equipo e = null;
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         try {
-            e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+            e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertNull(e);
@@ -128,11 +127,11 @@ public class EquiposTest {
     @Test
     public void crearEquipoNombreOcupadoOtroGrupo() throws InputException {
         Equipo e = null;
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        ControlGrupos.crearGrupo(competicion, "grupo2", null);
-        ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        GrupoJpa.crearGrupo(competicion, "grupo2", null);
+        EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         try {
-            e = ControlEquipos.crearEquipo(competicion, "a", "grupo2");
+            e = EquipoJpa.crearEquipo(competicion, "a", "grupo2");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertNull(e);
@@ -143,16 +142,16 @@ public class EquiposTest {
     @Test
     public void crearEquipoNombreOcupadoOtraCompeticion() throws InputException {
         Equipo e1,e2 = null;
-        Competicion c2 = ControlCompeticiones.crearCompeticion("comp2", null, null, null, null, null);
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        ControlGrupos.crearGrupo(c2, "grupo1", null);
-        e1 =ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        e2 = ControlEquipos.crearEquipo(c2, "a", "grupo1");
+        Competicion c2 = CompeticionJpa.crearCompeticion("comp2", null, null, null, null, null);
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        GrupoJpa.crearGrupo(c2, "grupo1", null);
+        e1 =EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        e2 = EquipoJpa.crearEquipo(c2, "a", "grupo1");
         assertNotNull(e1);
         assertNotNull(e2);
         assertNotNull(equipoJpa.findByNombreAndCompeticion(e1.getNombre(), competicion.getId()));
         assertNotNull(equipoJpa.findByNombreAndCompeticion(e2.getNombre(), c2.getId()));
-        ControlCompeticiones.eliminarCompeticion(c2.getNombre());
+        CompeticionJpa.eliminarCompeticion(c2.getNombre());
     }
     
     // PRUEBAS SOBRE ELIMINAR EQUIPO
@@ -160,7 +159,7 @@ public class EquiposTest {
     @Test
     public void eliminarEquipoNull(){
         try {
-            ControlEquipos.eliminarEquipo(null);
+            EquipoJpa.eliminarEquipo(null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(),"Equipo no válido");
@@ -170,7 +169,7 @@ public class EquiposTest {
     @Test
     public void eliminarEquipoNoValido(){
         try {
-            ControlEquipos.eliminarEquipo(-1);
+            EquipoJpa.eliminarEquipo(-1);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(),"Equipo no encontrado");
@@ -179,9 +178,9 @@ public class EquiposTest {
     
     @Test
     public void eliminarEquipoValido() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        ControlEquipos.eliminarEquipo(e.getId());
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        EquipoJpa.eliminarEquipo(e.getId());
         e = equipoJpa.findByNombreAndCompeticion("a", competicion.getId());
         assertNull(e);
     }
@@ -189,26 +188,26 @@ public class EquiposTest {
     // Comprueba que no se eliminan los participantes del equipo
     @Test
     public void eliminarEquipoConParticipantes() throws InputException{
-        Competicion c2 = ControlCompeticiones.crearCompeticion("comp2", null, null, null, null, null);
-        ControlGrupos.crearGrupo(c2, "grupo1", null);
-        Grupo g =ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        Equipo e2 = ControlEquipos.crearEquipo(c2, "a", "grupo1");
-        ControlEquipos.eliminarEquipo(e2.getId());
+        Competicion c2 = CompeticionJpa.crearCompeticion("comp2", null, null, null, null, null);
+        GrupoJpa.crearGrupo(c2, "grupo1", null);
+        Grupo g =GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        Equipo e2 = EquipoJpa.crearEquipo(c2, "a", "grupo1");
+        EquipoJpa.eliminarEquipo(e2.getId());
         e = equipoJpa.findByNombreAndCompeticion("a", competicion.getId());
         assertNotNull(e);
         e2 = equipoJpa.findByNombreAndCompeticion("a", c2.getId());
         assertNull(e2);
-        ControlCompeticiones.eliminarCompeticion(c2.getNombre());
+        CompeticionJpa.eliminarCompeticion(c2.getNombre());
     }
     
     // Comprueba que se elimina el equipo correcto
     @Test
     public void eliminarEquipoMismoNombre2Competiciones() throws InputException{
-        Grupo g = ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        ControlParticipantes.crearParticipante(competicion, "n", "a", 1, g.getNombre(), null, null, null, null);
-        ControlEquipos.eliminarEquipo(e.getId());
+        Grupo g = GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        ParticipanteJpa.crearParticipante(competicion, "n", "a", 1, g.getNombre(), null, null, null, null);
+        EquipoJpa.eliminarEquipo(e.getId());
         e = equipoJpa.findByNombreAndCompeticion("a", competicion.getId());
         assertNull(e);
         ParticipanteJpa participantejpa = new ParticipanteJpa();
@@ -221,7 +220,7 @@ public class EquiposTest {
     @Test
     public void modificarEquipoNull(){
         try {
-            ControlEquipos.modificarEquipo(null,null, null, null);
+            EquipoJpa.modificarEquipo(null,null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Competición no válida");
@@ -231,7 +230,7 @@ public class EquiposTest {
     @Test
     public void modificarEquipoIdNull(){
         try {
-            ControlEquipos.modificarEquipo(competicion,null, null, null);
+            EquipoJpa.modificarEquipo(competicion,null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Equipo no válido");
@@ -240,10 +239,10 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoNombreNull() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         try {
-            ControlEquipos.modificarEquipo(competicion,e.getId(), null, null);
+            EquipoJpa.modificarEquipo(competicion,e.getId(), null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de equipo no válido");
@@ -252,10 +251,10 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoNombreVacio() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         try {
-            ControlEquipos.modificarEquipo(competicion,e.getId(), "", null);
+            EquipoJpa.modificarEquipo(competicion,e.getId(), "", null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de equipo no válido");
@@ -264,11 +263,11 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoNombreOcupado() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        Equipo e2 = ControlEquipos.crearEquipo(competicion, "b", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        Equipo e2 = EquipoJpa.crearEquipo(competicion, "b", "grupo1");
         try {
-            ControlEquipos.modificarEquipo(competicion,e.getId(), "b", null);
+            EquipoJpa.modificarEquipo(competicion,e.getId(), "b", null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de equipo ocupado");
@@ -277,24 +276,24 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoNombreOcupadoOtraCompeticion() throws InputException{
-        Competicion c2 = ControlCompeticiones.crearCompeticion("comp2", null, null, null, null, null);
-        ControlGrupos.crearGrupo(c2, "grupo1", null);
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        Equipo e2 = ControlEquipos.crearEquipo(c2, "b", "grupo1");
-        e2 = ControlEquipos.modificarEquipo(c2,e2.getId(), "a", "grupo1");
+        Competicion c2 = CompeticionJpa.crearCompeticion("comp2", null, null, null, null, null);
+        GrupoJpa.crearGrupo(c2, "grupo1", null);
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        Equipo e2 = EquipoJpa.crearEquipo(c2, "b", "grupo1");
+        e2 = EquipoJpa.modificarEquipo(c2,e2.getId(), "a", "grupo1");
         assertNotNull(equipoJpa.findByNombreAndCompeticion("a", competicion.getId()));
         assertNotNull(equipoJpa.findByNombreAndCompeticion("a", c2.getId()));
         assertNull(equipoJpa.findByNombreAndCompeticion("b", c2.getId()));
         
-        ControlCompeticiones.eliminarCompeticion(c2.getNombre());
+        CompeticionJpa.eliminarCompeticion(c2.getNombre());
     }
     
     @Test
     public void modificarNombreEquipo() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        e = ControlEquipos.modificarEquipo(competicion,e.getId(), "b", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        e = EquipoJpa.modificarEquipo(competicion,e.getId(), "b", "grupo1");
         assertNotNull(equipoJpa.findByNombreAndCompeticion("b", competicion.getId()));
         assertNull(equipoJpa.findByNombreAndCompeticion("a", competicion.getId()));
     }
@@ -302,10 +301,10 @@ public class EquiposTest {
     // Modifica el grupo al que pertenece el equipo
     @Test
     public void modificarEquipoGrupo() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        ControlGrupos.crearGrupo(competicion, "grupo2", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
-        e = ControlEquipos.modificarEquipo(competicion,e.getId(), "a", "grupo2");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        GrupoJpa.crearGrupo(competicion, "grupo2", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
+        e = EquipoJpa.modificarEquipo(competicion,e.getId(), "a", "grupo2");
         e = equipoJpa.findByNombreAndCompeticion("a", competicion.getId());
         assertNotNull(e);
         assertEquals(e.getGrupoId().getNombre(), "grupo2");
@@ -314,11 +313,11 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoGrupoNoValido() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         Equipo e2 = null;
         try {
-            e2 = ControlEquipos.modificarEquipo(competicion,e.getId(), "a", null);
+            e2 = EquipoJpa.modificarEquipo(competicion,e.getId(), "a", null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertNull(e2);
@@ -328,11 +327,11 @@ public class EquiposTest {
     
     @Test
     public void modificarEquipoGrupoNoExiste() throws InputException{
-        ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         Equipo e2 = null;
         try {
-            e2 = ControlEquipos.modificarEquipo(competicion,e.getId(), "a", "asdf");
+            e2 = EquipoJpa.modificarEquipo(competicion,e.getId(), "a", "asdf");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertNull(e2);
@@ -343,13 +342,13 @@ public class EquiposTest {
     // Modifica el grupo al que pertenece un equipo al que pertenecen varios miembros
     @Test
     public void modificarEquipoConParticipantesGrupo() throws InputException{
-        Grupo g = ControlGrupos.crearGrupo(competicion, "grupo1", null);
-        ControlGrupos.crearGrupo(competicion, "grupo2", null);
-        Equipo e = ControlEquipos.crearEquipo(competicion, "a", "grupo1");
+        Grupo g = GrupoJpa.crearGrupo(competicion, "grupo1", null);
+        GrupoJpa.crearGrupo(competicion, "grupo2", null);
+        Equipo e = EquipoJpa.crearEquipo(competicion, "a", "grupo1");
         Equipo e2 = null;
-        ControlParticipantes.crearParticipante(competicion, "n", "a", 1, g.getNombre(), null, null, "a", null);
+        ParticipanteJpa.crearParticipante(competicion, "n", "a", 1, g.getNombre(), null, null, "a", null);
         try {
-            e2 = ControlEquipos.modificarEquipo(competicion,e.getId(), "a", "grupo2");
+            e2 = EquipoJpa.modificarEquipo(competicion,e.getId(), "a", "grupo2");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertNull(e2);

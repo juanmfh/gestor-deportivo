@@ -14,11 +14,11 @@ import javax.swing.SwingWorker;
 import modelo.Equipo;
 import modelo.Prueba;
 import modelo.Registro;
-import dao.EquipoJpa;
-import dao.ParticipanteJpa;
-import dao.PruebaJpa;
-import dao.RegistroJpa;
-import dao.exceptions.NonexistentEntityException;
+import modelo.dao.EquipoJpa;
+import modelo.dao.ParticipanteJpa;
+import modelo.dao.PruebaJpa;
+import modelo.dao.RegistroJpa;
+import modelo.dao.exceptions.NonexistentEntityException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
@@ -113,7 +113,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                             prueba = pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId());
                             if (prueba == null) {
                                 try {
-                                    prueba = ControlPruebas.crearPrueba(Coordinador.getInstance().getSeleccionada(),nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
+                                    prueba = PruebaJpa.crearPrueba(Coordinador.getInstance().getSeleccionada(),nombrePrueba, tipoPrueba.toString(), tipoResultado.toString());
                                 } catch (InputException ex) {
                                     //throw new InputException(ex.getMessage());
                                 }
@@ -159,15 +159,15 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         String tiempo = celda.toString();
                                                         if (tiempo.length() > 0) {
                                                             try {
-                                                                ControlRegistros.crearRegistro(
+                                                                RegistroJpa.crearRegistro(
                                                                         Coordinador.getInstance().getSeleccionada(),
                                                                         dorsal,
                                                                         prueba.getNombre(),
                                                                         null,
                                                                         false,
-                                                                        ControlRegistros.getSegundos(tiempo),
-                                                                        ControlRegistros.getMinutos(tiempo),
-                                                                        ControlRegistros.getHoras(tiempo));
+                                                                        RegistroJpa.getSegundos(tiempo),
+                                                                        RegistroJpa.getMinutos(tiempo),
+                                                                        RegistroJpa.getHoras(tiempo));
                                                             } catch (InputException ex) {
                                                                 throw new InputException(ex.getMessage());
                                                             }
@@ -175,7 +175,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                     } else {
                                                         String marca = celda.toString();
                                                         try {
-                                                            ControlRegistros.crearRegistro(
+                                                            RegistroJpa.crearRegistro(
                                                                     Coordinador.getInstance().getSeleccionada(),
                                                                     dorsal,
                                                                     prueba.getNombre(),
@@ -220,15 +220,15 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                         //System.out.println("Tiempo:" + data);
                                                         if (data.length() > 0) {
                                                             try {
-                                                                ControlRegistros.crearRegistro(
+                                                                RegistroJpa.crearRegistro(
                                                                         Coordinador.getInstance().getSeleccionada(),
                                                                         null,
                                                                         prueba.getNombre(),
                                                                         nombreEquipo,
                                                                         false,
-                                                                        ControlRegistros.getSegundos(String.valueOf(data)),
-                                                                        ControlRegistros.getMinutos(String.valueOf(data)),
-                                                                        ControlRegistros.getHoras(String.valueOf(data)));
+                                                                        RegistroJpa.getSegundos(String.valueOf(data)),
+                                                                        RegistroJpa.getMinutos(String.valueOf(data)),
+                                                                        RegistroJpa.getHoras(String.valueOf(data)));
                                                             } catch (InputException ex) {
 
                                                             }
@@ -236,7 +236,7 @@ public class ImportarRegistros extends SwingWorker<Void, Void> {
                                                     } else {
                                                         String marca = celda.toString();
                                                         try {
-                                                            ControlRegistros.crearRegistro(
+                                                            RegistroJpa.crearRegistro(
                                                                     Coordinador.getInstance().getSeleccionada(),
                                                                     null,
                                                                     prueba.getNombre(),

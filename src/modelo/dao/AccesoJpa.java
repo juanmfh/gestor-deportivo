@@ -1,4 +1,4 @@
-package dao;
+package modelo.dao;
 
 import modelo.Acceso;
 import java.io.Serializable;
@@ -12,7 +12,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import dao.exceptions.NonexistentEntityException;
+import modelo.dao.exceptions.NonexistentEntityException;
 
 /**
  *

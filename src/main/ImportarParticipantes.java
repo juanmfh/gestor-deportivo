@@ -1,6 +1,5 @@
 package main;
 
-import controlador.ControlEquipos;
 import controlador.ControlGrupos;
 import controlador.ControlParticipantes;
 import controlador.ControlPruebas;
@@ -8,15 +7,15 @@ import controlador.Coordinador;
 import controlador.InputException;
 import modelo.TipoPrueba;
 import modelo.TipoResultado;
-import dao.EquipoJpa;
+import modelo.dao.EquipoJpa;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.SwingWorker;
 import modelo.Grupo;
-import dao.GrupoJpa;
-import dao.ParticipanteJpa;
-import dao.PruebaJpa;
+import modelo.dao.GrupoJpa;
+import modelo.dao.ParticipanteJpa;
+import modelo.dao.PruebaJpa;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -114,7 +113,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                 try {
                                     // Se crea una nueva prueba en caso de que no exista, por defecto se crea de tipo individual y con un resultado numérico.
                                     // Se podrá modificar luego manualmente en el programa o al importar registros
-                                    ControlPruebas.crearPrueba(Coordinador.getInstance().getSeleccionada(),celda.getStringCellValue(), TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+                                    PruebaJpa.crearPrueba(Coordinador.getInstance().getSeleccionada(),celda.getStringCellValue(), TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
                                 } catch (InputException ex) {
 
                                 }
@@ -132,7 +131,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                     Cell celda = fila.getCell(columna);
                     if (celda != null) {
                         double dorsal = celda.getNumericCellValue();
-                        if (ControlParticipantes.dorsalLibre((int) dorsal, Coordinador.getInstance().getSeleccionada())) {
+                        if (ParticipanteJpa.dorsalLibre((int) dorsal, Coordinador.getInstance().getSeleccionada())) {
                             participante.setDorsal((int) dorsal);
                             columna++;
                             // Leemos los apellidos
@@ -163,7 +162,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                     if (data != null) {
                                         grupo = grupojpa.findGrupoByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                         if (grupo == null) {
-                                            grupo = ControlGrupos.crearGrupo(Coordinador.getInstance().getSeleccionada(),data, null);
+                                            grupo = GrupoJpa.crearGrupo(Coordinador.getInstance().getSeleccionada(),data, null);
                                         }
                                         participante.setGrupoId(grupo);
                                         columna++;
@@ -175,7 +174,7 @@ public class ImportarParticipantes extends SwingWorker<Void, Void> {
                                             Equipo equipo;
                                             equipo = equipojpa.findByNombreAndCompeticion(data, Coordinador.getInstance().getSeleccionada().getId());
                                             if (equipo == null) {
-                                                equipo = ControlEquipos.crearEquipo(Coordinador.getInstance().getSeleccionada(),data, grupo.getNombre());
+                                                equipo = EquipoJpa.crearEquipo(Coordinador.getInstance().getSeleccionada(),data, grupo.getNombre());
                                             }
                                             participante.setEquipoId(equipo);
                                         }

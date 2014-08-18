@@ -1,4 +1,4 @@
-package dao;
+package modelo.dao;
 
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -16,8 +16,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import dao.exceptions.IllegalOrphanException;
-import dao.exceptions.NonexistentEntityException;
+import modelo.dao.exceptions.IllegalOrphanException;
+import modelo.dao.exceptions.NonexistentEntityException;
 
 /**
  *

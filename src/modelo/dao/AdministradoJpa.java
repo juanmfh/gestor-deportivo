@@ -1,4 +1,4 @@
-package dao;
+package modelo.dao;
 
 import modelo.Administrado;
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import dao.exceptions.NonexistentEntityException;
+import modelo.dao.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -272,6 +272,29 @@ public class AdministradoJpa implements Serializable {
             em.close();
         }
         return res;
+    }
+    
+    
+    
+
+    /**
+     * Da permisos a un usuario para poder administrar una competición.
+     *
+     * @param competicion
+     * @param usuario
+     * @return Administrado
+     */
+    public static Administrado crearAdministrado(Competicion competicion, Usuario usuario) {
+
+        Administrado administrado = null;
+        if (competicion != null && usuario != null) {
+            administrado = new Administrado();
+            administrado.setUsuarioId(usuario);
+            administrado.setCompeticionId(competicion);
+            AdministradoJpa admjpa = new AdministradoJpa();
+            admjpa.create(administrado);
+        }
+        return administrado;
     }
     
 }

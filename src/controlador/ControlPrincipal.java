@@ -13,15 +13,15 @@ import javax.swing.JOptionPane;
 import modelo.Competicion;
 import modelo.Equipo;
 import modelo.Prueba;
-import dao.AdministradoJpa;
-import dao.CompeticionJpa;
-import dao.PruebaJpa;
+import modelo.dao.AdministradoJpa;
+import modelo.dao.CompeticionJpa;
+import modelo.dao.PruebaJpa;
 import modelo.Grupo;
 import modelo.Registro;
-import dao.EquipoJpa;
-import dao.GrupoJpa;
-import dao.ParticipanteJpa;
-import dao.UsuarioJpa;
+import modelo.dao.EquipoJpa;
+import modelo.dao.GrupoJpa;
+import modelo.dao.ParticipanteJpa;
+import modelo.dao.UsuarioJpa;
 import java.awt.Frame;
 import modelo.Participante;
 import modelo.Usuario;
@@ -592,7 +592,7 @@ public class ControlPrincipal implements ActionListener {
                     if (vista.getCompeticionSelected() != null) {
                         try {
                             // Eliminamos la competición
-                            ControlCompeticiones.eliminarCompeticion(vista.getCompeticionSelected());
+                            CompeticionJpa.eliminarCompeticion(vista.getCompeticionSelected());
                         } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                         }

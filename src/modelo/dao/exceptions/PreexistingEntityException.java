@@ -1,4 +1,4 @@
-package dao.exceptions;
+package modelo.dao.exceptions;
 
 public class PreexistingEntityException extends Exception {
     public PreexistingEntityException(String message, Throwable cause) {
