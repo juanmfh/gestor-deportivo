@@ -1,20 +1,21 @@
 package testcases;
 
 
-import controlador.ControlGrupos;
-import controlador.ControlPruebas;
 import controlador.InputException;
-import modelo.TipoPrueba;
-import modelo.TipoResultado;
-import modelo.dao.CompeticionJpa;
+import modelo.entities.TipoPrueba;
+import modelo.entities.TipoResultado;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
 import static junit.framework.Assert.fail;
-import modelo.Competicion;
+import modelo.dao.CompeticionJpa;
+import modelo.entities.Competicion;
 import modelo.dao.GrupoJpa;
 import modelo.dao.PruebaJpa;
+import modelo.logicaNegocio.CompeticionService;
+import modelo.logicaNegocio.GrupoService;
+import modelo.logicaNegocio.PruebaService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class CompeticionTest {
             Competicion c = competicionJpa.findCompeticionByName("comp" + i);
             if (c != null) {
                 try {
-                    CompeticionJpa.eliminarCompeticion(c.getNombre());
+                    CompeticionService.eliminarCompeticion(c.getNombre());
                 } catch (InputException ex) {
                     Logger.getLogger(CompeticionTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -55,20 +56,20 @@ public class CompeticionTest {
     // Crea una competicion con todos los atributos null
     @Test(expected = InputException.class)
     public void crearCompeticionNombreNull() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion(null, null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion(null, null, null, null, null, null);
     }
 
     // Crea una competicion con un nombre de longitud 0.
     @Test(expected = InputException.class)
     public void crearCompeticionNombreVacio() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("", null, null, null, null, null);
     }
 
     // Crea una competicion solo con el nombre
     @Test
     public void crearCompeticionNombre() throws InputException {
         String nombreCompeticion = "comp1";
-        Competicion c = CompeticionJpa.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion(nombreCompeticion, null, null, null, null, null);
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
     }
@@ -82,7 +83,7 @@ public class CompeticionTest {
         Date fechaFin = new Date(12 / 07 / 2010);
         String nombreImagen = "logo1";
         String organizador = "organizador1";
-        Competicion c = CompeticionJpa.crearCompeticion(nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
+        Competicion c = CompeticionService.crearCompeticion(nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
 
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
@@ -97,10 +98,10 @@ public class CompeticionTest {
     @Test
     public void crearCompeticionNombreOcupado() throws InputException {
         String nombreCompeticion = "comp3";
-        CompeticionJpa.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+        CompeticionService.crearCompeticion(nombreCompeticion, null, null, null, null, null);
         Competicion c = null;
         try {
-            c = CompeticionJpa.crearCompeticion(nombreCompeticion, null, null, null, null, null);
+            c = CompeticionService.crearCompeticion(nombreCompeticion, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición ocupado", ex.getMessage());
@@ -115,7 +116,7 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionTodoNull() throws InputException {
         try {
-            Competicion c = CompeticionJpa.modificarCompeticion(null, null, null, null, null, null, null);
+            Competicion c = CompeticionService.modificarCompeticion(null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
@@ -126,10 +127,10 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionSinParametros() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp8", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp8", null, null, null, null, null);
         Competicion c2 = null;
         try {
-            c2 = CompeticionJpa.modificarCompeticion(c, null, null, null, null, null, null);
+            c2 = CompeticionService.modificarCompeticion(c, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición no válido", ex.getMessage());
@@ -142,11 +143,11 @@ public class CompeticionTest {
     @Test
     public void modificarCompeticionNombreOcupado() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp4", null, null, null, null, null);
-        CompeticionJpa.crearCompeticion("comp5", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp4", null, null, null, null, null);
+        CompeticionService.crearCompeticion("comp5", null, null, null, null, null);
         Competicion c2 = null;
         try {
-            c2 = CompeticionJpa.modificarCompeticion(c, "comp5", null, null, null, null, null);
+            c2 = CompeticionService.modificarCompeticion(c, "comp5", null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de competición ocupado", ex.getMessage());
@@ -158,14 +159,14 @@ public class CompeticionTest {
     // Modifica todos los parámetros de una competición y se comprueban.
     @Test
     public void modificarCompeticion() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp6", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp6", null, null, null, null, null);
         String nombreCompeticion = "comp7";
         String lugar = "lugar1";
         Date fechaInicio = new Date(12 / 12 / 2010);
         Date fechaFin = new Date(12 / 07 / 2010);
         String nombreImagen = "logo1";
         String organizador = "organizador1";
-        c = CompeticionJpa.modificarCompeticion(c, nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
+        c = CompeticionService.modificarCompeticion(c, nombreCompeticion, lugar, fechaInicio, fechaFin, nombreImagen, organizador);
 
         Assert.assertNotNull(c);
         Assert.assertEquals(c.getNombre(), nombreCompeticion);
@@ -181,62 +182,62 @@ public class CompeticionTest {
     // Elimina una competición que no tiene ni pruebas ni grupos
     @Test
     public void eliminarCompeticionVacia() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp9", null, null, null, null, null);
-        CompeticionJpa.eliminarCompeticion(c.getNombre());
+        Competicion c = CompeticionService.crearCompeticion("comp9", null, null, null, null, null);
+        CompeticionService.eliminarCompeticion(c.getNombre());
         Assert.assertNull(competicionJpa.findCompeticionByName("comp9"));
     }
 
     // Elimina una competición que tiene una prueba
     @Test
     public void eliminarCompeticionConPrueba() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp10", null, null, null, null, null);
-        PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        CompeticionJpa.eliminarCompeticion("comp10");
+        Competicion c = CompeticionService.crearCompeticion("comp10", null, null, null, null, null);
+        PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        CompeticionService.eliminarCompeticion("comp10");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp10"));
     }
 
     // Elimina una competición que tiene varias pruebas
     @Test
     public void eliminarCompeticionConVariasPrueba() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp11", null, null, null, null, null);
-        PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        PruebaJpa.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        PruebaJpa.crearPrueba(c, "prueba3", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        CompeticionJpa.eliminarCompeticion("comp11");
+        Competicion c = CompeticionService.crearCompeticion("comp11", null, null, null, null, null);
+        PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        PruebaService.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        PruebaService.crearPrueba(c, "prueba3", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        CompeticionService.eliminarCompeticion("comp11");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp11"));
     }
 
     // Elimina una competición que tiene un grupo
     @Test
     public void eliminarCompeticionConGrupo() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp12", null, null, null, null, null);
-        GrupoJpa.crearGrupo(c, "grupoA", null);
-        CompeticionJpa.eliminarCompeticion("comp12");
+        Competicion c = CompeticionService.crearCompeticion("comp12", null, null, null, null, null);
+        GrupoService.crearGrupo(c, "grupoA", null);
+        CompeticionService.eliminarCompeticion("comp12");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp12"));
     }
 
     // Elimina una competición que tiene varios grupos
     @Test
     public void eliminarCompeticionConVariosGrupo() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp13", null, null, null, null, null);
-        GrupoJpa.crearGrupo(c, "grupoA", null);
-        GrupoJpa.crearGrupo(c, "grupoB", "grupoA");
-        GrupoJpa.crearGrupo(c, "grupoC", null);
-        CompeticionJpa.eliminarCompeticion("comp13");
+        Competicion c = CompeticionService.crearCompeticion("comp13", null, null, null, null, null);
+        GrupoService.crearGrupo(c, "grupoA", null);
+        GrupoService.crearGrupo(c, "grupoB", "grupoA");
+        GrupoService.crearGrupo(c, "grupoC", null);
+        CompeticionService.eliminarCompeticion("comp13");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp13"));
     }
 
     // Elimina una competición compuesta por varias pruebas y varios grupos
     @Test
     public void eliminarCompeticionConGruposYPruebas() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp14", null, null, null, null, null);
-        PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        PruebaJpa.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
-        GrupoJpa.crearGrupo(c, "grupoA", null);
-        GrupoJpa.crearGrupo(c, "grupoB", "grupoA");
-        GrupoJpa.crearGrupo(c, "grupoC", null);
+        Competicion c = CompeticionService.crearCompeticion("comp14", null, null, null, null, null);
+        PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        PruebaService.crearPrueba(c, "prueba2", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        GrupoService.crearGrupo(c, "grupoA", null);
+        GrupoService.crearGrupo(c, "grupoB", "grupoA");
+        GrupoService.crearGrupo(c, "grupoC", null);
 
-        CompeticionJpa.eliminarCompeticion("comp14");
+        CompeticionService.eliminarCompeticion("comp14");
         Assert.assertNull(competicionJpa.findCompeticionByName("comp14"));
     }
 
@@ -244,7 +245,7 @@ public class CompeticionTest {
     @Test
     public void eliminarCompeticionNull() {
         try {
-            CompeticionJpa.eliminarCompeticion(null);
+            CompeticionService.eliminarCompeticion(null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Competición no encontrada", ex.getMessage());
@@ -255,7 +256,7 @@ public class CompeticionTest {
     @Test
     public void eliminarCompeticionNoEncontrada() {
         try {
-            CompeticionJpa.eliminarCompeticion("comp15");
+            CompeticionService.eliminarCompeticion("comp15");
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Competición no encontrada", ex.getMessage());

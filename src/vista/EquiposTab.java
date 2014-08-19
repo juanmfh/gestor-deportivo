@@ -1,8 +1,9 @@
 
 package vista;
 
+import vista.interfaces.VistaEquipos;
 import controlador.Coordinador;
-import modelo.RolUsuario;
+import modelo.entities.RolUsuario;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,7 +47,6 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
     private JLabel listaEquiposLabel;
 
     public EquiposTab() {
-        initComponents();
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -182,24 +182,6 @@ public class EquiposTab extends javax.swing.JPanel implements VistaEquipos {
         this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
     @Override
     public void controlador(ActionListener al) {
         crearEquipoButton.addActionListener(al);

@@ -1,7 +1,7 @@
 package controlador;
 
-import modelo.TipoResultado;
-import modelo.TipoPrueba;
+import modelo.entities.TipoResultado;
+import modelo.entities.TipoPrueba;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,12 +9,12 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import main.ImportarRegistros;
-import modelo.Equipo;
-import modelo.Grupo;
-import modelo.Participante;
-import modelo.Prueba;
-import modelo.Registro;
+import modelo.logicaNegocio.RegistroService.ImportarRegistros;
+import modelo.entities.Equipo;
+import modelo.entities.Grupo;
+import modelo.entities.Participante;
+import modelo.entities.Prueba;
+import modelo.entities.Registro;
 import modelo.dao.EquipoJpa;
 import modelo.dao.GrupoJpa;
 import modelo.dao.ParticipanteJpa;
@@ -29,7 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
-import modelo.Competicion;
+import modelo.entities.Competicion;
+import modelo.logicaNegocio.RegistroService;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -41,7 +42,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vista.DialogoImprimirResultados;
-import vista.VistaRegistros;
+import vista.interfaces.VistaRegistros;
 
 /**
  *
@@ -71,7 +72,7 @@ public class ControlRegistros implements ActionListener {
                     Registro registro;
                     if (prueba != null) {
                         if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                            registro = RegistroJpa.crearRegistro(
+                            registro = RegistroService.crearRegistro(
                                     Coordinador.getInstance().getSeleccionada(),
                                     vista.getDorsalParticipante(),
                                     vista.getPrueba(),
@@ -81,7 +82,7 @@ public class ControlRegistros implements ActionListener {
                                     vista.getMinutos() == null ? null : Integer.parseInt(vista.getMinutos()),
                                     vista.getHoras() == null ? null : Integer.parseInt(vista.getHoras()));
                         } else {
-                            registro = RegistroJpa.crearRegistro(
+                            registro = RegistroService.crearRegistro(
                                     Coordinador.getInstance().getSeleccionada(),
                                     null,
                                     vista.getPrueba(),
@@ -107,7 +108,7 @@ public class ControlRegistros implements ActionListener {
             case VistaRegistros.MODIFICARREGISTRO:
                 Registro registro = null;
                 try {
-                    registro = RegistroJpa.modificarRegistro(vista.getRegistroSeleccionado(),
+                    registro = RegistroService.modificarRegistro(vista.getRegistroSeleccionado(),
                             Double.valueOf(vista.getSegundos()),
                             Integer.parseInt(vista.getMinutos()),
                             Integer.parseInt(vista.getHoras()));
@@ -149,7 +150,7 @@ public class ControlRegistros implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialogRegistro == JOptionPane.YES_OPTION) {
                         try {
-                            RegistroJpa.eliminarRegistro(vista.getRegistroSeleccionado());
+                            RegistroService.eliminarRegistro(vista.getRegistroSeleccionado());
                         } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(
                                     ex.getMessage(), Color.RED);
@@ -378,8 +379,8 @@ public class ControlRegistros implements ActionListener {
             fc.setDialogTitle("Guardar en");
             int res = fc.showSaveDialog(null);
             if (res == JFileChooser.APPROVE_OPTION) {
-                CrearPlantillaExcel cPExcel;
-                (cPExcel = new CrearPlantillaExcel(fc.getSelectedFile().getPath(), c, nombrePruebas, nombreGrupos, participantesAsignados)).execute();
+                RegistroService.CrearPlantillaExcel cPExcel;
+                (cPExcel = new RegistroService.CrearPlantillaExcel(fc.getSelectedFile().getPath(), c, nombrePruebas, nombreGrupos, participantesAsignados)).execute();
             }
         } else {
             throw new InputException("Competición no seleccionada");
@@ -387,213 +388,6 @@ public class ControlRegistros implements ActionListener {
         }
     }
 
-    public static class CrearPlantillaExcel extends SwingWorker<Void, Void> {
-
-        private final String path;
-        private final Competicion competicion;
-        private final List<String> nombrePruebas;
-        private final List<String> nombreGrupos;
-        private final boolean participantesAsignados;
-
-        private static final int PRIMERA_FILA = 2;
-        private static final int PRIMERA_COLUMNA_PRUEBA = 2;
-        private static final int PRIMERA_COLUMNA = 1;
-        private static final int NUM_PARAMPRUEBA = 2;
-
-        public CrearPlantillaExcel(String path, Competicion c, List<String> nombrePruebas, List<String> nombreGrupos, boolean participantesAsignados) {
-            this.path = path;
-            this.competicion = c;
-            this.nombrePruebas = nombrePruebas;
-            this.nombreGrupos = nombreGrupos;
-            this.participantesAsignados = participantesAsignados;
-        }
-
-        @Override
-        protected void done() {
-            try {
-                get();
-                Coordinador.getInstance().setEstadoLabel("Plantilla creada correctamente", Color.BLUE);
-
-            } catch (InterruptedException | ExecutionException ex) {
-                Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
-            } finally {
-                Coordinador.getInstance().mostrarBarraProgreso(false);
-            }
-
-        }
-
-        @Override
-        protected void process(List chunks) {
-            Coordinador.getInstance().setEstadoLabel("Creando plantilla... ", Color.BLACK);
-            Coordinador.getInstance().mostrarBarraProgreso(true);
-        }
-
-        @Override
-        protected Void doInBackground() throws FileNotFoundException, IOException {
-            // Actualiza la interfaz (muestra la barra de estado)
-            publish((Void) null);
-
-            Workbook wb = new XSSFWorkbook();
-            FileOutputStream fileOut;
-            fileOut = new FileOutputStream(path + "/" + competicion.getNombre() + "_registros.xlsx");
-
-            // Se cargan las Pruebas de las que se van a generar resultados
-            List<Prueba> pruebas = null;
-            PruebaJpa pruebajpa = new PruebaJpa();
-            if (nombrePruebas == null) {
-                pruebas = pruebajpa.findPruebasByCompeticon(Coordinador.getInstance().getSeleccionada());
-            } else {
-                pruebas = new ArrayList();
-                for (String nombrePrueba : nombrePruebas) {
-                    pruebas.add(pruebajpa.findPruebaByNombreCompeticion(nombrePrueba, Coordinador.getInstance().getSeleccionada().getId()));
-                }
-            }
-
-            // Estilo de las celdas
-            XSSFCellStyle cs1 = (XSSFCellStyle) wb.createCellStyle();
-            cs1.setFillForegroundColor(IndexedColors.GOLD.getIndex());
-            cs1.setFillPattern(CellStyle.SOLID_FOREGROUND);
-            cs1.setBorderBottom(BorderStyle.MEDIUM);
-            cs1.setBorderLeft(BorderStyle.MEDIUM);
-            cs1.setBorderRight(BorderStyle.MEDIUM);
-            cs1.setBorderTop(BorderStyle.MEDIUM);
-            XSSFFont f = (XSSFFont) wb.createFont();
-            f.setBold(true);
-            f.setColor(IndexedColors.BLACK.getIndex());
-            cs1.setFont(f);
-
-            XSSFCellStyle cs2 = (XSSFCellStyle) wb.createCellStyle();
-            cs2.setFillForegroundColor(IndexedColors.TAN.getIndex());
-            cs2.setFillPattern(CellStyle.SOLID_FOREGROUND);
-            cs2.setBorderBottom(BorderStyle.THIN);
-            cs2.setBorderLeft(BorderStyle.THIN);
-            cs2.setBorderRight(BorderStyle.THIN);
-            cs2.setBorderTop(BorderStyle.THIN);
-
-            // Por cada prueba
-            for (Prueba prueba : pruebas) {
-                //Creamos una hoja nueva
-                Sheet hoja = wb.createSheet(prueba.getNombre());
-
-                // Fila de Cabeceras
-                Row fila = hoja.createRow(PRIMERA_FILA - 1);
-                Cell celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
-                celda.setCellValue("Prueba");
-                celda.setCellStyle(cs1);
-                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 1);
-                celda.setCellValue("Tipo");
-                celda.setCellStyle(cs1);
-                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 2);
-                celda.setCellValue("Resultado");
-                celda.setCellStyle(cs1);
-
-                //Datos de la prueba
-                fila = hoja.createRow(PRIMERA_FILA);
-                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA);
-                celda.setCellValue(prueba.getNombre());
-                celda.setCellStyle(cs2);
-                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 1);
-                celda.setCellValue(prueba.getTipo());
-                celda.setCellStyle(cs2);
-                celda = fila.createCell(PRIMERA_COLUMNA_PRUEBA + 2);
-                celda.setCellValue(prueba.getTiporesultado());
-                celda.setCellStyle(cs2);
-
-                // Segunda fila de cabeceras
-                fila = hoja.createRow(PRIMERA_FILA + 1);
-                if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                    celda = fila.createCell(PRIMERA_COLUMNA - 1);
-                    celda.setCellValue("Participante");
-                    celda.setCellStyle(cs1);
-                    celda = fila.createCell(PRIMERA_COLUMNA);
-                    celda.setCellValue("Dorsal");
-                    celda.setCellStyle(cs1);
-                } else {
-                    celda = fila.createCell(PRIMERA_COLUMNA);
-                    celda.setCellValue("Equipo");
-                    celda.setCellStyle(cs1);
-                }
-                celda = fila.createCell(PRIMERA_COLUMNA + 1);
-                celda.setCellValue("Intento 1");
-                celda.setCellStyle(cs1);
-                celda = fila.createCell(PRIMERA_COLUMNA + 2);
-                celda.setCellValue("Intento 2");
-                celda.setCellStyle(cs1);
-                celda = fila.createCell(PRIMERA_COLUMNA + 3);
-                celda.setCellValue("Intento 3");
-                celda.setCellStyle(cs1);
-
-                int contadorFila = PRIMERA_FILA + 2;
-                // Grupos
-                ParticipanteJpa participanteJpa = new ParticipanteJpa();
-                EquipoJpa equipoJpa = new EquipoJpa();
-                GrupoJpa grupoJpa = new GrupoJpa();
-                List<Grupo> grupos;
-
-                if (prueba.getTipo().equals(TipoPrueba.Individual.toString())) {
-                    if (nombreGrupos == null) {
-                        grupos = grupoJpa.findGruposByCompeticion(competicion);
-                    } else {
-                        grupos = new ArrayList();
-                        for (String nombreGrupo : nombreGrupos) {
-                            Grupo g = grupoJpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
-                            grupos.add(g);
-                        }
-                    }
-                    for (Grupo g : grupos) {
-                        List<Participante> aux;
-                        if (participantesAsignados) {
-                            aux = participanteJpa.findParticipantesByGrupoPruebaAsignada(g.getId(), prueba);
-                        } else {
-                            aux = participanteJpa.findParticipantesByGrupo(g.getId());
-                        }
-                        for (Participante particip : aux) {
-                            fila = hoja.createRow(contadorFila++);
-                            celda = fila.createCell(PRIMERA_COLUMNA - 1);
-                            celda.setCellValue(particip.getApellidos() + ", " + particip.getNombre());
-                            celda.setCellStyle(cs2);
-                            celda = fila.createCell(PRIMERA_COLUMNA);
-                            celda.setCellValue(particip.getDorsal());
-                            celda.setCellStyle(cs2);
-
-                            for (int i = 1; i <= 3; i++) {
-                                celda = fila.createCell(PRIMERA_COLUMNA + i);
-                                celda.setCellStyle(cs2);
-                            }
-                        }
-                    }
-                } else if (prueba.getTipo().equals(TipoPrueba.Equipo.toString())) {
-                    List<Equipo> equipos;
-                    if (nombreGrupos == null) {
-                        equipos = equipoJpa.findByCompeticion(competicion.getId());
-                    } else {
-                        equipos = new ArrayList();
-                        for (String nombreGrupo : nombreGrupos) {
-                            Grupo grupo = grupoJpa.findGrupoByNombreAndCompeticion(nombreGrupo, competicion.getId());
-                            List<Equipo> aux = equipoJpa.findByGrupo(grupo.getId());
-                            for (Equipo e : aux) {
-                                equipos.add(e);
-                            }
-                        }
-                    }
-                    for (Equipo equipo : equipos) {
-                        fila = hoja.createRow(contadorFila++);
-                        celda = fila.createCell(PRIMERA_COLUMNA);
-                        celda.setCellValue(equipo.getNombre());
-                        celda.setCellStyle(cs2);
-
-                        for (int i = 1; i <= 3; i++) {
-                            celda = fila.createCell(PRIMERA_COLUMNA + i);
-                            celda.setCellStyle(cs2);
-                        }
-                    }
-                }
-            }
-            wb.write(fileOut);
-            fileOut.close();
-            return null;
-        }
-
-    }
+    
 
 }

@@ -1,8 +1,9 @@
 
 package vista;
 
+import vista.interfaces.VistaParticipantes;
 import controlador.Coordinador;
-import modelo.RolUsuario;
+import modelo.entities.RolUsuario;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -68,7 +69,6 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
     private final DefaultComboBoxModel pruebaAsignadaModel;
 
     public ParticipantesTab() {
-        initComponents();
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -351,26 +351,6 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
         this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
-
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
-    
     @Override
     public JComboBox getGrupoComboBox() {
         return grupoComboBox;

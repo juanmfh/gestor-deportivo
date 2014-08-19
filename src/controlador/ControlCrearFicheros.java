@@ -3,8 +3,8 @@ package controlador;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import main.PDFHelper;
-import vista.VistaImprimirResultados;
+import modelo.logicaNegocio.PDFHelper;
+import vista.interfaces.VistaImprimirResultados;
 
 /**
  *

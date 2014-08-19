@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import modelo.Usuario;
+import modelo.entities.Usuario;
 import modelo.dao.UsuarioJpa;
 import java.util.List;
 import javax.swing.SwingWorker;
-import vista.VistaLogin;
+import vista.interfaces.VistaLogin;
 
 /**
  *

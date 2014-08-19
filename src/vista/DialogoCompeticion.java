@@ -1,5 +1,6 @@
 package vista;
 
+import vista.interfaces.VistaCompeticion;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -18,7 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import modelo.Competicion;
+import modelo.entities.Competicion;
 import javax.swing.filechooser.FileFilter;
 /**
  *
@@ -60,7 +61,7 @@ public class DialogoCompeticion extends JDialog implements VistaCompeticion {
 
     public DialogoCompeticion(String titulo, java.awt.Frame parent, boolean modal,boolean modificarCompeticion) {
         super(parent, modal);
-        initComponents();
+
         this.modificarCompeticion = modificarCompeticion;
         
         this.setTitle(titulo);
@@ -267,29 +268,7 @@ public class DialogoCompeticion extends JDialog implements VistaCompeticion {
         constraints.gridwidth = 1;
 
     }
-
- 
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+    
     @Override
     public void controlador(ActionListener al) {
         okButton.addActionListener(al);

@@ -5,12 +5,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
 import main.IOFile;
-import modelo.Competicion;
+import modelo.entities.Competicion;
 import modelo.dao.AdministradoJpa;
-import modelo.dao.CompeticionJpa;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import vista.VistaCompeticion;
+import modelo.logicaNegocio.CompeticionService;
+import vista.interfaces.VistaCompeticion;
 
 /**
  *
@@ -70,7 +70,7 @@ public class ControlCompeticiones implements ActionListener {
         String nombreImagen = IOFile.getNombreFichero(vista.getRutaImagen());
 
         // Creamos la competicion a partir de los datos recogidos de la vista
-        competicion = CompeticionJpa.crearCompeticion(vista.getNombre(),
+        competicion = CompeticionService.crearCompeticion(vista.getNombre(),
                 vista.getLugar(),
                 fechaInicio,
                 fechaFin,
@@ -106,7 +106,7 @@ public class ControlCompeticiones implements ActionListener {
         String nombreImagen = IOFile.getNombreFichero(vista.getRutaImagen());
 
         // Modificamos la competicion "c" con los datos de la vista
-        c = CompeticionJpa.modificarCompeticion(c, vista.getNombre(),
+        c = CompeticionService.modificarCompeticion(c, vista.getNombre(),
                 vista.getLugar(),
                 fechaInicio,
                 fechaFin,

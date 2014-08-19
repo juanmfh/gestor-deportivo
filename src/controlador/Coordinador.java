@@ -1,8 +1,8 @@
 package controlador;
 
-import modelo.RolUsuario;
-import modelo.TipoResultado;
-import modelo.TipoPrueba;
+import modelo.entities.RolUsuario;
+import modelo.entities.TipoResultado;
+import modelo.entities.TipoPrueba;
 import modelo.dao.AdministradoJpa;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,25 +16,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import main.DataBaseHelper;
-import modelo.Competicion;
-import modelo.Equipo;
-import modelo.Grupo;
-import modelo.Prueba;
-import modelo.Registro;
-import modelo.Usuario;
+import modelo.entities.Competicion;
+import modelo.entities.Equipo;
+import modelo.entities.Grupo;
+import modelo.entities.Prueba;
+import modelo.entities.Registro;
+import modelo.entities.Usuario;
 import modelo.dao.EquipoJpa;
 import modelo.dao.GrupoJpa;
 import modelo.dao.ParticipanteJpa;
 import modelo.dao.PruebaJpa;
 import modelo.dao.RegistroJpa;
 import modelo.dao.UsuarioJpa;
-import modelo.Participante;
+import modelo.entities.Participante;
 import vista.PanelLogin;
 import vista.PanelPrincipal;
 import vista.ParticipantesTab;
 import vista.RegistrosTab;
 import vista.UsuariosTab;
-import vista.VistaLogin;
+import vista.interfaces.VistaLogin;
 
 /**
  *

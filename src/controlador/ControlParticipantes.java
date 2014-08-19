@@ -5,10 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import main.ImportarParticipantes;
-import modelo.Participante;
+import modelo.logicaNegocio.ParticipanteService.ImportarParticipantes;
+import modelo.entities.Participante;
 import modelo.dao.ParticipanteJpa;
-import vista.VistaParticipantes;
+import modelo.logicaNegocio.ParticipanteService;
+import vista.interfaces.VistaParticipantes;
 
 /**
  *
@@ -34,7 +35,7 @@ public class ControlParticipantes implements ActionListener {
             case VistaParticipantes.CREARPARTICIPANTE:
                 Participante p;
                 try {
-                    p = ParticipanteJpa.crearParticipante(
+                    p = ParticipanteService.crearParticipante(
                             Coordinador.getInstance().getSeleccionada(),
                             vista.getNombreParticipante(),
                             vista.getApellidosParticipante(),
@@ -62,7 +63,7 @@ public class ControlParticipantes implements ActionListener {
             case VistaParticipantes.MODIFICARPARTICIPANTE:
                 if (vista.getParticipanteSeleccionado() != -1) {
                     try {
-                        p = ParticipanteJpa.modificarParticipante(
+                        p = ParticipanteService.modificarParticipante(
                                 Coordinador.getInstance().getSeleccionada(),
                                 vista.getParticipanteSeleccionado(),
                                 vista.getNombreParticipante(),
@@ -103,7 +104,7 @@ public class ControlParticipantes implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialog == JOptionPane.YES_OPTION) {
                         try {
-                            ParticipanteJpa.eliminarParticipante(vista.getParticipanteSeleccionado());
+                            ParticipanteService.eliminarParticipante(vista.getParticipanteSeleccionado());
                             vista.eliminarParticipanteDeTabla();
                             vista.limpiarFormularioParticipante();
                             Coordinador.getInstance().setEstadoLabel(

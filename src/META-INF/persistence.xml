@@ -2,17 +2,17 @@
 <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
   <persistence-unit name="JavaAppDesktopPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-    <class>modelo.Administrado</class>
-    <class>modelo.Acceso</class>
-    <class>modelo.Registro</class>
-    <class>modelo.Inscripcion</class>
-    <class>modelo.Competicion</class>
-    <class>modelo.Usuario</class>
-    <class>modelo.Equipo</class>
-    <class>modelo.Grupo</class>
-    <class>modelo.Compuesta</class>
-    <class>modelo.Participante</class>
-    <class>modelo.Prueba</class>
+    <class>modelo.entities.Administrado</class>
+    <class>modelo.entities.Acceso</class>
+    <class>modelo.entities.Registro</class>
+    <class>modelo.entities.Inscripcion</class>
+    <class>modelo.entities.Competicion</class>
+    <class>modelo.entities.Usuario</class>
+    <class>modelo.entities.Equipo</class>
+    <class>modelo.entities.Grupo</class>
+    <class>modelo.entities.Compuesta</class>
+    <class>modelo.entities.Participante</class>
+    <class>modelo.entities.Prueba</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby:appDeportivaDB"/>
       <property name="javax.persistence.jdbc.password" value="app"/>

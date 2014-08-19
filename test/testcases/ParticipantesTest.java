@@ -1,21 +1,26 @@
 package testcases;
 
-import modelo.dao.GrupoJpa;
+import modelo.logicaNegocio.GrupoService;
 import modelo.dao.PruebaJpa;
 import controlador.ControlRegistros;
 import controlador.InputException;
 import modelo.dao.CompeticionJpa;
-import modelo.dao.ParticipanteJpa;
+import modelo.logicaNegocio.ParticipanteService;
 import modelo.dao.RegistroJpa;
 import java.util.List;
-import modelo.Competicion;
-import modelo.Equipo;
-import modelo.Participante;
-import modelo.Prueba;
-import modelo.Registro;
-import modelo.TipoPrueba;
-import modelo.TipoResultado;
+import modelo.entities.Competicion;
+import modelo.entities.Equipo;
+import modelo.entities.Participante;
+import modelo.entities.Prueba;
+import modelo.entities.Registro;
+import modelo.entities.TipoPrueba;
+import modelo.entities.TipoResultado;
 import modelo.dao.EquipoJpa;
+import modelo.dao.ParticipanteJpa;
+import modelo.logicaNegocio.CompeticionService;
+import modelo.logicaNegocio.EquipoService;
+import modelo.logicaNegocio.PruebaService;
+import modelo.logicaNegocio.RegistroService;
 import org.junit.After;
 import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
@@ -39,12 +44,12 @@ public class ParticipantesTest {
 
     @Before
     public void ini() throws InputException {
-        competicion = CompeticionJpa.crearCompeticion("comp1", null, null, null, null, null);
+        competicion = CompeticionService.crearCompeticion("comp1", null, null, null, null, null);
     }
 
     @After
     public void destroy() throws InputException {
-        CompeticionJpa.eliminarCompeticion("comp1");
+        CompeticionService.eliminarCompeticion("comp1");
     }
     
      // PRUEBAS SOBRE CREAR PARTICIPANTE
@@ -52,7 +57,7 @@ public class ParticipantesTest {
      public void crearParticipanteNull() {
      Participante p = null;
      try {
-     p = ParticipanteJpa.crearParticipante(null, null, null, null, null, null, null, null, null);
+     p = ParticipanteService.crearParticipante(null, null, null, null, null, null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -64,7 +69,7 @@ public class ParticipantesTest {
      public void crearParticipanteNombreNull() {
      Participante p = null;
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, null, null, null, null, null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, null, null, null, null, null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -76,7 +81,7 @@ public class ParticipantesTest {
      public void crearParticipanteApellidosNull() {
      Participante p = null;
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre1", null, null, null, null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre1", null, null, null, null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -88,7 +93,7 @@ public class ParticipantesTest {
      public void crearParticipanteGrupoNull() {
      Participante p = null;
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre1", "apellidos", null, null, null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre1", "apellidos", null, null, null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -99,9 +104,9 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteDorsalNull() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre1", "apellidos", null, "grupo1", null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre1", "apellidos", null, "grupo1", null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -112,10 +117,10 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteDorsalOcupado() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     ParticipanteJpa.crearParticipante(competicion, "nombre1", "apellidos", 1, "grupo1", null, null, null, null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     ParticipanteService.crearParticipante(competicion, "nombre1", "apellidos", 1, "grupo1", null, null, null, null);
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -127,7 +132,7 @@ public class ParticipantesTest {
      public void crearParticipanteGrupoNoExiste() throws InputException {
      Participante p = null;
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -138,9 +143,9 @@ public class ParticipantesTest {
      @Test
      public void crearParticipantePruebaNoExiste() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -151,9 +156,9 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteEquipoNoExiste() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
      try {
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertNull(p);
@@ -165,8 +170,8 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteCorrecto() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
      assertNotNull(p);
      assertEquals(p.getNombre(), "nombre2");
      assertEquals(p.getApellidos(), "apellidos2");
@@ -177,9 +182,9 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteEnEquipo() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     Equipo e = EquipoJpa.crearEquipo(competicion, "equipo1", "grupo1");
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     Equipo e = EquipoService.crearEquipo(competicion, "equipo1", "grupo1");
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
      assertNotNull(p);
      assertEquals(p.getNombre(), "nombre2");
      assertEquals(p.getApellidos(), "apellidos2");
@@ -194,10 +199,10 @@ public class ParticipantesTest {
      @Test
      public void crearParticipanteConPruebaAsignada() throws InputException {
      Participante p = null;
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     EquipoJpa.crearEquipo(competicion, "equipo1", "grupo1");
-     Prueba prueba = PruebaJpa.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-     p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     EquipoService.crearEquipo(competicion, "equipo1", "grupo1");
+     Prueba prueba = PruebaService.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+     p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
      assertNotNull(p);
      assertEquals(p.getPruebaasignada(), prueba);
      }
@@ -205,25 +210,25 @@ public class ParticipantesTest {
      // Crear dos participantes que tienen el mismo dorsal en competiciones distintas
      @Test
      public void crearParticipanteMismoDorsalCompeticiones() throws InputException{
-     Competicion comp2 = CompeticionJpa.crearCompeticion("comp2", null, null, null, null, null);
-     GrupoJpa.crearGrupo(comp2, "grupo1", null);
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     ParticipanteJpa.crearParticipante(competicion, "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
-     ParticipanteJpa.crearParticipante(comp2, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+     Competicion comp2 = CompeticionService.crearCompeticion("comp2", null, null, null, null, null);
+     GrupoService.crearGrupo(comp2, "grupo1", null);
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     ParticipanteService.crearParticipante(competicion, "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
+     ParticipanteService.crearParticipante(comp2, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
      Participante p1 = participantejpa.findByDorsalAndCompeticion(1,competicion.getId());
      assertNotNull(p1);
      assertEquals(p1.getNombre(), "nombre1");
      Participante p2 = participantejpa.findByDorsalAndCompeticion(1,comp2.getId());
      assertNotNull(p2);
      assertEquals(p2.getNombre(), "nombre2");
-     CompeticionJpa.eliminarCompeticion("comp2");
+     CompeticionService.eliminarCompeticion("comp2");
      }
 
      // PRUEBAS SOBRE ELIMINAR PARTICIPANTE
      @Test
      public void eliminarParticipanteNull() {
      try {
-     ParticipanteJpa.eliminarParticipante(null);
+     ParticipanteService.eliminarParticipante(null);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertEquals(ex.getMessage(), "Participante no válido");
@@ -233,7 +238,7 @@ public class ParticipantesTest {
      @Test
      public void eliminarParticipanteNoExiste() {
      try {
-     ParticipanteJpa.eliminarParticipante(-1);
+     ParticipanteService.eliminarParticipante(-1);
      fail("Debería haber lanzado InputException");
      } catch (InputException ex) {
      assertEquals(ex.getMessage(), "Participante no encontrado");
@@ -242,19 +247,19 @@ public class ParticipantesTest {
 
      @Test
      public void eliminarParticipante() throws InputException {
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-     ParticipanteJpa.eliminarParticipante(p.getId());
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+     ParticipanteService.eliminarParticipante(p.getId());
      assertNull(participantejpa.findByDorsalAndCompeticion(1, competicion.getId()));
      }
 
      // Elimina un participante que es miembro de un equipo
      @Test
      public void eliminarParticipanteEquipo() throws InputException {
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     Equipo e = EquipoJpa.crearEquipo(competicion, "equipo1", "grupo1");
-     Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
-     ParticipanteJpa.eliminarParticipante(p.getId());
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     Equipo e = EquipoService.crearEquipo(competicion, "equipo1", "grupo1");
+     Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
+     ParticipanteService.eliminarParticipante(p.getId());
      assertNull(participantejpa.findByDorsalAndCompeticion(1, competicion.getId()));
      List<Participante> miembrosEquipo = participantejpa.findByEquipo(e.getId());
      assertEquals(miembrosEquipo.size(), 0);
@@ -263,21 +268,21 @@ public class ParticipantesTest {
      // Elimina un participante que tiene una prueba asignada
      @Test
      public void eliminarParticipantePrueba() throws InputException {
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     PruebaJpa.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-     Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
-     ParticipanteJpa.eliminarParticipante(p.getId());
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     PruebaService.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+     Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
+     ParticipanteService.eliminarParticipante(p.getId());
      assertNull(participantejpa.findByDorsalAndCompeticion(1, competicion.getId()));
      }
 
      // Elimina un participante que tiene registros asociados
      @Test
      public void eliminarParticipanteConRegistros() throws InputException {
-     GrupoJpa.crearGrupo(competicion, "grupo1", null);
-     PruebaJpa.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-     Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
-     RegistroJpa.crearRegistro(competicion, 1, "prueba1", null, false, 12.0, null, null);
-     ParticipanteJpa.eliminarParticipante(p.getId());
+     GrupoService.crearGrupo(competicion, "grupo1", null);
+     PruebaService.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+     Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
+     RegistroService.crearRegistro(competicion, 1, "prueba1", null, false, 12.0, null, null);
+     ParticipanteService.eliminarParticipante(p.getId());
      assertNull(participantejpa.findByDorsalAndCompeticion(1, competicion.getId()));
      RegistroJpa registroJpa = new RegistroJpa();
      List<Registro> registros = registroJpa.findByParticipante(p.getId());
@@ -288,7 +293,7 @@ public class ParticipantesTest {
     @Test
     public void modificarParticipanteCompeticionNull() {
         try {
-            ParticipanteJpa.modificarParticipante(null, null, null, null, null, null, null, null, null, null);
+            ParticipanteService.modificarParticipante(null, null, null, null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Competición no válida");
@@ -298,7 +303,7 @@ public class ParticipantesTest {
     @Test
     public void modificarParticipanteNull() {
         try {
-            ParticipanteJpa.modificarParticipante(competicion, null, null, null, null, null, null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, null, null, null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Participante no válido");
@@ -307,10 +312,10 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteNombreNull() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         try {
-            ParticipanteJpa.modificarParticipante(competicion, p.getId(), null, null, null, null, null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, p.getId(), null, null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre no válido");
@@ -319,10 +324,10 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteApellidosNull() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         try {
-            ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", null, null, null, null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", null, null, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Apellidos no válido");
@@ -331,10 +336,10 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteDorsalNull() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         try {
-            ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", null, "grupo1", null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", null, "grupo1", null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Dorsal no válido");
@@ -343,11 +348,11 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteDorsalOcupado() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-        ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 2, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 2, "grupo1", null, null, null, null);
         try {
-            ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", 2, "grupo1", null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", 2, "grupo1", null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Dorsal ocupado");
@@ -356,10 +361,10 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteGrupoNull() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         try {
-            ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", 1, null, null, null, null, null);
+            ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos", 1, null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             assertEquals(ex.getMessage(), "Nombre de grupo no válido");
@@ -368,9 +373,9 @@ public class ParticipantesTest {
 
     @Test
     public void modificarParticipanteMismoDorsal() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
         assertNotNull(p2);
         assertEquals(p2.getNombre(), "nombre1");
         assertEquals(p2.getApellidos(), "apellidos1");
@@ -379,9 +384,9 @@ public class ParticipantesTest {
     
     @Test
     public void modificarParticipanteDiferenteDorsal() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 2, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 2, "grupo1", null, null, null, null);
         assertNotNull(p2);
         assertEquals(p2.getNombre(), "nombre1");
         assertEquals(p2.getApellidos(), "apellidos1");
@@ -390,10 +395,10 @@ public class ParticipantesTest {
     
     @Test
     public void modificarParticipanteDiferenteGrupo() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        GrupoJpa.crearGrupo(competicion, "grupo2", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo2", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        GrupoService.crearGrupo(competicion, "grupo2", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo2", null, null, null, null);
         assertNotNull(p2);
         assertEquals(p2.getNombre(), "nombre1");
         assertEquals(p2.getApellidos(), "apellidos1");
@@ -403,11 +408,11 @@ public class ParticipantesTest {
     
     @Test
     public void modificarParticipanteEquipo() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        EquipoJpa.crearEquipo(competicion, "equipo1", "grupo1");
-        Equipo e = EquipoJpa.crearEquipo(competicion, "equipo2", "grupo1");
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, "equipo2", null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        EquipoService.crearEquipo(competicion, "equipo1", "grupo1");
+        Equipo e = EquipoService.crearEquipo(competicion, "equipo2", "grupo1");
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, "equipo1", null);
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, "equipo2", null);
         assertNotNull(p2);
         assertEquals(p2.getNombre(), "nombre1");
         assertEquals(p2.getApellidos(), "apellidos1");
@@ -418,21 +423,21 @@ public class ParticipantesTest {
     
     @Test
     public void modificarParticipantePruebaAsignada() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        PruebaJpa.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        PruebaService.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, "prueba1");
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, null);
         assertNotNull(p2);
         assertEquals(p2.getPruebaasignada(),null);
     }
     
     @Test
     public void modificarParticipantePruebaAsignadaNoExiste()throws InputException  {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         Participante p2 =  null;
         try {
-            p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, "prueba1");
+            p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, "prueba1");
         } catch (InputException ex) {
             assertNull(p2);
             assertEquals(ex.getMessage(),"Prueba no encontrada");
@@ -441,21 +446,21 @@ public class ParticipantesTest {
     
     @Test
     public void modificarParticipantePruebaAsignada2() throws InputException {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Prueba prueba = PruebaJpa.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
-        Participante p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, "prueba1");
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Prueba prueba = PruebaService.crearPrueba(competicion, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        Participante p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, null, "prueba1");
         assertNotNull(p2);
         assertEquals(p2.getPruebaasignada(),prueba);
     }
 
     @Test
     public void modificarParticipanteEquipoNoExiste()throws InputException  {
-        GrupoJpa.crearGrupo(competicion, "grupo1", null);
-        Participante p = ParticipanteJpa.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
+        GrupoService.crearGrupo(competicion, "grupo1", null);
+        Participante p = ParticipanteService.crearParticipante(competicion, "nombre2", "apellidos2", 1, "grupo1", null, null, null, null);
         Participante p2 =  null;
         try {
-            p2 = ParticipanteJpa.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, "equipo1", null);
+            p2 = ParticipanteService.modificarParticipante(competicion, p.getId(), "nombre1", "apellidos1", 1, "grupo1", null, null, "equipo1", null);
         } catch (InputException ex) {
             assertNull(p2);
             assertEquals(ex.getMessage(),"Equipo no encontrado");

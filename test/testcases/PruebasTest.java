@@ -1,24 +1,24 @@
 package testcases;
 
-import controlador.ControlCompeticiones;
-import controlador.ControlGrupos;
-import controlador.ControlParticipantes;
-import modelo.dao.PruebaJpa;
-import controlador.ControlRegistros;
 import controlador.InputException;
-import modelo.TipoPrueba;
-import modelo.TipoResultado;
-import modelo.dao.CompeticionJpa;
-import modelo.dao.PruebaJpa;
+import modelo.entities.TipoPrueba;
+import modelo.entities.TipoResultado;
+import modelo.logicaNegocio.CompeticionService;
+import modelo.logicaNegocio.PruebaService;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
-import modelo.Competicion;
-import modelo.Prueba;
+import modelo.dao.CompeticionJpa;
+import modelo.entities.Competicion;
+import modelo.entities.Prueba;
 import modelo.dao.GrupoJpa;
 import modelo.dao.ParticipanteJpa;
+import modelo.dao.PruebaJpa;
 import modelo.dao.RegistroJpa;
+import modelo.logicaNegocio.GrupoService;
+import modelo.logicaNegocio.ParticipanteService;
+import modelo.logicaNegocio.RegistroService;
 import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
@@ -50,7 +50,7 @@ public class PruebasTest {
             Competicion c = competicionJpa.findCompeticionByName("comp" + i);
             if (c != null) {
                 try {
-                    CompeticionJpa.eliminarCompeticion(c.getNombre());
+                    CompeticionService.eliminarCompeticion(c.getNombre());
                 } catch (InputException ex) {
                     Logger.getLogger(CompeticionTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -62,8 +62,8 @@ public class PruebasTest {
     // Crea una prueba en una competicion
     @Test
     public void crearPrueba() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp1", null, null, null, null, null);
-        PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp1", null, null, null, null, null);
+        PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Numerica.toString());
         Assert.assertNotNull(pruebaJpa.findPruebaByNombreCompeticion("prueba1", c.getId()));
     }
 
@@ -71,10 +71,10 @@ public class PruebasTest {
     @Test
     public void crearPruebaNull() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp2", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp2", null, null, null, null, null);
         Prueba p = null;
         try {
-            p = PruebaJpa.crearPrueba(c, null, null, null);
+            p = PruebaService.crearPrueba(c, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de prueba no válido", ex.getMessage());
@@ -87,10 +87,10 @@ public class PruebasTest {
     @Test
     public void crearPruebaTipoNoValido() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp3", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp3", null, null, null, null, null);
         Prueba p = null;
         try {
-            p = PruebaJpa.crearPrueba(c, "prueba1", null, null);
+            p = PruebaService.crearPrueba(c, "prueba1", null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Tipo de prueba no válido", ex.getMessage());
@@ -103,10 +103,10 @@ public class PruebasTest {
     @Test
     public void crearPruebaTipoResultadoNoValido() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp4", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp4", null, null, null, null, null);
         Prueba p = null;
         try {
-            p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), null);
+            p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Tipo de resultado no válido", ex.getMessage());
@@ -119,10 +119,10 @@ public class PruebasTest {
     @Test
     public void crearPruebaNombreNoValido() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp5", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp5", null, null, null, null, null);
         Prueba p = null;
         try {
-            p = PruebaJpa.crearPrueba(c, "", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
+            p = PruebaService.crearPrueba(c, "", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de prueba no válido", ex.getMessage());
@@ -135,12 +135,12 @@ public class PruebasTest {
     @Test
     public void crearPruebaNombreOcupado() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp6", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp6", null, null, null, null, null);
         Prueba p = null;
         Prueba p2 = null;
         try {
-            p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
-            p2 = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
+            p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
+            p2 = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de prueba ocupado", ex.getMessage());
@@ -156,10 +156,10 @@ public class PruebasTest {
     @Test
     public void crearMismaPruebaDosCompeticiones() throws InputException {
 
-        Competicion c = CompeticionJpa.crearCompeticion("comp7", null, null, null, null, null);
-        Competicion c2 = CompeticionJpa.crearCompeticion("comp8", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Prueba p2 = PruebaJpa.crearPrueba(c2, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Tiempo.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp7", null, null, null, null, null);
+        Competicion c2 = CompeticionService.crearCompeticion("comp8", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Prueba p2 = PruebaService.crearPrueba(c2, "prueba1", TipoPrueba.Equipo.toString(), TipoResultado.Tiempo.toString());
 
         Assert.assertNotNull(p);
         Assert.assertNotNull(p2);
@@ -180,9 +180,9 @@ public class PruebasTest {
     @Test
     public void modificarPruebaNoExiste() throws InputException {
         Prueba p = null;
-        Competicion c = CompeticionJpa.crearCompeticion("comp14", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp14", null, null, null, null, null);
         try {
-            p = PruebaJpa.modificarPrueba(-1, c.getId(), null, TipoResultado.Tiempo, TipoPrueba.Equipo);
+            p = PruebaService.modificarPrueba(-1, c.getId(), null, TipoResultado.Tiempo, TipoPrueba.Equipo);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Prueba no encontrada", ex.getMessage());
@@ -196,7 +196,7 @@ public class PruebasTest {
     public void modificarPruebaNull() throws InputException {
         Prueba p = null;
         try {
-            p = PruebaJpa.modificarPrueba(null, null, null, null, null);
+            p = PruebaService.modificarPrueba(null, null, null, null, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Prueba no válida", ex.getMessage());
@@ -207,9 +207,9 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaNombre() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp9", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Prueba p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba2", TipoResultado.Distancia, TipoPrueba.Individual);
+        Competicion c = CompeticionService.crearCompeticion("comp9", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Prueba p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba2", TipoResultado.Distancia, TipoPrueba.Individual);
 
         Assert.assertEquals(p.getId(), p2.getId());
         p = pruebaJpa.findPruebaByNombreCompeticion("prueba2", c.getId());
@@ -220,9 +220,9 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaTipo() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp10", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Prueba p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Distancia, TipoPrueba.Equipo);
+        Competicion c = CompeticionService.crearCompeticion("comp10", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Prueba p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Distancia, TipoPrueba.Equipo);
         Assert.assertEquals(p.getId(), p2.getId());
         p = pruebaJpa.findPruebaByNombreCompeticion("prueba1", c.getId());
         Assert.assertEquals("prueba1", p.getNombre());
@@ -232,9 +232,9 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaTipoResultado() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp11", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        Prueba p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Tiempo, TipoPrueba.Individual);
+        Competicion c = CompeticionService.crearCompeticion("comp11", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Prueba p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Tiempo, TipoPrueba.Individual);
         Assert.assertEquals(p.getId(), p2.getId());
         p = pruebaJpa.findPruebaByNombreCompeticion("prueba1", c.getId());
         Assert.assertEquals("prueba1", p.getNombre());
@@ -244,12 +244,12 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaNombreOcupado() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp12", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        PruebaJpa.crearPrueba(c, "prueba2", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp12", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        PruebaService.crearPrueba(c, "prueba2", TipoPrueba.Equipo.toString(), TipoResultado.Distancia.toString());
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba2", TipoResultado.Distancia, TipoPrueba.Individual);
+            p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba2", TipoResultado.Distancia, TipoPrueba.Individual);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Nombre de prueba ocupado", ex.getMessage());
@@ -260,11 +260,11 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaCompeticionNoValida() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp15", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp15", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), null, "prueba1", TipoResultado.Tiempo, TipoPrueba.Equipo);
+            p2 = PruebaService.modificarPrueba(p.getId(), null, "prueba1", TipoResultado.Tiempo, TipoPrueba.Equipo);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Competición no válida", ex.getMessage());
@@ -275,11 +275,11 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaNoRegistradaCompeticion() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp13", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp13", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), -1, "prueba1", TipoResultado.Tiempo, TipoPrueba.Equipo);
+            p2 = PruebaService.modificarPrueba(p.getId(), -1, "prueba1", TipoResultado.Tiempo, TipoPrueba.Equipo);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Prueba no registrada en la competición", ex.getMessage());
@@ -290,11 +290,11 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaTipoNoValido() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp16", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp16", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Tiempo, null);
+            p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Tiempo, null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Tipo de prueba no válido", ex.getMessage());
@@ -305,11 +305,11 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaTipoResultadoNoValido() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp17", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp17", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba1", null, TipoPrueba.Individual);
+            p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba1", null, TipoPrueba.Individual);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Tipo de resultado no válido", ex.getMessage());
@@ -320,14 +320,14 @@ public class PruebasTest {
 
     @Test
     public void modificarPruebaConRegistros() throws InputException {
-        Competicion c = CompeticionJpa.crearCompeticion("comp18", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        GrupoJpa.crearGrupo(c, "a", null);
-        ParticipanteJpa.crearParticipante(c, "nombre", "apellidos", 1, "a", null, null, null, null);
-        RegistroJpa.crearRegistro(c, 1, "prueba1", null, false, 12.0, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp18", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        GrupoService.crearGrupo(c, "a", null);
+        ParticipanteService.crearParticipante(c, "nombre", "apellidos", 1, "a", null, null, null, null);
+        RegistroService.crearRegistro(c, 1, "prueba1", null, false, 12.0, null, null);
         Prueba p2 = null;
         try {
-            p2 = PruebaJpa.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Numerica, TipoPrueba.Individual);
+            p2 = PruebaService.modificarPrueba(p.getId(), c.getId(), "prueba1", TipoResultado.Numerica, TipoPrueba.Individual);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("No se puede modificar una prueba con registros asociados", ex.getMessage());
@@ -341,9 +341,9 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaNoExiste() throws InputException {
         
-        Competicion c = CompeticionJpa.crearCompeticion("comp19", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp19", null, null, null, null, null);
         try {
-            PruebaJpa.eliminarPrueba(-1, c.getId());
+            PruebaService.eliminarPrueba(-1, c.getId());
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Prueba no encontrada", ex.getMessage());
@@ -353,9 +353,9 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaNull() throws InputException{
         
-        Competicion c = CompeticionJpa.crearCompeticion("comp20", null, null, null, null, null);
+        Competicion c = CompeticionService.crearCompeticion("comp20", null, null, null, null, null);
         try {
-            PruebaJpa.eliminarPrueba(null, c.getId());
+            PruebaService.eliminarPrueba(null, c.getId());
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Identificador de prueba no válido", ex.getMessage());
@@ -365,10 +365,10 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaCompeticionNull() throws InputException {
         
-        Competicion c = CompeticionJpa.crearCompeticion("comp21", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp21", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         try {
-            PruebaJpa.eliminarPrueba(p.getId(), null);
+            PruebaService.eliminarPrueba(p.getId(), null);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Identificador de competición no válido", ex.getMessage());
@@ -378,10 +378,10 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaCompeticionNoValida() throws InputException {
         
-        Competicion c = CompeticionJpa.crearCompeticion("comp22", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        Competicion c = CompeticionService.crearCompeticion("comp22", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
         try {
-            PruebaJpa.eliminarPrueba(p.getId(), -1);
+            PruebaService.eliminarPrueba(p.getId(), -1);
             fail("Debería haber lanzado InputException");
         } catch (InputException ex) {
             Assert.assertEquals("Prueba no registrada en Competición", ex.getMessage());
@@ -391,9 +391,9 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaExistente() throws InputException{
     
-        Competicion c = CompeticionJpa.crearCompeticion("comp23", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        PruebaJpa.eliminarPrueba(p.getId(), c.getId());
+        Competicion c = CompeticionService.crearCompeticion("comp23", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        PruebaService.eliminarPrueba(p.getId(), c.getId());
         
         p = pruebaJpa.findPruebaByNombreCompeticion("prueba1", c.getId());
         Assert.assertNull(p);
@@ -402,11 +402,11 @@ public class PruebasTest {
     @Test
     public void eliminarPruebaExistenteMismoNombreDosCompeticiones() throws InputException{
     
-        Competicion c = CompeticionJpa.crearCompeticion("comp24", null, null, null, null, null);
-        Competicion c2 = CompeticionJpa.crearCompeticion("comp25", null, null, null, null, null);
-        Prueba p = PruebaJpa.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        PruebaJpa.crearPrueba(c2, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
-        PruebaJpa.eliminarPrueba(p.getId(), c.getId());
+        Competicion c = CompeticionService.crearCompeticion("comp24", null, null, null, null, null);
+        Competicion c2 = CompeticionService.crearCompeticion("comp25", null, null, null, null, null);
+        Prueba p = PruebaService.crearPrueba(c, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        PruebaService.crearPrueba(c2, "prueba1", TipoPrueba.Individual.toString(), TipoResultado.Distancia.toString());
+        PruebaService.eliminarPrueba(p.getId(), c.getId());
         
         p = pruebaJpa.findPruebaByNombreCompeticion("prueba1", c.getId());
         Assert.assertNull(p);

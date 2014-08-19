@@ -1,8 +1,9 @@
 package vista;
 
+import vista.interfaces.VistaRegistros;
 import controlador.Coordinador;
-import modelo.RolUsuario;
-import modelo.TipoResultado;
+import modelo.entities.RolUsuario;
+import modelo.entities.TipoResultado;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -83,7 +84,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
     private JCheckBox soloMejoresMarcasCheckBox;
 
     public RegistrosTab() {
-        initComponents();
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -424,25 +424,6 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
         this.habilitarBotones(RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
 
-    
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
     @Override
     public void controlador(ActionListener al) {
         crearRegistroButton.addActionListener(al);

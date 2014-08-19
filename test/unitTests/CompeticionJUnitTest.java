@@ -1,7 +1,7 @@
 package unitTests;
 
 import java.util.Date;
-import modelo.Competicion;
+import modelo.entities.Competicion;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

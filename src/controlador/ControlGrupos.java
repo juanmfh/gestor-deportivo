@@ -4,9 +4,10 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
-import modelo.Grupo;
+import modelo.entities.Grupo;
 import modelo.dao.GrupoJpa;
-import vista.VistaGrupos;
+import modelo.logicaNegocio.GrupoService;
+import vista.interfaces.VistaGrupos;
 
 /**
  *
@@ -32,7 +33,7 @@ public class ControlGrupos implements ActionListener {
             case VistaGrupos.CREARGRUPO:
                 Grupo g;
                 try {
-                    g = GrupoJpa.crearGrupo(Coordinador.getInstance().getSeleccionada(), vista.getNombreGrupo(),
+                    g = GrupoService.crearGrupo(Coordinador.getInstance().getSeleccionada(), vista.getNombreGrupo(),
                             vista.getSubgrupoDeComboBox().getSelectedItem().toString());
                     //Actualizamos la vista
                     vista.añadirGrupoATabla(new Object[]{
@@ -52,7 +53,7 @@ public class ControlGrupos implements ActionListener {
                 break;
             case VistaGrupos.MODIFICARGRUPO:
                 try {
-                    g = GrupoJpa.modificarGrupo(Coordinador.getInstance().getSeleccionada(),
+                    g = GrupoService.modificarGrupo(Coordinador.getInstance().getSeleccionada(),
                             vista.getGrupoSelected(), vista.getNombreGrupo(),
                             vista.getSubgrupoDeComboBox().getSelectedItem().toString());
                     //Actualizamos la vista
@@ -79,7 +80,7 @@ public class ControlGrupos implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialog == JOptionPane.YES_OPTION) {
                         try {
-                            GrupoJpa.eliminarGrupo(Coordinador.getInstance().getSeleccionada(), vista.getGrupoSelected());
+                            GrupoService.eliminarGrupo(Coordinador.getInstance().getSeleccionada(), vista.getGrupoSelected());
                             //Actualizamos la vista
                             vista.limpiarFormularioGrupo();
                             Coordinador.getInstance().getControladorPrincipal().cargarSubGruposComboBox();

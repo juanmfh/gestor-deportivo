@@ -1,13 +1,13 @@
 package modelo.dao;
 
-import modelo.Administrado;
+import modelo.entities.Administrado;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import modelo.Usuario;
-import modelo.Competicion;
+import modelo.entities.Usuario;
+import modelo.entities.Competicion;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

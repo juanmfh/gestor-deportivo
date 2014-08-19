@@ -2,8 +2,8 @@
 package vista;
 
 import controlador.Coordinador;
-import modelo.TipoPrueba;
-import modelo.TipoResultado;
+import modelo.entities.TipoPrueba;
+import modelo.entities.TipoResultado;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -34,10 +34,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import net.coobird.thumbnailator.Thumbnails;
-import static vista.VistaPrincipal.CREARPRUEBA;
-import static vista.VistaPrincipal.ELIMINARPRUEBA;
-import static vista.VistaPrincipal.LIMPIARPRUEBA;
-import static vista.VistaPrincipal.MODIFICARPRUEBA;
+import static vista.interfaces.VistaPrincipal.CREARPRUEBA;
+import static vista.interfaces.VistaPrincipal.ELIMINARPRUEBA;
+import static vista.interfaces.VistaPrincipal.LIMPIARPRUEBA;
+import static vista.interfaces.VistaPrincipal.MODIFICARPRUEBA;
 
 /**
  *
@@ -76,7 +76,6 @@ public class GeneralTab extends javax.swing.JPanel {
     private JPanel botonesPanel;
 
     public GeneralTab() {
-        initComponents();
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -264,24 +263,6 @@ public class GeneralTab extends javax.swing.JPanel {
 
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
     public void controlador(ActionListener al) {
         
         crearPruebaButton.addActionListener(al);

@@ -4,9 +4,10 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
-import modelo.Equipo;
+import modelo.entities.Equipo;
 import modelo.dao.EquipoJpa;
-import vista.VistaEquipos;
+import modelo.logicaNegocio.EquipoService;
+import vista.interfaces.VistaEquipos;
 
 /**
  *
@@ -32,7 +33,7 @@ public class ControlEquipos implements ActionListener {
             case VistaEquipos.AÑADIREQUIPO:
                 Equipo equipo;
                 try {
-                    equipo = EquipoJpa.crearEquipo(Coordinador.getInstance().getSeleccionada(), vista.getNombreEquipo(),
+                    equipo = EquipoService.crearEquipo(Coordinador.getInstance().getSeleccionada(), vista.getNombreEquipo(),
                             vista.getGrupo());
                     // Actualizamos la vista
                     vista.añadirEquipoATabla(new Object[]{
@@ -50,7 +51,7 @@ public class ControlEquipos implements ActionListener {
                 break;
             case VistaEquipos.MODIFICAREQUIPO:
                 try {
-                    equipo = EquipoJpa.modificarEquipo(
+                    equipo = EquipoService.modificarEquipo(
                             Coordinador.getInstance().getSeleccionada(),
                             vista.getEquipoSelected(),
                             vista.getNombreEquipo(),
@@ -80,7 +81,7 @@ public class ControlEquipos implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialog == JOptionPane.YES_OPTION) {
                         try {
-                            EquipoJpa.eliminarEquipo(vista.getEquipoSelected());
+                            EquipoService.eliminarEquipo(vista.getEquipoSelected());
                             vista.eliminarEquipoSeleccionado();
                             vista.limpiarFormularioEquipo();
                             Coordinador.getInstance().setEstadoLabel(

@@ -1,5 +1,6 @@
 package vista;
 
+import vista.interfaces.VistaImprimirResultados;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;

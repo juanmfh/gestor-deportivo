@@ -1,7 +1,7 @@
 package controlador;
 
-import modelo.RolUsuario;
-import modelo.TipoPrueba;
+import modelo.entities.RolUsuario;
+import modelo.entities.TipoPrueba;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -10,21 +10,22 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JOptionPane;
-import modelo.Competicion;
-import modelo.Equipo;
-import modelo.Prueba;
+import modelo.entities.Competicion;
+import modelo.entities.Equipo;
+import modelo.entities.Prueba;
 import modelo.dao.AdministradoJpa;
 import modelo.dao.CompeticionJpa;
 import modelo.dao.PruebaJpa;
-import modelo.Grupo;
-import modelo.Registro;
+import modelo.entities.Grupo;
+import modelo.entities.Registro;
 import modelo.dao.EquipoJpa;
 import modelo.dao.GrupoJpa;
 import modelo.dao.ParticipanteJpa;
 import modelo.dao.UsuarioJpa;
 import java.awt.Frame;
-import modelo.Participante;
-import modelo.Usuario;
+import modelo.entities.Participante;
+import modelo.entities.Usuario;
+import modelo.logicaNegocio.CompeticionService;
 import vista.DialogoCompeticion;
 import vista.DialogoImprimirResultados;
 import vista.EquiposTab;
@@ -33,7 +34,7 @@ import vista.PanelPrincipal;
 import vista.ParticipantesTab;
 import vista.RegistrosTab;
 import vista.UsuariosTab;
-import vista.VistaPrincipal;
+import vista.interfaces.VistaPrincipal;
 
 /**
  *
@@ -592,7 +593,7 @@ public class ControlPrincipal implements ActionListener {
                     if (vista.getCompeticionSelected() != null) {
                         try {
                             // Eliminamos la competición
-                            CompeticionJpa.eliminarCompeticion(vista.getCompeticionSelected());
+                            CompeticionService.eliminarCompeticion(vista.getCompeticionSelected());
                         } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                         }

@@ -1,7 +1,8 @@
 package vista;
 
+import vista.interfaces.VistaPrincipal;
 import controlador.Coordinador;
-import modelo.RolUsuario;
+import modelo.entities.RolUsuario;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -25,7 +26,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import modelo.Competicion;
+import modelo.entities.Competicion;
 
 /**
  *
@@ -62,7 +63,6 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
      * Creates new form PanelPrincipal
      */
     public PanelPrincipal() {
-        initComponents();
 
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -280,25 +280,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
 
         this.habilitarBotones(false, RolUsuario.values()[Coordinador.getInstance().getUsuario().getRol()]);
     }
-
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+    
     @Override
     public void controlador(ActionListener al) {
 

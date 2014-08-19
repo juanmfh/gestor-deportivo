@@ -1,14 +1,14 @@
 package controlador;
 
-import modelo.RolUsuario;
-import modelo.dao.UsuarioJpa;
+import modelo.entities.RolUsuario;
+import modelo.logicaNegocio.UsuarioService;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JOptionPane;
-import modelo.Usuario;
-import vista.VistaUsuarios;
+import modelo.entities.Usuario;
+import vista.interfaces.VistaUsuarios;
 
 /**
  *
@@ -33,7 +33,7 @@ public class ControlUsuarios implements ActionListener {
         switch (command) {
             case VistaUsuarios.CREARUSUARIO:
                 try {
-                    Usuario usuario = UsuarioJpa.crearUsuario(vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol(), vista.getCompeticionesConAcceso());
+                    Usuario usuario = UsuarioService.crearUsuario(vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol(), vista.getCompeticionesConAcceso());
                     // Actualizamos la vista
                     vista.limpiarFormularioUsuario();
                     vista.añadirUsuarioATabla(new Object[]{
@@ -49,7 +49,7 @@ public class ControlUsuarios implements ActionListener {
                 break;
             case VistaUsuarios.MODIFICARUSUARIO:
                 try {
-                    Usuario usuario = UsuarioJpa.modificarUsuario(vista.getUsuarioSeleccionado(), vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol());
+                    Usuario usuario = UsuarioService.modificarUsuario(vista.getUsuarioSeleccionado(), vista.getNombreDeUsuario(), new String(vista.getContraseña()), vista.getRol());
                     // Actualizamos la vista
                     vista.eliminarUsuarioSeleccionado();
                     vista.añadirUsuarioATabla(new Object[]{
@@ -70,7 +70,7 @@ public class ControlUsuarios implements ActionListener {
                         JOptionPane.YES_NO_OPTION);
                 if (confirmDialog == JOptionPane.YES_OPTION) {
                     try {
-                        UsuarioJpa.eliminarUsuario(vista.getUsuarioSeleccionado());
+                        UsuarioService.eliminarUsuario(vista.getUsuarioSeleccionado());
                         Coordinador.getInstance().setEstadoLabel(
                                 "Usuario eliminado correctamente", Color.BLUE);
                         vista.eliminarUsuarioSeleccionado();
@@ -90,7 +90,7 @@ public class ControlUsuarios implements ActionListener {
                     vista.eliminarCompeticion(s);
                     if (vista.getUsuarioSeleccionado() != -1) {
                         try {
-                            UsuarioJpa.darAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
+                            UsuarioService.darAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
                         } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                         }
@@ -104,7 +104,7 @@ public class ControlUsuarios implements ActionListener {
                     vista.eliminarCompeticionConAcceso(s);
                     if (vista.getUsuarioSeleccionado() != -1) {
                         try {
-                            UsuarioJpa.quitarAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
+                            UsuarioService.quitarAccesoACompeticion(vista.getUsuarioSeleccionado(), s);
                         } catch (InputException ex) {
                             Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                         }

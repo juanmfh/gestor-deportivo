@@ -1,15 +1,16 @@
 package controlador;
 
-import modelo.TipoResultado;
-import modelo.TipoPrueba;
+import modelo.entities.TipoResultado;
+import modelo.entities.TipoPrueba;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
-import modelo.Prueba;
+import modelo.entities.Prueba;
 import modelo.dao.PruebaJpa;
+import modelo.logicaNegocio.PruebaService;
 import vista.GeneralTab;
-import vista.VistaPrincipal;
+import vista.interfaces.VistaPrincipal;
 
 /**
  *
@@ -36,7 +37,7 @@ public class ControlPruebas implements ActionListener {
                 if (Coordinador.getInstance().getSeleccionada() != null) {
                     Prueba prueba;
                     try {
-                        prueba = PruebaJpa.crearPrueba(Coordinador.getInstance().getSeleccionada(),
+                        prueba = PruebaService.crearPrueba(Coordinador.getInstance().getSeleccionada(),
                                 vista.getNombrePrueba(),
                                 vista.getTipoPrueba(), vista.getTipoResultado());
                         // Actualizamos la vista
@@ -63,7 +64,7 @@ public class ControlPruebas implements ActionListener {
                             JOptionPane.YES_NO_OPTION);
                     if (confirmDialogPrueba == JOptionPane.YES_OPTION) {
                         try {
-                            PruebaJpa.eliminarPrueba(vista.getPruebaSelected(),
+                            PruebaService.eliminarPrueba(vista.getPruebaSelected(),
                                     Coordinador.getInstance().getSeleccionada().getId());
                             vista.eliminarPrueba();
                             vista.limpiarFormularioPrueba();
@@ -78,7 +79,7 @@ public class ControlPruebas implements ActionListener {
             case VistaPrincipal.MODIFICARPRUEBA:
                 Prueba prueba;
                 try {
-                    prueba = PruebaJpa.modificarPrueba(vista.getPruebaSelected(),
+                    prueba = PruebaService.modificarPrueba(vista.getPruebaSelected(),
                             Coordinador.getInstance().getSeleccionada().getId(),
                             vista.getNombrePrueba(),
                             TipoResultado.valueOf(vista.getTipoResultado()),
