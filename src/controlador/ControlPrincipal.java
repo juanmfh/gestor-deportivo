@@ -127,8 +127,8 @@ public class ControlPrincipal implements ActionListener {
     }
 
     /**
-     * Carga la lista de competiciones en la interfaz principal según las
-     * competiciones a las que tiene acceso un usuario, si es admin a todas.
+     * Carga la lista de competiciones en el panel principal según las
+     * competiciones a las que tiene acceso un usuario, si es admininistrador se cargan todas.
      *
      * @param usuario Usuario
      */
@@ -533,6 +533,33 @@ public class ControlPrincipal implements ActionListener {
                 usuariosTabPanel.añadirCompeticion(s);
             }
         }
+    }
+    
+    
+    /**
+     * Modifica el nombre de la competición en la lista de competiciones y
+     * actualiza el estado.
+     *
+     * @param competicion
+     */
+    public void actualizarVistaCompeticionModificada(Competicion competicion) {
+        vista.eliminarCompeticionSeleccionada();
+        vista.añadirCompeticion(competicion.getNombre());
+        vista.setFocusList(0);
+        vista.setEstadoLabel("Competición modificada correctamente", Color.BLUE);
+    }
+    
+    /**
+     * Añade la competición creada a la lista de competiciones, la establece
+     * como seleccionada y actualiza el estado.
+     *
+     * @param competicion Competicion creada
+     */
+    public void actualizarVistaCompeticionCreada(Competicion competicion) {
+        setSeleccionada(competicion);
+        vista.añadirCompeticion(competicion.getNombre());
+        vista.setFocusList(0);
+        vista.setEstadoLabel("Competición creada correctamente", Color.BLUE);
     }
 
     @Override

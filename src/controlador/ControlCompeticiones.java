@@ -6,9 +6,9 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 import main.IOFile;
 import modelo.entities.Competicion;
-import modelo.dao.AdministradoJpa;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import modelo.logicaNegocio.AdministradoService;
 import modelo.logicaNegocio.CompeticionService;
 import vista.interfaces.VistaCompeticion;
 
@@ -39,10 +39,10 @@ public class ControlCompeticiones implements ActionListener {
                     if (vista.getVistaModificarCompeticion()) {
                         competicion = modificarCompeticion();
                         // Actualizamos la vista y cerramos el diálogo
-                        Coordinador.getInstance().actualizarVistaCompeticionModificada(competicion);
+                        Coordinador.getInstance().getControladorPrincipal().actualizarVistaCompeticionModificada(competicion);
                     } else {
                         competicion = crearCompeticion();
-                        Coordinador.getInstance().actualizarVistaCompeticionCreada(competicion);
+                        Coordinador.getInstance().getControladorPrincipal().actualizarVistaCompeticionCreada(competicion);
                     }
                     vista.cerrar();
                 } catch (InputException ex) {
@@ -82,7 +82,7 @@ public class ControlCompeticiones implements ActionListener {
                 System.getProperty("user.dir") + "/resources/img/");
 
         // Se crea permisos al usuario para esta competición
-        AdministradoJpa.crearAdministrado(competicion, Coordinador.getInstance().getUsuario());
+        AdministradoService.crearAdministrado(competicion, Coordinador.getInstance().getUsuario());
 
         return competicion;
     }

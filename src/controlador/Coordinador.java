@@ -157,7 +157,7 @@ public class Coordinador {
     }
 
     /**
-     * Método llamado cuando el Login es correcto para cargar el programa
+     * Método llamado una vez validado la identificación del usuario para cargar el programa
      * principal
      *
      */
@@ -174,36 +174,8 @@ public class Coordinador {
         jf.revalidate();
 
     }
-
-    /**
-     * Añade la competición creada a la lista de competiciones, la establece
-     * como seleccionada y actualiza el estado.
-     *
-     * @param competicion Competicion creada
-     */
-    public void actualizarVistaCompeticionCreada(Competicion competicion) {
-        controladorPrincipal.setSeleccionada(competicion);
-        panelPrincipal.añadirCompeticion(competicion.getNombre());
-        controladorPrincipal.getVista().setFocusList(0);
-        controladorPrincipal.getVista().setEstadoLabel(
-                "Competición creada correctamente", Color.BLUE);
-    }
-
-    /**
-     * Modifica el nombre de la competición en la lista de competiciones y
-     * actualiza el estado.
-     *
-     * @param competicion
-     */
-    public void actualizarVistaCompeticionModificada(Competicion competicion) {
-        panelPrincipal.eliminarCompeticionSeleccionada();
-        panelPrincipal.añadirCompeticion(competicion.getNombre());
-        controladorPrincipal.getVista().setFocusList(0);
-        controladorPrincipal.getVista().setEstadoLabel(
-                "Competición modificada correctamente", Color.BLUE);
-    }
-
-    /**
+    
+     /**
      * Carga en la vista la tabla de pruebas de la competicion c
      *
      * @param c Competicion de la que se cargaran las pruebas
@@ -234,7 +206,7 @@ public class Coordinador {
             }
         }
     }
-
+    
     /**
      * Elimina todas las filas de la tabla de pruebas
      */
@@ -244,6 +216,50 @@ public class Coordinador {
             panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
         }
     }
+
+    
+
+    /**
+     * Carga en la vista la tabla de pruebas de la competicion c
+     *
+     * @param c Competicion de la que se cargaran las pruebas
+     *
+    public void cargarTablaPruebasCompeticion(Competicion c) {
+
+        if (c != null) {
+            List<Prueba> lista;
+            PruebaJpa prujpa = new PruebaJpa();
+            // Obtenemos de la base de datos una lista de las pruebas de la competicion c
+            lista = prujpa.findPruebasByCompeticon(c);
+
+            // Borramos todas las filas de la tabla
+            limpiarTablaPruebas();
+            int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
+            for (int i = 0; i < count; i++) {
+                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
+            }
+
+            // Añadimos las nuevas filas a la tabla a partir de la lista de pruebas
+            for (Prueba p : lista) {
+                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().addRow(
+                        new Object[]{
+                            p.getId(),
+                            p.getNombre(),
+                            p.getTipo(),
+                            p.getTiporesultado()});
+            }
+        }
+    }
+
+    /**
+     * Elimina todas las filas de la tabla de pruebas
+     
+    public void limpiarTablaPruebas() {
+        int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
+        for (int i = 0; i < count; i++) {
+            panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
+        }
+    }*/
 
     /**
      * Elimina todas las filas de la tabla de registros
