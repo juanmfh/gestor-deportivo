@@ -74,69 +74,69 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
         crearcompeticionButton = new JButton("Crear ");
         crearcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         crearcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        crearcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/añadircompeticion.png"));
+        crearcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/añadircompeticion.png")));
         barraHerramientasPanel.add(crearcompeticionButton);
 
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton = new JButton("Modificar");
         modificarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         modificarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        modificarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/modificarCompeticion.png"));
+        modificarcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/modificarCompeticion.png")));
         barraHerramientasPanel.add(modificarcompeticionButton);
 
         eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton = new JButton("Eliminar");
         eliminarcompeticionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         eliminarcompeticionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        eliminarcompeticionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/borrarCompeticion.png"));
+        eliminarcompeticionButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/borrarCompeticion.png")));
         barraHerramientasPanel.add(eliminarcompeticionButton);
 
         pruebasButton = new JButton("Pruebas");
         pruebasButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         pruebasButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        pruebasButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/pruebas.png"));
+        pruebasButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/pruebas.png")));
         barraHerramientasPanel.add(pruebasButton);
 
         gruposButton = new JButton("Grupos");
         gruposButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         gruposButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        gruposButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/groups.png"));
+        gruposButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/groups.png")));
         barraHerramientasPanel.add(gruposButton);
 
         equiposButton = new JButton("Equipos");
         equiposButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         equiposButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        equiposButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/equipos.png"));
+        equiposButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/equipos.png")));
         barraHerramientasPanel.add(equiposButton);
 
         participantesButton = new JButton("Participantes");
         participantesButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         participantesButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        participantesButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/participante.png"));
+        participantesButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/participante.png")));
         barraHerramientasPanel.add(participantesButton);
 
         registrosButton = new JButton("Registros");
         registrosButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         registrosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        registrosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/registro.png"));
+        registrosButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/registro.png")));
         barraHerramientasPanel.add(registrosButton);
 
         imprimirButton = new JButton("Imprimir resultados");
         imprimirButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         imprimirButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        imprimirButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/imprimirpdf.png"));
+        imprimirButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/imprimirpdf.png")));
         barraHerramientasPanel.add(imprimirButton);
 
         admUsuariosButton = new JButton("Adm. Usuarios");
         admUsuariosButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         admUsuariosButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        admUsuariosButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/adduser.png"));
+        admUsuariosButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/adduser.png")));
         barraHerramientasPanel.add(admUsuariosButton);
 
         cerrarSesionButton = new JButton("Cerrar sesión");
         cerrarSesionButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         cerrarSesionButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        cerrarSesionButton.setIcon(new ImageIcon(System.getProperty("user.dir") + "/resources/icons/cerrarsesion.png"));
+        cerrarSesionButton.setIcon(new ImageIcon(getClass().getResource("/recursos/imagenes/cerrarsesion.png")));
         barraHerramientasPanel.add(cerrarSesionButton);
 
         constraints.gridx = 0;
@@ -349,7 +349,7 @@ public class PanelPrincipal extends JPanel implements VistaPrincipal {
                 generalTabPanel.setImagen(System.getProperty("user.dir") + "/resources/img/" + c.getImagen());
             } else {
                 //System.out.println(getClass().getResource("/img/image_not_found.jpg").toString());
-                generalTabPanel.setImagen(System.getProperty("user.dir") + "/resources/icons/image_not_found.jpg");
+                generalTabPanel.setImagen(getClass().getResource("/recursos/imagenes/image_not_found.jpg"));
             }
 
         } else {

@@ -44,11 +44,12 @@ public class Coordinador {
 
     private JFrame jf;
     private VistaLogin login;
-    private PanelPrincipal panelPrincipal;
-    private static final Coordinador coordinador = new Coordinador();
-    private ControlPrincipal controladorPrincipal;
     private ControlLogin controladorLogin;
+    private PanelPrincipal panelPrincipal;
+    private ControlPrincipal controladorPrincipal;
     private Usuario usuario;
+    
+    private static final Coordinador coordinador = new Coordinador();
 
     public static Coordinador getInstance() {
         return coordinador;

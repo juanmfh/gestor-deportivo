@@ -169,8 +169,9 @@ public class GeneralTab extends javax.swing.JPanel {
 
         BufferedImage wPic;
         try {
-            wPic = ImageIO.read(new File(System.getProperty("user.dir") + "/resources/icons/image_not_found.jpg"));
-
+            wPic = ImageIO.read(getClass().getResource("/recursos/imagenes/image_not_found.jpg"));
+            
+            
             wPic = Thumbnails.of(wPic).size(200, 200).asBufferedImage();
 
             JLabel wIcon = new JLabel(new ImageIcon(wPic));
@@ -368,7 +369,7 @@ public class GeneralTab extends javax.swing.JPanel {
         lugar.setText("");
         fechaFin.setText("");
         fechaInicio.setText("");
-        setImagen(System.getProperty("user.dir")+"/resources/icons/image_not_found.jpg");
+        setImagen(getClass().getResource("/recursos/imagenes/image_not_found.jpg"));
     }
 
     public void eliminarPrueba() {
@@ -393,7 +394,7 @@ public class GeneralTab extends javax.swing.JPanel {
             imagePanel.removeAll();
             imagePanel.add(wIcon);
         } catch (IOException ex) {
-            setImagen(System.getProperty("user.dir")+"/resources/icons/image_not_found.jpg");
+            setImagen(getClass().getResource("/recursos/imagenes/image_not_found.jpg"));
         }
     }
 
