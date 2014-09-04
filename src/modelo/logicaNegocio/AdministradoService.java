@@ -10,6 +10,7 @@ import modelo.entities.Usuario;
  * @author JuanM
  */
 public class AdministradoService {
+   
     
       /**
      * Da permisos a un usuario para poder administrar una competición.

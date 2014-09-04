@@ -24,6 +24,8 @@ import modelo.entities.TipoResultado;
  */
 public class PruebaService {
     
+    private static final int TAM_MAX = 60;  // Tamaño máximo de entrada
+    
     
     /**
      * Crea una prueba con los datos de la vista
@@ -40,8 +42,8 @@ public class PruebaService {
 
         Prueba p = null;
 
-        // Comprueba que el nombre de la prueba es no vacío
-        if (nombre != null && nombre.length() > 0) {
+        // Comprueba que el nombre de la prueba es no vacío y no supera el tamaño máximo
+        if (nombre != null && nombre.length() > 0 && nombre.length() <= TAM_MAX) {
 
             CompuestaJpa compujpa = new CompuestaJpa();
             PruebaJpa prujpa = new PruebaJpa();
@@ -113,7 +115,7 @@ public class PruebaService {
                     if (prueba != null) {
 
                         //Comprobamos que el nombre de la prueba es válido
-                        if (nombrePrueba.length() > 0) {
+                        if (nombrePrueba.length() > 0 && nombrePrueba.length() <= TAM_MAX) {
 
                             // Comprobamos que el nombre de la prueba no esta cogido
                             Prueba pruebaMod = pruebajpa.findPruebaByNombreCompeticion(

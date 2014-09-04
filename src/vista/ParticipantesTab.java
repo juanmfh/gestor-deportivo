@@ -551,6 +551,7 @@ public class ParticipantesTab extends javax.swing.JPanel implements VistaPartici
             modificarParticipanteButton.setEnabled(false);
             eliminarParticipanteButton.setEnabled(false);
             limpiarButton.setEnabled(false);
+            importarButton.setEnabled(false);
         }
         
     }

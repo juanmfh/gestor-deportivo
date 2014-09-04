@@ -638,6 +638,8 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
             modificarRegistroButton.setEnabled(false);
             eliminarRegistroButton.setEnabled(false);
             limpiarFormularioRegistroButton.setEnabled(false);
+            importarRegistrosButton.setEnabled(false);
+            crearPlantillaButton.setEnabled(false);
         }
         
     }

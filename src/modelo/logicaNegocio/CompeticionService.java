@@ -19,6 +19,7 @@ import modelo.entities.Grupo;
  */
 public class CompeticionService {
     
+    private static final int TAM_MAX = 60;  // Tamaño máximo de entrada
     
     /**
      * Crea una competición con los datos pasados como parámetros
@@ -43,7 +44,7 @@ public class CompeticionService {
 
         // Se comprueba que el nombre es no vacío y que no hay una competición ya creada
         // con dicho nombre
-        if (nombre != null && nombre.length() > 0) {
+        if (nombre != null && nombre.length() > 0 && nombre.length() <= TAM_MAX) {
             if (competicionjpa.findCompeticionByName(nombre) == null) {
                 Competicion competicion = new Competicion();
                 competicion.setNombre(nombre);
@@ -57,6 +58,7 @@ public class CompeticionService {
                 competicion.setOrganizador(organizador);
                 competicion.setPais(null);
                 competicionjpa.create(competicion);
+                
                 return competicion;
             } else {
                 throw new InputException("Nombre de competición ocupado");
