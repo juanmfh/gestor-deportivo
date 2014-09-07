@@ -15,32 +15,17 @@ import modelo.entities.Grupo;
 import modelo.entities.Participante;
 import modelo.entities.Prueba;
 import modelo.entities.Registro;
-import modelo.dao.EquipoJpa;
 import modelo.dao.GrupoJpa;
-import modelo.dao.ParticipanteJpa;
 import modelo.dao.PruebaJpa;
 import modelo.dao.RegistroJpa;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import javax.swing.SwingWorker;
 import modelo.entities.Competicion;
 import modelo.logicaNegocio.RegistroService;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vista.DialogoImprimirResultados;
 import vista.interfaces.VistaRegistros;
 
@@ -106,40 +91,42 @@ public class ControlRegistros implements ActionListener {
 
                 break;
             case VistaRegistros.MODIFICARREGISTRO:
-                Registro registro = null;
-                try {
-                    registro = RegistroService.modificarRegistro(vista.getRegistroSeleccionado(),
-                            Double.valueOf(vista.getSegundos()),
-                            Integer.parseInt(vista.getMinutos()),
-                            Integer.parseInt(vista.getHoras()));
-                } catch (InputException ex) {
-                    Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
-                }
-                Coordinador.getInstance().setEstadoLabel(
-                        "Registro modificado correctamente", Color.BLUE);
-                vista.eliminarRegistroDeTabla();
-                // Actualizamos la vista
-                SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
-                if (registro.getEquipoId() != null) {
-                    vista.añadirRegistroATabla(new Object[]{registro.getId(), registro.getEquipoId().getId(),
-                        registro.getEquipoId().getNombre() + " (E)",
-                        registro.getPruebaId().getNombre()
-                        + (registro.getSorteo() == 1
-                        ? " (Sorteo)" : ""),
-                        registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                        ? dt.format(registro.getTiempo())
-                        : registro.getNum(), registro.getNumIntento()});
-                } else {
-                    vista.añadirRegistroATabla(new Object[]{registro.getId(),
-                        registro.getParticipanteId().getDorsal(),
-                        registro.getParticipanteId().getApellidos()
-                        + ", " + registro.getParticipanteId().getNombre(),
-                        registro.getPruebaId().getNombre()
-                        + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
-                        registro.getPruebaId().getTiporesultado().equals("Tiempo")
-                        ? dt.format(registro.getTiempo())
-                        : registro.getNum(),
-                        registro.getNumIntento()});
+                if (vista.getRegistroSeleccionado() != -1) {
+                    Registro registro = null;
+                    try {
+                        registro = RegistroService.modificarRegistro(vista.getRegistroSeleccionado(),
+                                vista.getSegundos() == null ? null : Double.valueOf(vista.getSegundos()),
+                                vista.getMinutos() == null ? null : Integer.parseInt(vista.getMinutos()),
+                                vista.getHoras() == null ? null : Integer.parseInt(vista.getHoras()));
+                    } catch (InputException ex) {
+                        Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
+                    }
+                    Coordinador.getInstance().setEstadoLabel(
+                            "Registro modificado correctamente", Color.BLUE);
+                    vista.eliminarRegistroDeTabla();
+                    // Actualizamos la vista
+                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss.S");
+                    if (registro.getEquipoId() != null) {
+                        vista.añadirRegistroATabla(new Object[]{registro.getId(), registro.getEquipoId().getId(),
+                            registro.getEquipoId().getNombre() + " (E)",
+                            registro.getPruebaId().getNombre()
+                            + (registro.getSorteo() == 1
+                            ? " (Sorteo)" : ""),
+                            registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                            ? dt.format(registro.getTiempo())
+                            : registro.getNum(), registro.getNumIntento()});
+                    } else {
+                        vista.añadirRegistroATabla(new Object[]{registro.getId(),
+                            registro.getParticipanteId().getDorsal(),
+                            registro.getParticipanteId().getApellidos()
+                            + ", " + registro.getParticipanteId().getNombre(),
+                            registro.getPruebaId().getNombre()
+                            + (registro.getSorteo() == 1 ? " (Sorteo)" : ""),
+                            registro.getPruebaId().getTiporesultado().equals("Tiempo")
+                            ? dt.format(registro.getTiempo())
+                            : registro.getNum(),
+                            registro.getNumIntento()});
+                    }
                 }
                 break;
             case VistaRegistros.ELIMINARREGISTRO:
@@ -201,39 +188,28 @@ public class ControlRegistros implements ActionListener {
         }
     }
 
-    
-
-    
-
     private void añadirRegistroAVista(Registro r) {
-        String formatDate = "HH:mm:ss.S";
+        
+        String formatDate = "HH:mm:ss.S";  
         SimpleDateFormat dt = new SimpleDateFormat(formatDate);
+        Timestamp t = new Timestamp(r.getTiempo().getTime());
         // Si es un equipo 
         if (r.getPruebaId().getTipo().equals(TipoPrueba.Equipo.toString())) {
-            vista.añadirRegistroATabla(new Object[]{r.getId(), r.getEquipoId().getId(),
+            vista.añadirRegistroATabla(new Object[]{r.getId(),
+                r.getEquipoId().getId(),
                 r.getEquipoId().getNombre(),
-                r.getPruebaId().getNombre()
-                + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
-                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
-                ? dt.format(r.getTiempo()) : r.getNum(),
+                r.getPruebaId().getNombre() + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
+                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString()) ? dt.format(r.getTiempo()): r.getNum(),
                 r.getNumIntento()});
-            // Si es un participante individual
-        } else {
+        } else {    // Si es un participante individual
             vista.añadirRegistroATabla(new Object[]{r.getId(),
                 r.getParticipanteId().getDorsal(),
-                r.getParticipanteId().getApellidos()
-                + ", " + r.getParticipanteId().getNombre(),
-                r.getPruebaId().getNombre()
-                + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
-                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString())
-                ? dt.format(r.getTiempo())
-                : r.getNum(),
+                r.getParticipanteId().getApellidos() + ", " + r.getParticipanteId().getNombre(),
+                r.getPruebaId().getNombre() + (r.getSorteo() == 1 ? " (Sorteo)" : ""),
+                r.getPruebaId().getTiporesultado().equals(TipoResultado.Tiempo.toString()) ? dt.format(r.getTiempo()): r.getNum(),
                 r.getNumIntento()});
-
         }
     }
-
-    
 
     /**
      * Filtra los resultados de la base de datos en función de varios factores:
@@ -387,7 +363,5 @@ public class ControlRegistros implements ActionListener {
 
         }
     }
-
-    
 
 }

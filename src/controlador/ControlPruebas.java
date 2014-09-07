@@ -50,8 +50,7 @@ public class ControlPruebas implements ActionListener {
                                 "Prueba creada correctamente", Color.BLUE);
                         vista.limpiarFormularioPrueba();
                     } catch (InputException ex) {
-                        Coordinador.getInstance().setEstadoLabel(
-                                ex.getMessage(), Color.RED);
+                        Coordinador.getInstance().setEstadoLabel(ex.getMessage(), Color.RED);
                     }
                 }
                 break;
