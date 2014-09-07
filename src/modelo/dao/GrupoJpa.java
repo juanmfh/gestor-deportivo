@@ -1,7 +1,5 @@
 package modelo.dao;
 
-import controlador.ControlPrincipal;
-import controlador.InputException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -16,14 +14,10 @@ import modelo.entities.Acceso;
 import modelo.entities.Competicion;
 import modelo.entities.Inscripcion;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.entities.Registro;
 import modelo.dao.exceptions.IllegalOrphanException;
 import modelo.dao.exceptions.NonexistentEntityException;
 

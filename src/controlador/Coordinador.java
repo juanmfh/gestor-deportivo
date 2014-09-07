@@ -88,6 +88,10 @@ public class Coordinador {
 
             }
         }
+        
+        login = new PanelLogin();
+                controladorLogin = new ControlLogin(login);
+                login.controlador(controladorLogin);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -95,9 +99,7 @@ public class Coordinador {
                 // Cargamos la pantalla de Login
 
                 jf = new JFrame("Aplicación para Gestión de Actividades Físicas y Deportivas");
-                login = new PanelLogin();
-                controladorLogin = new ControlLogin(login);
-                login.controlador(controladorLogin);
+                
                 jf.setContentPane((JPanel) login);
                 jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 jf.setMinimumSize(new Dimension(1024, 768));
@@ -218,49 +220,6 @@ public class Coordinador {
         }
     }
 
-    
-
-    /**
-     * Carga en la vista la tabla de pruebas de la competicion c
-     *
-     * @param c Competicion de la que se cargaran las pruebas
-     *
-    public void cargarTablaPruebasCompeticion(Competicion c) {
-
-        if (c != null) {
-            List<Prueba> lista;
-            PruebaJpa prujpa = new PruebaJpa();
-            // Obtenemos de la base de datos una lista de las pruebas de la competicion c
-            lista = prujpa.findPruebasByCompeticon(c);
-
-            // Borramos todas las filas de la tabla
-            limpiarTablaPruebas();
-            int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
-            for (int i = 0; i < count; i++) {
-                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
-            }
-
-            // Añadimos las nuevas filas a la tabla a partir de la lista de pruebas
-            for (Prueba p : lista) {
-                panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().addRow(
-                        new Object[]{
-                            p.getId(),
-                            p.getNombre(),
-                            p.getTipo(),
-                            p.getTiporesultado()});
-            }
-        }
-    }
-
-    /**
-     * Elimina todas las filas de la tabla de pruebas
-     
-    public void limpiarTablaPruebas() {
-        int count = panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().getRowCount();
-        for (int i = 0; i < count; i++) {
-            panelPrincipal.getGeneralTabPanel().getModeloPruebasTable().removeRow(0);
-        }
-    }*/
 
     /**
      * Elimina todas las filas de la tabla de registros

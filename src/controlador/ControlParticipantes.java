@@ -7,7 +7,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import modelo.logicaNegocio.ParticipanteService.ImportarParticipantes;
 import modelo.entities.Participante;
-import modelo.dao.ParticipanteJpa;
 import modelo.logicaNegocio.ParticipanteService;
 import vista.interfaces.VistaParticipantes;
 
@@ -17,7 +16,7 @@ import vista.interfaces.VistaParticipantes;
  */
 public class ControlParticipantes implements ActionListener {
 
-    private VistaParticipantes vista;
+    private final VistaParticipantes vista;
 
     /**
      * Constructor que asocia la vista al controlador

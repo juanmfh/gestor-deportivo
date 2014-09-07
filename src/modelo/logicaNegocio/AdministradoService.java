@@ -1,6 +1,8 @@
 package modelo.logicaNegocio;
 
+import controlador.InputException;
 import modelo.dao.AdministradoJpa;
+import modelo.dao.exceptions.NonexistentEntityException;
 import modelo.entities.Administrado;
 import modelo.entities.Competicion;
 import modelo.entities.Usuario;
@@ -30,6 +32,20 @@ public class AdministradoService {
             admjpa.create(administrado);
         }
         return administrado;
+    }
+    
+    /** Elimina un objeto Administrado a través de su identificador
+     * 
+     * @param administradoId    Identificador del objeto
+     * @throws InputException 
+     */
+    public static void eliminarAdministrado(Integer administradoId) throws InputException{
+        AdministradoJpa admjpa = new AdministradoJpa();
+        try {
+            admjpa.destroy(administradoId);
+        } catch (NonexistentEntityException ex) {
+            throw new InputException("No se ha podido eliminar el objeto");
+        }
     }
     
     

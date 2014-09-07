@@ -1,7 +1,5 @@
 package modelo.dao;
 
-import controlador.Coordinador;
-import controlador.InputException;
 import modelo.entities.Competicion;
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -19,9 +17,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.entities.Grupo;
-import modelo.entities.TipoPrueba;
-import modelo.entities.TipoResultado;
 import modelo.dao.exceptions.IllegalOrphanException;
 import modelo.dao.exceptions.NonexistentEntityException;
 

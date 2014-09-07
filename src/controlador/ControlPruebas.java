@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import modelo.entities.Prueba;
-import modelo.dao.PruebaJpa;
 import modelo.logicaNegocio.PruebaService;
 import vista.GeneralTab;
 import vista.interfaces.VistaPrincipal;

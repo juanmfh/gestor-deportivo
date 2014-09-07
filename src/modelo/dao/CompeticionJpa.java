@@ -18,8 +18,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import modelo.dao.exceptions.IllegalOrphanException;
 import modelo.dao.exceptions.NonexistentEntityException;
-import java.util.Date;
-import modelo.entities.Grupo;
 
 /**
  *

@@ -1,7 +1,5 @@
 package modelo.dao;
 
-import controlador.ControlUsuarios;
-import controlador.InputException;
 import modelo.entities.RolUsuario;
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -14,13 +12,10 @@ import java.util.Collection;
 import modelo.entities.Administrado;
 import modelo.entities.Usuario;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.entities.Competicion;
 import modelo.dao.exceptions.IllegalOrphanException;
 import modelo.dao.exceptions.NonexistentEntityException;
 

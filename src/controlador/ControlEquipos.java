@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import modelo.entities.Equipo;
-import modelo.dao.EquipoJpa;
 import modelo.logicaNegocio.EquipoService;
 import vista.interfaces.VistaEquipos;
 

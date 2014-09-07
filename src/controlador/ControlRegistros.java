@@ -22,7 +22,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import modelo.entities.Competicion;
 import modelo.logicaNegocio.RegistroService;

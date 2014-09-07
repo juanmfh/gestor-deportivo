@@ -419,6 +419,7 @@ public class ControlPrincipal implements ActionListener {
      * @param grupo Nombre del grupo al que pertenecen los participantes
      * @param nombrePrueba Nombre de la prueba. Se utiliza para saber si es
      * individual o en equipo
+     * @param participantesAsignados
      */
     public void cargarParticipantesEnRegistros(String grupo, String nombrePrueba, boolean participantesAsignados) {
 
@@ -543,6 +544,7 @@ public class ControlPrincipal implements ActionListener {
      * @param competicion
      */
     public void actualizarVistaCompeticionModificada(Competicion competicion) {
+        
         vista.eliminarCompeticionSeleccionada();
         vista.añadirCompeticion(competicion.getNombre());
         vista.setFocusList(0);

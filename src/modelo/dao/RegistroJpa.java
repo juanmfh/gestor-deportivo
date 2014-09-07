@@ -1,9 +1,6 @@
 package modelo.dao;
 
-import controlador.InputException;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,10 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import modelo.entities.Competicion;
-import modelo.entities.Grupo;
-import modelo.entities.TipoPrueba;
-import modelo.entities.TipoResultado;
 import modelo.dao.exceptions.NonexistentEntityException;
 
 /**

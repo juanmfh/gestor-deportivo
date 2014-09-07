@@ -378,6 +378,7 @@ public class RegistrosTab extends javax.swing.JPanel implements VistaRegistros {
             public void actionPerformed(ActionEvent ae) {
                 if (getPrueba() != null) {
                     TipoResultado tr = Coordinador.getInstance().tipoResultado(getPrueba());
+                    
                     switch (tr) {
                         case Tiempo:
                             horaLabel.setVisible(true);
